@@ -1,0 +1,718 @@
+import { useState, useEffect, useRef } from 'react'
+
+/* ═══════════════════════════════════════════════════════════
+   DATA — Retailers, Categories, Seasons, Prices
+   ═══════════════════════════════════════════════════════════ */
+
+const RETAILERS = [
+  'ALDI Süd', 'ALDI Nord', 'Lidl', 'Kaufland',
+  'Netto', 'Penny', 'Norma',
+  'Edeka', 'Rewe',
+  'dm', 'Rossmann', 'Müller',
+]
+
+const CATEGORIES = {
+  'ALDI Süd': [
+    'DIY & Handwerk', 'Küche & Haushalt', 'Garten & Outdoor',
+    'Sport & Fitness', 'Spielzeug & Kinder', 'Elektronik & Technik',
+    'Wohnen & Deko', 'Textil & Mode', 'Beauty & Wellness',
+    'Lebensmittel & Saisonales',
+  ],
+  'ALDI Nord': [
+    'DIY & Handwerk', 'Küche & Haushalt', 'Garten & Outdoor',
+    'Sport & Fitness', 'Spielzeug & Kinder', 'Elektronik & Technik',
+    'Wohnen & Deko', 'Textil & Mode', 'Beauty & Wellness',
+    'Lebensmittel & Saisonales',
+  ],
+  'Lidl': [
+    'Parkside (Werkzeug & DIY)', 'Silvercrest (Haushaltselektronik)',
+    'Crivit (Sport & Fitness)', 'Livarno (Wohnen & Deko)',
+    'Esmara (Mode)', 'Lupilu (Baby & Kind)',
+    'Wochenkracher / Food', 'Themenwochen (Saisonal)',
+  ],
+  'Kaufland': [
+    'Nonfood-Aktionsware', 'Küche & Haushalt', 'Garten & Outdoor',
+    'Elektronik & Technik', 'Sport & Freizeit', 'Spielzeug & Kinder',
+    'Wohnen & Deko', 'Textil & Mode',
+  ],
+  'dm': [
+    'Naturkosmetik & Bio', 'Pflege & Beauty', 'Haushalt & Reinigung',
+    'Baby & Kind', 'Gesundheit & Wellness', 'DIY & Kreatives',
+    'Ernährung & Supplements',
+  ],
+  'Rossmann': [
+    'Pflege & Beauty', 'Haushalt & Reinigung', 'Baby & Kind',
+    'Gesundheit', 'Ernährung', 'Foto & Technik',
+  ],
+  'Müller': [
+    'Spielzeug & Kinder', 'Büro & Schule', 'Beauty & Pflege',
+    'Bücher & Medien', 'Haushalt', 'Saisonales',
+  ],
+  'Edeka': [
+    'Markenartikel-Promotion', 'Eigenmarken-Aktion', 'Bio & Regional',
+    'Themenwochen (Küche)', 'Drinks & Genuss', 'Snacks & Süßwaren',
+  ],
+  'Rewe': [
+    'Markenartikel-Promotion', 'Eigenmarken-Aktion', 'Bio & Regional',
+    'Themenwochen', 'Drinks & Genuss', 'Snacks & Süßwaren',
+  ],
+}
+
+const DEFAULT_CATEGORIES = [
+  'Küche & Haushalt', 'Garten & Outdoor', 'Sport & Freizeit',
+  'Spielzeug & Kinder', 'Elektronik & Technik', 'Wohnen & Deko',
+  'Textil & Mode', 'Beauty & Wellness', 'Food & Getränke', 'Saisonales',
+]
+
+const SEASONS = [
+  'Weihnachten', 'Ostern', 'Grillsaison', 'Muttertag / Vatertag',
+  'Schulanfang', 'Halloween', 'Valentinstag', 'Ganzjährig',
+]
+
+const PRICE_RANGES = [
+  'Unter 10 €', '10–20 €', '20–35 €', '35–50 €', '50–75 €', 'Über 75 €',
+]
+
+/* ═══════════════════════════════════════════════════════════
+   SEARCH FORM — Progressive Disclosure
+   ═══════════════════════════════════════════════════════════ */
+
+function SearchForm({ onSearch, loading }) {
+  const [mode, setMode]       = useState('initial') // 'initial' | 'guided' | 'custom'
+  const [retailer, setRetailer] = useState('')
+  const [category, setCategory] = useState('')
+  const [season, setSeason]   = useState('')
+  const [price, setPrice]     = useState('')
+  const [freeText, setFreeText] = useState('')
+  const freeRef = useRef(null)
+
+  const cats = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
+
+  const canSearch =
+    (mode === 'guided' && retailer && category) ||
+    ((mode === 'initial' || mode === 'custom') && freeText.trim().length > 3)
+
+  const handleRetailer = (val) => {
+    setRetailer(val)
+    setCategory('')
+    setSeason('')
+    setPrice('')
+    if (val) setMode('guided')
+  }
+
+  const handleCategory = (val) => {
+    setCategory(val)
+    setSeason('')
+    setPrice('')
+  }
+
+  const reset = () => {
+    setMode('initial')
+    setRetailer('')
+    setCategory('')
+    setSeason('')
+    setPrice('')
+    setFreeText('')
+  }
+
+  const handleFreeTextChange = (e) => {
+    setFreeText(e.target.value)
+    if (e.target.value.trim()) setMode('custom')
+    else setMode('initial')
+  }
+
+  const search = () => {
+    if (!canSearch || loading) return
+    if (mode === 'custom' || mode === 'initial') {
+      onSearch(freeText.trim())
+      return
+    }
+    let q = `Welche Produkte eignen sich für einen Aktions-Slot bei ${retailer}, Kategorie: ${category}`
+    if (season && season !== 'skip') q += `, Saison / Anlass: ${season}`
+    if (price  && price  !== 'skip') q += `, Ziel-VK Preisrahmen: ${price}`
+    q += '. Analysiere Markttrends, Discounter-Whitespace und Sell-through-Potenzial. Liefere konkrete Produktkonzepte mit Scores.'
+    onSearch(q)
+  }
+
+  const onKey = (e) => { if (e.key === 'Enter') search() }
+
+  return (
+    <div className="sf-wrap">
+
+      {/* ── STEP 1: Retailer ──────────────────────────────── */}
+      <div className="sf-block">
+        <p className="sf-label">Händler auswählen</p>
+        {retailer ? (
+          <div className="sf-pill-selected fade-in-up">
+            <span>{retailer}</span>
+            <button className="sf-pill-clear" onClick={() => handleRetailer('')}>✕</button>
+          </div>
+        ) : (
+          <div className="sf-select-wrap">
+            <select
+              className="sf-select"
+              value=""
+              onChange={e => handleRetailer(e.target.value)}
+            >
+              <option value="" disabled>Händler wählen …</option>
+              {RETAILERS.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+            <span className="sf-select-arrow">▾</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── DIVIDER + FREE TEXT — collapses when guided ───── */}
+      <div className={`sf-alt-wrap ${mode === 'guided' ? 'sf-alt-hidden' : ''}`}>
+        <div className="sf-divider"><span>oder</span></div>
+        <div className="sf-block">
+          <p className="sf-label">Eigene Anfrage eingeben</p>
+          <div className="sf-input-row">
+            <input
+              ref={freeRef}
+              className="sf-input"
+              value={freeText}
+              onChange={handleFreeTextChange}
+              onKeyDown={onKey}
+              placeholder="z. B. DIY-Geschenke Weihnachten Aldi Süd 25–35 €"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── STEP 2: Category ──────────────────────────────── */}
+      {mode === 'guided' && (
+        <div className="sf-block fade-in-up" key="cat-block">
+          <p className="sf-label">Aktions-Kategorie</p>
+          {category ? (
+            <div className="sf-pill-selected">
+              <span>{category}</span>
+              <button className="sf-pill-clear" onClick={() => handleCategory('')}>✕</button>
+            </div>
+          ) : (
+            <div className="sf-pills">
+              {cats.map(c => (
+                <button key={c} className="sf-pill" onClick={() => handleCategory(c)}>{c}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── STEP 3: Season ────────────────────────────────── */}
+      {mode === 'guided' && category && (
+        <div className="sf-block fade-in-up" key="season-block">
+          <p className="sf-label">
+            Saison / Anlass
+            <span className="sf-optional"> – optional</span>
+          </p>
+          {season ? (
+            <div className="sf-pill-selected">
+              <span>{season === 'skip' ? 'Keine Angabe' : season}</span>
+              <button className="sf-pill-clear" onClick={() => setSeason('')}>✕</button>
+            </div>
+          ) : (
+            <div className="sf-pills">
+              {SEASONS.map(s => (
+                <button key={s} className="sf-pill" onClick={() => setSeason(s)}>{s}</button>
+              ))}
+              <button className="sf-pill sf-pill-skip" onClick={() => setSeason('skip')}>
+                Überspringen →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── STEP 4: Price ─────────────────────────────────── */}
+      {mode === 'guided' && category && season && (
+        <div className="sf-block fade-in-up" key="price-block">
+          <p className="sf-label">
+            Ziel-VK Preisrahmen
+            <span className="sf-optional"> – optional</span>
+          </p>
+          {price ? (
+            <div className="sf-pill-selected">
+              <span>{price === 'skip' ? 'Keine Angabe' : price}</span>
+              <button className="sf-pill-clear" onClick={() => setPrice('')}>✕</button>
+            </div>
+          ) : (
+            <div className="sf-pills">
+              {PRICE_RANGES.map(p => (
+                <button key={p} className="sf-pill" onClick={() => setPrice(p)}>{p}</button>
+              ))}
+              <button className="sf-pill sf-pill-skip" onClick={() => setPrice('skip')}>
+                Überspringen →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── CTA ───────────────────────────────────────────── */}
+      {canSearch && (
+        <div className="sf-cta fade-in-up" key="cta">
+          <button
+            className="sf-search-btn"
+            onClick={search}
+            disabled={loading}
+          >
+            {loading ? 'Analysiert …' : 'Analysieren →'}
+          </button>
+        </div>
+      )}
+
+      {/* ── Reset ─────────────────────────────────────────── */}
+      {mode !== 'initial' && (
+        <div className="sf-reset">
+          <button className="sf-reset-btn" onClick={reset}>← Neu starten</button>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCORE BAR
+   ═══════════════════════════════════════════════════════════ */
+function ScoreBar({ label, value, colorClass, delay = 0 }) {
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(value), 120 + delay)
+    return () => clearTimeout(t)
+  }, [value, delay])
+  return (
+    <div className="score-row">
+      <span className="score-label">{label}</span>
+      <div className="score-track">
+        <div className={`score-fill ${colorClass}`} style={{ width: `${width}%` }} />
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRODUCT CARD
+   ═══════════════════════════════════════════════════════════ */
+function ProductCard({ concept, onSelect, index }) {
+  const tierClass = { top: 'card-top', growth: 'card-growth', caution: 'card-caution' }[concept.tier] || 'card-growth'
+  const tierLabelClass = { top: 'tier-top', growth: 'tier-growth', caution: 'tier-caution' }[concept.tier] || 'tier-growth'
+  return (
+    <div className={`product-card ${tierClass}`} onClick={() => onSelect(concept)}>
+      <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>
+      <p className="card-name">{concept.name}</p>
+      <p className="card-tagline">{concept.tagline}</p>
+      <div className="scores">
+        <ScoreBar label="Trend"        value={concept.scores.trend}       colorClass="score-fill-0" delay={index * 40} />
+        <ScoreBar label="Whitespace"   value={concept.scores.whitespace}  colorClass="score-fill-1" delay={index * 40 + 60} />
+        <ScoreBar label="Sell-through" value={concept.scores.sellthrough} colorClass="score-fill-2" delay={index * 40 + 120} />
+        <ScoreBar label="Umsetzbar"    value={concept.scores.feasibility} colorClass="score-fill-3" delay={index * 40 + 180} />
+      </div>
+      <p className="card-why">{concept.why}</p>
+      {concept.caveat && <p className="card-caveat">⚠ {concept.caveat}</p>}
+      <div className="card-price-row">
+        <span className="card-price">VK {concept.priceRange}</span>
+        <span className="card-ek">{concept.ekHint}</span>
+      </div>
+      <button className="card-cta" type="button" onClick={(e) => { e.stopPropagation(); onSelect(concept) }}>
+        Pitch-Konzept generieren →
+      </button>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PITCH DECK VIEW
+   ═══════════════════════════════════════════════════════════ */
+function PitchDeckView({ pitch, onBack }) {
+  if (!pitch) return null
+  const maxPrice = pitch.pricing?.competitors
+    ? Math.max(...pitch.pricing.competitors.map(c => c.price))
+    : 100
+
+  const renderPriceBar = (comp, i) => {
+    const pct = Math.round((comp.price / maxPrice) * 100)
+    return (
+      <div className="price-bar-row" key={i}>
+        <span className="price-bar-lbl" style={comp.isAldi ? { fontWeight: 700, color: 'var(--text)' } : {}}>
+          {comp.name}
+        </span>
+        <div className="price-bar-track">
+          <div className="price-bar-fill" style={{
+            width: `${pct}%`,
+            background: comp.isAldi ? 'var(--green)' : 'var(--violet)',
+            fontWeight: comp.isAldi ? 700 : 400,
+          }}>
+            {comp.channel}
+          </div>
+        </div>
+        <span className="price-bar-amount" style={comp.isAldi ? { color: 'var(--green)' } : {}}>
+          {comp.priceFormatted}
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="pitch-view">
+      <div className="pitch-topbar">
+        <button className="back-btn" onClick={onBack}>← Zurück zu den Konzepten</button>
+        <span className="pitch-badge">Pitch-Konzept · Aktionspilot</span>
+      </div>
+
+      <div className="pitch-header">
+        <p className="pitch-header-meta">01 — Positionierung</p>
+        <h1>{pitch.productName}</h1>
+        <p className="tagline" dangerouslySetInnerHTML={{ __html: pitch.tagline }} />
+        <div className="pitch-stat-row">
+          {pitch.stats?.map((s, i) => (
+            <div key={i} className={`pitch-stat ${s.accent ? 'accent' : ''}`}>
+              <p className="pitch-stat-label">{s.label}</p>
+              <p className="pitch-stat-value">{s.value}</p>
+              {s.sub && <p className="pitch-stat-sub">{s.sub}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {pitch.positioning && (
+        <section className="pitch-section">
+          <div className="ink-box">
+            {pitch.positioning.split('\n').filter(l => l.trim()).map((line, i) => (
+              <p key={i} dangerouslySetInnerHTML={{ __html: line }} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {pitch.specs?.length > 0 && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">02 — Produktsteckbrief</p>
+          <h2>Was das Produkt kann</h2>
+          <div className="card-wrap">
+            <table className="spec-table">
+              <tbody>
+                {pitch.specs.map((s, i) => (
+                  <tr key={i}>
+                    <td>{s.label}</td>
+                    <td>{s.value}{s.badge && <span className="spec-badge">{s.badge}</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {pitch.pricing && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">03 — Preisarchitektur & Marge</p>
+          <h2>Der Preis-Vorteil als Kernargument</h2>
+          <div className="price-bar-wrap">
+            {pitch.pricing.competitors?.map((c, i) => renderPriceBar(c, i))}
+          </div>
+          {pitch.pricing.consumerArg && (
+            <div className="arg-block forest" style={{ marginBottom: 16 }}>
+              <p className="arg-title">Argument für den Endkäufer</p>
+              <p className="arg-body">{pitch.pricing.consumerArg}</p>
+            </div>
+          )}
+          <div className="margin-grid">
+            <div className="margin-card">
+              <p className="mc-label">EK-Ziel (FOB, ≥ 80k Stück)</p>
+              <p className="mc-value">{pitch.pricing.ek}</p>
+              <p className="mc-sub">{pitch.pricing.ekNote}</p>
+            </div>
+            <div className="margin-card highlight">
+              <p className="mc-label">Aldi-Bruttohandelsspanne</p>
+              <p className="mc-value">{pitch.pricing.margin}</p>
+              <p className="mc-sub">Bei VK {pitch.pricing.vk}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {pitch.packaging && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">04 — Packaging-Konzept</p>
+          <h2>Die Verpackung als erstes Kaufargument</h2>
+          <div className="card-wrap">
+            <table className="pack-table">
+              <tbody>
+                {pitch.packaging.map((row, i) => (
+                  <tr key={i}><td>{row.label}</td><td>{row.value}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {pitch.sellthrough && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">05 — Sell-Through-Story</p>
+          <h2>Warum dreht das beim Aldi-Kunden?</h2>
+          {pitch.sellthrough.intro && <p>{pitch.sellthrough.intro}</p>}
+          {pitch.sellthrough.highlights?.map((h, i) => (
+            <div key={i} className={`arg-block ${i % 2 === 1 ? 'forest' : ''}`}>
+              <p className="arg-title">{h.title}</p>
+              <p className="arg-body">{h.body}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {pitch.arguments && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">06 — Einkäufer-Argumentation</p>
+          <h2>Die Argumente im Gespräch</h2>
+          {pitch.arguments.map((arg, i) => (
+            <div key={i} className="arg-block">
+              <p className="arg-title">{arg.title}</p>
+              <p className="arg-body">{arg.body}</p>
+            </div>
+          ))}
+          {pitch.buyerQA?.length > 0 && (
+            <>
+              <hr className="hr" />
+              <h3 style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-faint)', margin: '20px 0 12px' }}>
+                Was der Einkäufer fragen wird
+              </h3>
+              <div className="card-wrap">
+                <table className="qa-table">
+                  <tbody>
+                    {pitch.buyerQA.map((qa, i) => (
+                      <tr key={i}><td>„{qa.q}"</td><td>{qa.a}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </section>
+      )}
+
+      {pitch.risks && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">07 — Risiken & Mitigationen</p>
+          <h2>Ehrliche Bewertung</h2>
+          <table className="risk-table">
+            <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
+            <tbody>
+              {pitch.risks.map((r, i) => (
+                <tr key={i}>
+                  <td>{r.risk}</td>
+                  <td><span className={`pill pill-${r.level}`}>{{ high: 'Hoch', medium: 'Mittel', low: 'Niedrig' }[r.level] || r.level}</span></td>
+                  <td>{r.mitigation}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {pitch.timeline && (
+        <section className="pitch-section">
+          <p className="pitch-section-num">08 — Roadmap</p>
+          <h2>Von heute zum Aktionsstarter</h2>
+          <div className="timeline">
+            {pitch.timeline.map((tl, i) => (
+              <div key={i} className={`tl-item ${tl.active ? 'tl-active' : ''}`}>
+                <p className="tl-date">{tl.date}</p>
+                <p className="tl-title">{tl.title}</p>
+                <p className="tl-body">{tl.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {pitch.summary && (
+        <div className="ink-box">
+          <p><strong>Zusammenfassung für André / Wünsche Group</strong></p>
+          {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN APP
+   ═══════════════════════════════════════════════════════════ */
+export default function App() {
+  const [view, setView]               = useState('search')
+  const [cardsData, setCardsData]     = useState(null)
+  const [pitchData, setPitchData]     = useState(null)
+  const [pitchCache, setPitchCache]   = useState({})
+  const [selectedConcept, setSelected] = useState(null)
+  const [loading, setLoading]         = useState(false)
+  const [loadingPitch, setLoadingPitch] = useState(false)
+  const [error, setError]             = useState(null)
+
+  /* ── Generate Cards ──────────────────────────────────── */
+  const generateCards = async (query) => {
+    if (!query) return
+    setError(null)
+    setLoading(true)
+    setView('loading-cards')
+    try {
+      const res = await fetch('/api/generate-cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || `API error ${res.status}`)
+      }
+      const data = await res.json()
+      setCardsData(data)
+      setView('cards')
+    } catch (e) {
+      setError(e.message)
+      setView('search')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /* ── Generate Pitch ──────────────────────────────────── */
+  const generatePitch = async (concept) => {
+    if (pitchCache[concept.id]) {
+      setSelected(concept)
+      setPitchData(pitchCache[concept.id])
+      setView('pitch')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    setSelected(concept)
+    setError(null)
+    setLoadingPitch(true)
+    setView('loading-pitch')
+    try {
+      const res = await fetch('/api/generate-pitch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ concept, context: cardsData?.searchContext }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || `API error ${res.status}`)
+      }
+      const data = await res.json()
+      setPitchCache(prev => ({ ...prev, [concept.id]: data }))
+      setPitchData(data)
+      setView('pitch')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (e) {
+      setError(e.message)
+      setView('cards')
+    } finally {
+      setLoadingPitch(false)
+    }
+  }
+
+  const resetToSearch = () => {
+    setView('search')
+    setCardsData(null)
+    setPitchData(null)
+    setSelected(null)
+    setError(null)
+  }
+
+  return (
+    <div className="app-shell">
+      {/* Topbar */}
+      <header className="topbar">
+        <span className="topbar-logo" onClick={resetToSearch}>
+          Aktions<span>pilot</span>
+        </span>
+        <span className="topbar-meta">Jeder Slot. Immer gewonnen.</span>
+      </header>
+
+      <div className="main-content">
+
+        {/* ── SEARCH ── */}
+        {view === 'search' && (
+          <>
+            <div className="search-hero">
+              <h1>Welche Produkte gehören<br />in den nächsten <em>Aktions-Slot?</em></h1>
+              <p>Wähle einen Händler und lass dich Schritt für Schritt führen —<br />oder gib deine Anfrage direkt ein.</p>
+              <SearchForm onSearch={generateCards} loading={loading} />
+            </div>
+            {error && <div className="error-box">⚠ {error}</div>}
+          </>
+        )}
+
+        {/* ── LOADING CARDS ── */}
+        {view === 'loading-cards' && (
+          <div className="loading-wrap">
+            <div className="loading-spinner" />
+            <p className="loading-label">Markt wird analysiert …</p>
+            <p className="loading-sub">Trend-Daten, Whitespace, Sell-through-Einschätzung</p>
+          </div>
+        )}
+
+        {/* ── CARDS ── */}
+        {view === 'cards' && cardsData && (
+          <>
+            <div className="results-header">
+              <div>
+                <p className="results-context">{cardsData.retailer} · {cardsData.season}</p>
+                <h2 className="results-title">{cardsData.searchContext}</h2>
+              </div>
+              <button className="new-search-btn" onClick={resetToSearch}>Neue Anfrage</button>
+            </div>
+            {error && <div className="error-box">⚠ {error}</div>}
+            <div className="legend">
+              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-1)' }} /><span>Trend 2025/26</span></div>
+              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-2)' }} /><span>Discounter-Whitespace</span></div>
+              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-3)' }} /><span>Sell-through (Aldi-Kunde)</span></div>
+              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-4)' }} /><span>Pitch-Reife / Umsetzbarkeit</span></div>
+            </div>
+            <div className="cards-grid">
+              {cardsData.concepts?.map((concept, i) => (
+                <ProductCard key={concept.id || i} concept={concept} onSelect={generatePitch} index={i} />
+              ))}
+            </div>
+            {cardsData.excluded?.length > 0 && (
+              <div className="excluded-section">
+                <p className="excluded-title">Ausschluss — bereits Discounter-Standard, kein Whitespace</p>
+                <div className="excluded-grid">
+                  {cardsData.excluded.map((ex, i) => (
+                    <div key={i} className="excluded-item">
+                      <p className="excl-name"><span className="excl-x">✗</span>{ex.name}</p>
+                      <p className="excl-reason">{ex.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── LOADING PITCH ── */}
+        {view === 'loading-pitch' && (
+          <div className="pitch-loading">
+            <div className="loading-spinner" />
+            <p className="pitch-loading-label">Pitch-Konzept wird generiert …</p>
+            <p className="pitch-loading-sub">{selectedConcept?.name} · Specs · Preisarchitektur · Roadmap</p>
+          </div>
+        )}
+
+        {/* ── PITCH ── */}
+        {view === 'pitch' && pitchData && (
+          <PitchDeckView
+            pitch={pitchData}
+            onBack={() => { setView('cards'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+          />
+        )}
+
+      </div>
+    </div>
+  )
+}
