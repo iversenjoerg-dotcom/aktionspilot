@@ -56,11 +56,17 @@
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--font);
-  background: var(--bg);
   color: var(--text);
   font-size: 15px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  background-color: #F5F6FA;
+  background-image:
+    radial-gradient(ellipse at 12% 45%, rgba(97,97,255,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 12%, rgba(255,208,47,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 85%, rgba(97,97,255,0.04) 0%, transparent 45%),
+    radial-gradient(circle, #C4CDD8 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
 }
 
 /* ── Shell ─────────────────────────────────────────────── */
@@ -148,7 +154,7 @@ body {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
-  color: var(--text-faint);
+  color: #6B7280; /* WCAG AA: 4.6:1 gegen Weiß ✓ */
   font-size: 11px;
 }
 
@@ -263,8 +269,8 @@ body {
 .sf-divider {
   display: flex; align-items: center; gap: 14px;
   margin: 20px 0;
-  font-size: 12px; font-weight: 500;
-  color: var(--text-faint);
+  font-size: 12px; font-weight: 600;
+  color: #4B5563; /* WCAG AA: 7.2:1 gegen Weiß ✓ */
 }
 .sf-divider::before,
 .sf-divider::after {
@@ -327,8 +333,8 @@ body {
 .sf-reset-btn {
   background: none; border: none;
   font-family: var(--font);
-  font-size: 12px; font-weight: 500;
-  color: var(--text-faint);
+  font-size: 12px; font-weight: 600;
+  color: #374151; /* WCAG AA: 10.7:1 gegen Weiß ✓ */
   cursor: pointer;
   padding: 4px 8px;
   transition: color .15s;

@@ -89,7 +89,7 @@ function SearchForm({ onSearch, loading }) {
   const cats = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
 
   const canSearch =
-    (mode === 'guided' && retailer && category) ||
+    (mode === 'guided' && retailer && category && season && price) ||
     ((mode === 'initial' || mode === 'custom') && freeText.trim().length > 3)
 
   const handleRetailer = (val) => {
@@ -217,7 +217,7 @@ function SearchForm({ onSearch, loading }) {
                 <button key={s} className="sf-pill" onClick={() => setSeason(s)}>{s}</button>
               ))}
               <button className="sf-pill sf-pill-skip" onClick={() => setSeason('skip')}>
-                Überspringen →
+                Überspringen
               </button>
             </div>
           )}
@@ -242,7 +242,7 @@ function SearchForm({ onSearch, loading }) {
                 <button key={p} className="sf-pill" onClick={() => setPrice(p)}>{p}</button>
               ))}
               <button className="sf-pill sf-pill-skip" onClick={() => setPrice('skip')}>
-                Überspringen →
+                Überspringen
               </button>
             </div>
           )}
@@ -265,7 +265,7 @@ function SearchForm({ onSearch, loading }) {
       {/* ── Reset ─────────────────────────────────────────── */}
       {mode !== 'initial' && (
         <div className="sf-reset">
-          <button className="sf-reset-btn" onClick={reset}>← Neu starten</button>
+          <button className="sf-reset-btn" onClick={reset}>← Zurück</button>
         </div>
       )}
 
@@ -640,8 +640,8 @@ export default function App() {
         {view === 'search' && (
           <>
             <div className="search-hero">
-              <h1>Welche Produkte gehören<br />in den nächsten <em>Aktions-Slot?</em></h1>
-              <p>Wähle einen Händler und lass dich Schritt für Schritt führen —<br />oder gib deine Anfrage direkt ein.</p>
+              <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
+              <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und fertigem Pitch-Deck.</p>
               <SearchForm onSearch={generateCards} loading={loading} />
             </div>
             {error && <div className="error-box">⚠ {error}</div>}
