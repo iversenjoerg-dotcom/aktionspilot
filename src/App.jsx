@@ -78,12 +78,13 @@ const PRICE_RANGES = [
    ═══════════════════════════════════════════════════════════ */
 
 function SearchForm({ onSearch, loading }) {
-  const [mode, setMode]       = useState('initial') // 'initial' | 'guided' | 'custom'
+  const [mode, setMode]         = useState('initial')
   const [retailer, setRetailer] = useState('')
   const [category, setCategory] = useState('')
-  const [season, setSeason]   = useState('')
-  const [price, setPrice]     = useState('')
+  const [season, setSeason]     = useState('')
+  const [price, setPrice]       = useState('')
   const [freeText, setFreeText] = useState('')
+  const [deepAnalysis, setDeepAnalysis] = useState(false)
   const freeRef = useRef(null)
 
   const cats = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
@@ -124,14 +125,14 @@ function SearchForm({ onSearch, loading }) {
   const search = () => {
     if (!canSearch || loading) return
     if (mode === 'custom' || mode === 'initial') {
-      onSearch(freeText.trim())
+      onSearch(freeText.trim(), deepAnalysis)
       return
     }
     let q = `Welche Produkte eignen sich für einen Aktions-Slot bei ${retailer}, Kategorie: ${category}`
     if (season && season !== 'skip') q += `, Saison / Anlass: ${season}`
     if (price  && price  !== 'skip') q += `, Ziel-VK Preisrahmen: ${price}`
     q += '. Analysiere Markttrends, Discounter-Whitespace und Sell-through-Potenzial. Liefere konkrete Produktkonzepte mit Scores.'
-    onSearch(q)
+    onSearch(q, deepAnalysis)
   }
 
   const onKey = (e) => { if (e.key === 'Enter') search() }
@@ -248,6 +249,27 @@ function SearchForm({ onSearch, loading }) {
           )}
         </div>
       )}
+
+      {/* ── Analysis Depth Toggle ─────────────────────────── */}
+      <div className="sf-block sf-depth-wrap">
+        <p className="sf-label">Analysetiefe</p>
+        <div className="sf-depth-options">
+          <label className={`sf-depth-opt ${!deepAnalysis ? 'selected' : ''}`}>
+            <input type="radio" name="depth" checked={!deepAnalysis} onChange={() => setDeepAnalysis(false)} />
+            <div>
+              <span className="sf-depth-title">Schnellanalyse</span>
+              <span className="sf-depth-desc">Marktlücken & Konkurrenz. ~10 Sek.</span>
+            </div>
+          </label>
+          <label className={`sf-depth-opt ${deepAnalysis ? 'selected' : ''}`}>
+            <input type="radio" name="depth" checked={deepAnalysis} onChange={() => setDeepAnalysis(true)} />
+            <div>
+              <span className="sf-depth-title">Tiefenanalyse</span>
+              <span className="sf-depth-desc">inkl. Trendquellen, Social Signals & internationale Händler-Launches. ~25 Sek.</span>
+            </div>
+          </label>
+        </div>
+      </div>
 
       {/* ── CTA ───────────────────────────────────────────── */}
       {canSearch && (
@@ -554,7 +576,7 @@ export default function App() {
   const [error, setError]             = useState(null)
 
   /* ── Generate Cards ──────────────────────────────────── */
-  const generateCards = async (query) => {
+  const generateCards = async (query, deepAnalysis = false) => {
     if (!query) return
     setError(null)
     setLoading(true)
@@ -563,7 +585,7 @@ export default function App() {
       const res = await fetch('/api/generate-cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, deepAnalysis }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -653,7 +675,7 @@ export default function App() {
           <div className="loading-wrap">
             <div className="loading-spinner" />
             <p className="loading-label">Markt wird analysiert …</p>
-            <p className="loading-sub">Trend-Daten, Whitespace, Sell-through-Einschätzung</p>
+            <p className="loading-sub">Trend-Daten · Whitespace · Sell-through-Einschätzung · Webrecherche</p>
           </div>
         )}
 

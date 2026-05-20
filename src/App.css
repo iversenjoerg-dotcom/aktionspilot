@@ -18,16 +18,16 @@
   --yellow-dark:   #F0BE00;
   --yellow-light:  #FFF8D6;
 
-  --bg:            #F5F6FA;
+  --bg:            #F8F9FF;
   --bg-white:      #FFFFFF;
-  --bg-subtle:     #F0F1F7;
-  --border:        #E5E7EB;
-  --border-mid:    #D1D5DB;
+  --bg-subtle:     #EEF0F8;
+  --border:        #E2E5EF;
+  --border-mid:    #CDD1E0;
 
   --text:          #111827;
   --text-soft:     #374151;
-  --text-muted:    #6B7280;
-  --text-faint:    #9CA3AF;
+  --text-muted:    #4B5563;
+  --text-faint:    #71717A; /* WCAG AA: 4.9:1 auf Weiß ✓ */
 
   --score-1: #3B82F6;
   --score-2: #6161FF;
@@ -60,12 +60,12 @@ body {
   font-size: 15px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
-  background-color: #F5F6FA;
+  background-color: #F8F9FF;
   background-image:
-    radial-gradient(ellipse at 12% 45%, rgba(97,97,255,0.07) 0%, transparent 55%),
-    radial-gradient(ellipse at 88% 12%, rgba(255,208,47,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse at 60% 85%, rgba(97,97,255,0.04) 0%, transparent 45%),
-    radial-gradient(circle, #C4CDD8 1px, transparent 1px);
+    radial-gradient(ellipse at 12% 45%, rgba(97,97,255,0.055) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 12%, rgba(255,208,47,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 85%, rgba(97,97,255,0.035) 0%, transparent 45%),
+    radial-gradient(circle, #C8D0E0 1px, transparent 1px);
   background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
 }
 
@@ -324,7 +324,58 @@ body {
 .sf-search-btn:active { transform: scale(.99); }
 .sf-search-btn:disabled { background: var(--text-faint); box-shadow: none; cursor: not-allowed; }
 
-/* Reset link */
+/* ── Analysis Depth Toggle ─────────────────────────────── */
+.sf-depth-wrap { margin-top: 8px; }
+
+.sf-depth-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-depth-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  box-shadow: var(--shadow-xs);
+}
+
+.sf-depth-opt input[type="radio"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  accent-color: var(--violet);
+  cursor: pointer;
+}
+
+.sf-depth-opt.selected {
+  border-color: var(--violet);
+  background: var(--violet-muted);
+}
+
+.sf-depth-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.sf-depth-desc {
+  display: block;
+  font-size: 12px;
+  color: #4B5563;
+  line-height: 1.45;
+}
+
+/* ── Reset link ────────────────────────────────────────── */
 .sf-reset {
   text-align: center;
   margin-top: 16px;
