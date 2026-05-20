@@ -296,6 +296,64 @@ function SearchForm({ onSearch, loading }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   ACCESS MODAL
+   ═══════════════════════════════════════════════════════════ */
+function AccessModal({ onSuccess }) {
+  const [code, setCode]   = useState('')
+  const [error, setError] = useState('')
+
+  const ACCESS_CODE = import.meta.env.VITE_ACCESS_CODE || 'aktionspilot2026'
+
+  const handleSubmit = () => {
+    if (code.trim() === ACCESS_CODE) {
+      onSuccess()
+    } else {
+      setError('Ungültiger Zugangscode. Bitte versuche es erneut.')
+      setCode('')
+    }
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <div className="modal-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h2 className="modal-title">Geschlossene Beta</h2>
+        <p className="modal-desc">
+          Aktionspilot befindet sich in aktiver Entwicklung.
+          Der Zugang zur Analyse-Funktion ist derzeit nur
+          ausgewählten Personen zugänglich.
+        </p>
+        <input
+          className="modal-input"
+          type="password"
+          placeholder="Zugangscode eingeben"
+          value={code}
+          onChange={e => { setCode(e.target.value); setError('') }}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+          autoFocus
+        />
+        {error && <p className="modal-error">{error}</p>}
+        <button className="modal-btn" onClick={handleSubmit}>
+          Anmelden →
+        </button>
+        <div className="modal-divider" />
+        <a
+          className="modal-request"
+          href="mailto:hallo@joergiversen.de?subject=Aktionspilot%20%E2%80%94%20Zugangscode%20anfordern&body=Ich%20m%C3%B6chte%20gerne%20Aktionspilot%20testen%20und%20bitte%20um%20einen%20Zugangscode."
+        >
+          Noch keinen Zugang? Zugang beantragen
+        </a>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
    HOW IT WORKS
    ═══════════════════════════════════════════════════════════ */
 function HowItWorks() {
@@ -684,6 +742,12 @@ export default function App() {
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
   const [error, setError]             = useState(null)
+  const [showAccessModal, setShowAccessModal] = useState(false)
+  const [pendingQuery, setPendingQuery]       = useState(null)
+  const [pendingDeep, setPendingDeep]         = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    localStorage.getItem('ap_auth') === '1'
+  )
 
   // Browser back/forward button support
   useEffect(() => {
@@ -702,8 +766,32 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePop)
   }, [])
 
+  /* ── Auth gate ───────────────────────────────────────── */
+  const generateCards = (query, deepAnalysis = false) => {
+    if (!isAuthenticated) {
+      setPendingQuery(query)
+      setPendingDeep(deepAnalysis)
+      setShowAccessModal(true)
+      return
+    }
+    runGenerateCards(query, deepAnalysis)
+  }
+
+  const handleAccessGranted = () => {
+    localStorage.setItem('ap_auth', '1')
+    setIsAuthenticated(true)
+    setShowAccessModal(false)
+    if (pendingQuery) {
+      const q = pendingQuery
+      const d = pendingDeep
+      setPendingQuery(null)
+      setPendingDeep(false)
+      runGenerateCards(q, d)
+    }
+  }
+
   /* ── Generate Cards ──────────────────────────────────── */
-  const generateCards = async (query, deepAnalysis = false) => {
+  const runGenerateCards = async (query, deepAnalysis = false) => {
     if (!query) return
     setError(null)
     setLoading(true)
@@ -778,6 +866,8 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {showAccessModal && <AccessModal onSuccess={handleAccessGranted} />}
+
       {/* Topbar */}
       <header className="topbar">
         <span className="topbar-logo" onClick={resetToSearch}>
