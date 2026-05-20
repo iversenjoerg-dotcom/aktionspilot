@@ -1,8 +1,8 @@
 // api/generate-cards.js
-// Vercel serverless function — keeps the Anthropic API key server-side
+// Vercel serverless function — Schnell- und Tiefenanalyse mit optionaler Webrecherche
 
-const SYSTEM_PROMPT = `Du bist ein erfahrener Retail-Stratege für den deutschen Lebensmittelhandel (LEH).
-Du analysierst Produktkategorien für Aktions-Slots bei deutschen Discountern (Aldi Süd, Lidl, Kaufland, Netto).
+const SYSTEM_BASE = `Du bist ein erfahrener Retail-Stratege für den deutschen Lebensmittelhandel (LEH).
+Du analysierst Produktkategorien für Aktions-Slots bei deutschen Discountern (Aldi Süd, Lidl, Kaufland, Netto etc.).
 Du kennst Aktionsplanung, Vorlaufzeiten (6–12 Monate für Nonfood), Whitespace-Analyse und Sell-through-Faktoren aus der Praxis.
 
 Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt. Kein Text davor, kein Text danach, keine Markdown-Backticks.
@@ -28,47 +28,53 @@ JSON-Schema (halte dich exakt daran):
       },
       "priceRange": "27–32 €",
       "ekHint": "EK ca. 6–8 € (China-OEM)",
-      "why": "2–3 Sätze warum dieses Produkt jetzt in diesen Slot passt. Konkret, nicht generisch.",
-      "caveat": "Wichtigster Vorbehalt, Compliance-Hinweis oder Risiko (max. 1 Satz)"
+      "why": "2–3 Sätze warum dieses Produkt jetzt in diesen Slot passt. Konkret, mit echten Daten aus der Webrecherche wo verfügbar.",
+      "caveat": "Wichtigster Vorbehalt (max. 1 Satz)"
     }
   ],
   "excluded": [
     {
       "name": "Produktname",
-      "reason": "Warum ausgeschlossen (z.B. bereits Standard bei Aldi/Lidl)"
+      "reason": "Warum ausgeschlossen"
     }
   ]
 }
 
-Regeln für "tier":
-- "top"     → tierLabel "⭐ Top-Pick"      (Gesamtbewertung stark, klar empfehlen)
-- "growth"  → tierLabel "📈 Wachstum"      (Wachstum gut, aber Hürde vorhanden)
-- "caution" → tierLabel "⚠ Hürden prüfen" (Interessant, aber komplexe Compliance oder Sell-through-Risiko)
+Regeln für tier: "top" → "⭐ Top-Pick" | "growth" → "📈 Wachstum" | "caution" → "⚠ Hürden prüfen"
+Scores: Ganzzahlen 0–100, realistisch differenziert.
+Generiere 5–7 Konzepte (beste zuerst) + 3–5 Ausschlüsse.`
 
-Scores sind Ganzzahlen 0–100. Realistisch und differenziert — nicht alle 85+.
+const SEARCH_QUICK = `
+Führe 2–3 gezielte Websuchen durch bevor du antwortest:
+1. Ob dieser Händler in den letzten 3 Jahren ein ähnliches Produkt im Aktionssortiment hatte (z.B. via marktguru.de, kaufda.de)
+2. Aktuelle Amazon DE Bestseller in dieser Kategorie (Bewertungsanzahl als Sell-through-Signal)
+3. Was Konkurrenz-Discounter in dieser Kategorie aktuell anbieten (Aldi Nord vs. Süd, Lidl)
 
-Generiere:
-- 5–7 Konzepte, sortiert nach Gesamtpotenzial (beste zuerst)
-- 3–5 explizite Ausschlüsse (Produkte, die bereits Standard im Discounter sind)
+Zitiere konkrete Fundstellen in deinen Begründungen.`
 
-Für jeden Konzept: Sei konkret und produktspezifisch, nicht generisch.
-Berücksichtige: Aldi/Lidl-Aktionslogik (kein WLAN-Zwang für Kinder-Elektronik → DSGVO-Vorteil), Compliance (CE, EN 71, IFRA etc.), Asien-Sourcing-Realität.`
+const SEARCH_DEEP = `
+Führe 5–7 gezielte Websuchen durch bevor du antwortest:
+1. Ob dieser Händler in den letzten 3 Jahren ein ähnliches Produkt im Aktionssortiment hatte (marktguru.de, kaufda.de, Händler-Prospektarchive)
+2. Ob Aldi UK, Aldi Australien, Aldi USA oder Lidl international das Produkt bereits gelistet haben — das zeigt bewährtes Potenzial ohne DACH-Whitespace zu verringern (Beispiel: Mushroom Grow Box bei Aldi Australia 2024)
+3. Aktuelle Amazon DE Bestseller und Bewertungsanzahl als Sell-through-Signal
+4. Trendberichte von marktguru, EHI oder NielsenIQ zur Kategorie
+5. Social-Media-Signale: TikTok-Trends, Pinterest und Instagram zur Kategorie — bewerte ob das Publikum zum Händler-Kunden passt (z.B. Aldi-Käufer 30–55 Jahre)
+6. Für Food/Saisonal: aktuelle Lebensmittelzeitung-Berichte
+7. Für Spielzeug/Elektronik: Spielwarenmesse-Trends, aktuelle Toy-Trendberichte (NPD, Spielzeug-Industrie)
+
+Zitiere konkrete Fundstellen mit Jahr in deinen Begründungen (z.B. "Aldi Australia listete X in 2024").
+Nutze echte Daten um Scores und Pitch-Argumente zu belegen.`
 
 module.exports = async function handler(req, res) {
-  // Only allow POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
-  }
+  if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
 
-  const { query } = req.body
-  if (!query || typeof query !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid query' })
-  }
+  const { query, deepAnalysis } = req.body
+  if (!query || typeof query !== 'string') return res.status(400).json({ error: 'Missing or invalid query' })
+
+  const systemPrompt = SYSTEM_BASE + (deepAnalysis ? SEARCH_DEEP : SEARCH_QUICK)
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -81,7 +87,8 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: query }],
       }),
     })
@@ -93,12 +100,18 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await response.json()
-    const rawText = data.content?.[0]?.text || ''
 
-    // Extract JSON robustly (handles accidental markdown fences)
+    // Extract text from content blocks (web search adds tool_use/tool_result blocks)
+    const textBlock = data.content?.find(block => block.type === 'text')
+    const rawText = textBlock?.text || ''
+
     let jsonStr = rawText.trim()
     const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]+?)\s*```/)
     if (fenceMatch) jsonStr = fenceMatch[1]
+
+    // Find JSON object in text
+    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
+    if (jsonMatch) jsonStr = jsonMatch[0]
 
     let parsed
     try {
