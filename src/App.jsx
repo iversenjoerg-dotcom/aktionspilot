@@ -905,7 +905,7 @@ export default function App() {
             <div className="search-hero">
               <img src="/logo.png" alt="Aktionspilot" className="hero-logo" />
               <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
-              <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und fertigem Pitch-Deck.</p>
+              <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und strukturiertem Pitchdeck-Material.</p>
               <SearchForm onSearch={generateCards} loading={loading} />
             </div>
             {error && <div className="error-box">⚠ {error}</div>}
