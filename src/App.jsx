@@ -371,7 +371,6 @@ function Footer({ onImpressum }) {
 function ImpressumView({ onBack }) {
   return (
     <div className="impressum-view">
-      <button className="back-btn" style={{ marginBottom: 32 }} onClick={onBack}>← Zurück</button>
       <h1 className="impressum-title">Impressum</h1>
       <p className="impressum-intro">Angaben gemäß § 5 TMG</p>
 
@@ -686,6 +685,23 @@ export default function App() {
   const [loadingPitch, setLoadingPitch] = useState(false)
   const [error, setError]             = useState(null)
 
+  // Browser back/forward button support
+  useEffect(() => {
+    const handlePop = () => {
+      if (window.location.hash === '#impressum') {
+        setView('impressum')
+      } else {
+        setView('search')
+        setCardsData(null)
+        setPitchData(null)
+        setSelected(null)
+        setError(null)
+      }
+    }
+    window.addEventListener('popstate', handlePop)
+    return () => window.removeEventListener('popstate', handlePop)
+  }, [])
+
   /* ── Generate Cards ──────────────────────────────────── */
   const generateCards = async (query, deepAnalysis = false) => {
     if (!query) return
@@ -755,6 +771,9 @@ export default function App() {
     setPitchData(null)
     setSelected(null)
     setError(null)
+    if (window.location.hash) {
+      window.history.pushState({}, '', window.location.pathname)
+    }
   }
 
   return (
@@ -853,7 +872,10 @@ export default function App() {
 
       {view === 'search' && <HowItWorks />}
 
-      <Footer onImpressum={() => setView('impressum')} />
+      <Footer onImpressum={() => {
+        setView('impressum')
+        window.history.pushState({}, '', '#impressum')
+      }} />
     </div>
   )
 }

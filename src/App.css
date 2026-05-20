@@ -108,7 +108,7 @@ body {
 }
 
 /* ── Search Hero ───────────────────────────────────────── */
-.search-hero { padding: 72px 0 56px; text-align: center; }
+.search-hero { padding: 72px 0 28px; text-align: center; }
 
 .search-hero h1 {
   font-family: var(--font); font-size: 48px; font-weight: 700;
@@ -122,6 +122,8 @@ body {
   background-clip: text;
   font-style: italic;
   font-weight: 800;
+  padding-right: 6px; /* prevents italic overhang from clipping */
+  display: inline-block;
 }
 
 .search-hero p {
@@ -738,7 +740,7 @@ body {
 .how-section {
   width: 100%;
   padding: 80px 0 72px;
-  margin-top: 56px;
+  margin-top: 20px;
   background: linear-gradient(145deg, #0D1B2A 0%, #1A1050 55%, #0F1E3D 100%);
   position: relative;
   overflow: hidden;
