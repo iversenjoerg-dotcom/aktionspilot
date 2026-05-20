@@ -303,12 +303,12 @@ function HowItWorks() {
     {
       num: '01',
       title: 'Händler & Kategorie eingeben',
-      desc: 'Wähle den Händler, die Aktionskategorie und den Preisrahmen. Aktionspilot kennt die Sortimentswelten jedes Händlers — von Lidls Parkside bis zu dm Beauty.',
+      desc: 'Wähle den Händler, die Aktionskategorie und den Preisrahmen. Aktionspilot kennt die Sortimentsvorgaben und Aktionslogik jedes Händlers im Detail.',
     },
     {
       num: '02',
       title: 'KI recherchiert live',
-      desc: 'Das Tool durchsucht automatisch Aktionsarchive der letzten 3 Jahre, Amazon-Bestseller, internationale Aldi- und Lidl-Launches sowie Trend-Signale aus TikTok, Pinterest und Branchenberichten.',
+      desc: 'Das Tool durchsucht automatisch Aktionsarchive der vergangenen Jahre, Amazon-Bestseller, erfolgreiche internationale Produkt-Launches sowie aktuelle Trend-Signale aus TikTok, Pinterest und Branchenberichten.',
     },
     {
       num: '03',
@@ -317,19 +317,19 @@ function HowItWorks() {
     },
     {
       num: '04',
-      title: 'Pitch-Deck auf Knopfdruck',
-      desc: 'Ein Klick generiert ein vollständiges Pitch-Konzept: Produktspezifikation, Preisarchitektur, Margenberechnung, Einkäufer-Argumentation und Roadmap. Direkt präsentationsfertig.',
+      title: 'Pitch-Briefing auf Knopfdruck',
+      desc: 'Ein Klick generiert ein vollständiges Pitch-Briefing als Arbeitsgrundlage: Produktspezifikation, Preisarchitektur, Margenberechnung, Einkäufer-Argumentation und Roadmap.',
     },
   ]
 
   return (
     <section className="how-section">
       <div className="how-header">
-        <p className="how-eyebrow">So funktioniert Aktionspilot</p>
-        <h2 className="how-title">Der Slot ist gewonnen,<br />bevor der Pitch beginnt.</h2>
+        <p className="how-eyebrow">Kurz erklärt</p>
+        <h2 className="how-title">So funktioniert<br />der Aktionspilot.</h2>
         <p className="how-subtitle">
-          Aktionspilot ersetzt Wochen manueller Marktrecherche durch KI-gestützte Analyse
-          mit echten Webdaten — und liefert ein druckfertiges Pitch-Konzept in unter 60 Sekunden.
+          Aktionspilot bringt die Marktrecherche auf ein neues Level — mit KI-gestützter Analyse,
+          echten Webdaten und strukturiertem Pitch-Material als Arbeitsgrundlage für Ihr Team.
         </p>
       </div>
 
