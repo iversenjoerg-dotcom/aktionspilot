@@ -87,11 +87,12 @@ function SearchForm({ onSearch, loading }) {
   const [deepAnalysis, setDeepAnalysis] = useState(false)
   const freeRef = useRef(null)
 
-  const cats = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
+  const cats     = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
+  const wordCount = freeText.trim() ? freeText.trim().split(/\s+/).length : 0
 
   const canSearch =
     (mode === 'guided' && retailer && category && season && price) ||
-    ((mode === 'initial' || mode === 'custom') && freeText.trim().length > 3)
+    ((mode === 'initial' || mode === 'custom') && wordCount >= 3)
 
   const handleRetailer = (val) => {
     setRetailer(val)
@@ -140,48 +141,48 @@ function SearchForm({ onSearch, loading }) {
   return (
     <div className="sf-wrap">
 
-      {/* ── STEP 1: Retailer ──────────────────────────────── */}
-      <div className="sf-block">
-        <p className="sf-label">Händler auswählen</p>
-        {retailer ? (
-          <div className="sf-pill-selected fade-in-up">
-            <span>{retailer}</span>
-            <button className="sf-pill-clear" onClick={() => handleRetailer('')}>✕</button>
-          </div>
-        ) : (
-          <div className="sf-select-wrap">
-            <select
-              className="sf-select"
-              value=""
-              onChange={e => handleRetailer(e.target.value)}
-            >
-              <option value="" disabled>Händler wählen …</option>
-              {RETAILERS.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
-            <span className="sf-select-arrow">▾</span>
-          </div>
-        )}
-      </div>
-
-      {/* ── DIVIDER + FREE TEXT — collapses when guided ───── */}
-      <div className={`sf-alt-wrap ${mode === 'guided' ? 'sf-alt-hidden' : ''}`}>
-        <div className="sf-divider"><span>oder</span></div>
+      {/* ── STEP 1: Retailer — hides when custom ─────────── */}
+      <div className={`sf-section ${mode === 'custom' ? 'sf-section-hidden' : ''}`}>
         <div className="sf-block">
-          <p className="sf-label">Eigene Anfrage eingeben</p>
-          <div className="sf-input-row">
-            <input
-              ref={freeRef}
-              className="sf-input"
-              value={freeText}
-              onChange={handleFreeTextChange}
-              onKeyDown={onKey}
-              placeholder="z. B. DIY-Geschenke Weihnachten Aldi Süd 25–35 €"
-            />
-          </div>
+          <p className="sf-label">Händler auswählen</p>
+          {retailer ? (
+            <div className="sf-pill-selected fade-in-up">
+              <span>{retailer}</span>
+              <button className="sf-pill-clear" onClick={() => handleRetailer('')}>✕</button>
+            </div>
+          ) : (
+            <div className="sf-select-wrap">
+              <select className="sf-select" value="" onChange={e => handleRetailer(e.target.value)}>
+                <option value="" disabled>Händler wählen …</option>
+                {RETAILERS.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <span className="sf-select-arrow">▾</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── STEP 2: Category ──────────────────────────────── */}
+      {/* ── DIVIDER — only when initial ──────────────────── */}
+      <div className={`sf-section sf-divider-section ${mode !== 'initial' ? 'sf-section-hidden' : ''}`}>
+        <div className="sf-divider"><span>oder</span></div>
+      </div>
+
+      {/* ── FREE TEXT — hides when guided ────────────────── */}
+      <div className={`sf-section ${mode === 'guided' ? 'sf-section-hidden' : ''}`}>
+        <div className="sf-block">
+          <p className="sf-label">Eigene Anfrage eingeben</p>
+          <input
+            ref={freeRef}
+            className="sf-input"
+            value={freeText}
+            onChange={handleFreeTextChange}
+            onKeyDown={onKey}
+            placeholder="z. B. DIY-Geschenke Weihnachten Aldi Süd 25–35 €"
+          />
+        </div>
+      </div>
+
+      {/* ── GUIDED: Category ─────────────────────────────── */}
       {mode === 'guided' && (
         <div className="sf-block fade-in-up" key="cat-block">
           <p className="sf-label">Aktions-Kategorie</p>
@@ -200,7 +201,7 @@ function SearchForm({ onSearch, loading }) {
         </div>
       )}
 
-      {/* ── STEP 3: Season ────────────────────────────────── */}
+      {/* ── GUIDED: Season ───────────────────────────────── */}
       {mode === 'guided' && category && (
         <div className="sf-block fade-in-up" key="season-block">
           <p className="sf-label">
@@ -210,22 +211,20 @@ function SearchForm({ onSearch, loading }) {
           {season ? (
             <div className="sf-pill-selected">
               <span>{season === 'skip' ? 'Keine Angabe' : season}</span>
-              <button className="sf-pill-clear" onClick={() => setSeason('')}>✕</button>
+              <button className="sf-pill-clear" onClick={() => { setSeason(''); setPrice(''); }}>✕</button>
             </div>
           ) : (
             <div className="sf-pills">
               {SEASONS.map(s => (
                 <button key={s} className="sf-pill" onClick={() => setSeason(s)}>{s}</button>
               ))}
-              <button className="sf-pill sf-pill-skip" onClick={() => setSeason('skip')}>
-                Überspringen
-              </button>
+              <button className="sf-pill sf-pill-skip" onClick={() => setSeason('skip')}>Überspringen</button>
             </div>
           )}
         </div>
       )}
 
-      {/* ── STEP 4: Price ─────────────────────────────────── */}
+      {/* ── GUIDED: Price ────────────────────────────────── */}
       {mode === 'guided' && category && season && (
         <div className="sf-block fade-in-up" key="price-block">
           <p className="sf-label">
@@ -242,43 +241,32 @@ function SearchForm({ onSearch, loading }) {
               {PRICE_RANGES.map(p => (
                 <button key={p} className="sf-pill" onClick={() => setPrice(p)}>{p}</button>
               ))}
-              <button className="sf-pill sf-pill-skip" onClick={() => setPrice('skip')}>
-                Überspringen
-              </button>
+              <button className="sf-pill sf-pill-skip" onClick={() => setPrice('skip')}>Überspringen</button>
             </div>
           )}
         </div>
       )}
 
-      {/* ── Analysis Depth Toggle ─────────────────────────── */}
-      <div className="sf-block sf-depth-wrap">
-        <p className="sf-label">Analysetiefe</p>
-        <div className="sf-depth-options">
-          <label className={`sf-depth-opt ${!deepAnalysis ? 'selected' : ''}`}>
-            <input type="radio" name="depth" checked={!deepAnalysis} onChange={() => setDeepAnalysis(false)} />
-            <div>
-              <span className="sf-depth-title">Schnellanalyse</span>
-              <span className="sf-depth-desc">Marktlücken & Konkurrenz. ~10 Sek.</span>
-            </div>
-          </label>
-          <label className={`sf-depth-opt ${deepAnalysis ? 'selected' : ''}`}>
-            <input type="radio" name="depth" checked={deepAnalysis} onChange={() => setDeepAnalysis(true)} />
-            <div>
-              <span className="sf-depth-title">Tiefenanalyse</span>
-              <span className="sf-depth-desc">inkl. Trendquellen, Social Signals & internationale Händler-Launches. ~25 Sek.</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      {/* ── CTA ───────────────────────────────────────────── */}
+      {/* ── ANALYSETIEFE + CTA — appear together ─────────── */}
       {canSearch && (
         <div className="sf-cta fade-in-up" key="cta">
-          <button
-            className="sf-search-btn"
-            onClick={search}
-            disabled={loading}
-          >
+          <div className="sf-depth-options">
+            <label className={`sf-depth-opt ${!deepAnalysis ? 'selected' : ''}`}>
+              <input type="radio" name="depth" checked={!deepAnalysis} onChange={() => setDeepAnalysis(false)} />
+              <div>
+                <span className="sf-depth-title">Schnellanalyse</span>
+                <span className="sf-depth-desc">Marktlücken & Konkurrenz. ~10 Sek.</span>
+              </div>
+            </label>
+            <label className={`sf-depth-opt ${deepAnalysis ? 'selected' : ''}`}>
+              <input type="radio" name="depth" checked={deepAnalysis} onChange={() => setDeepAnalysis(true)} />
+              <div>
+                <span className="sf-depth-title">Tiefenanalyse</span>
+                <span className="sf-depth-desc">inkl. Trendquellen, Social Signals & internationale Händler-Launches. ~25 Sek.</span>
+              </div>
+            </label>
+          </div>
+          <button className="sf-search-btn" onClick={search} disabled={loading}>
             {loading ? 'Analysiert …' : 'Analysieren →'}
           </button>
         </div>

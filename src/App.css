@@ -250,7 +250,24 @@ body {
   background: var(--bg-subtle);
 }
 
-/* "oder" divider with collapsing animation */
+/* ── sf-section: collapse wrapper (same mechanic as sf-alt-wrap) ── */
+.sf-section {
+  overflow: hidden;
+  max-height: 400px;
+  opacity: 1;
+  transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.3s ease;
+  margin-bottom: 0;
+}
+
+.sf-section-hidden {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.sf-divider-section { margin: 0; }
+
+/* ── "oder" divider with collapsing animation ── */
 .sf-alt-wrap {
   overflow: hidden;
   max-height: 200px;
@@ -302,8 +319,12 @@ body {
 
 .sf-input::placeholder { color: var(--text-faint); }
 
-/* CTA button */
+/* CTA block — contains depth toggle + button */
 .sf-cta { margin-top: 8px; }
+
+.sf-cta .sf-depth-options {
+  margin-bottom: 12px;
+}
 
 .sf-search-btn {
   width: 100%;
