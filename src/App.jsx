@@ -125,8 +125,9 @@ function SearchForm({ onSearch, loading }) {
 
   const handleFreeTextChange = (e) => {
     setFreeText(e.target.value)
-    if (e.target.value.trim()) setMode('custom')
-    else setMode('initial')
+    // Aktiviert custom mode — aber nie automatisch zurücksetzen wenn Feld geleert wird
+    // Nur ← Zurück setzt den Mode zurück
+    if (mode === 'initial') setMode('custom')
   }
 
   const search = () => {
@@ -290,6 +291,130 @@ function SearchForm({ onSearch, loading }) {
         </div>
       )}
 
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOW IT WORKS
+   ═══════════════════════════════════════════════════════════ */
+function HowItWorks() {
+  const steps = [
+    {
+      num: '01',
+      title: 'Händler & Kategorie eingeben',
+      desc: 'Wähle den Händler, die Aktionskategorie und den Preisrahmen. Aktionspilot kennt die Sortimentswelten jedes Händlers — von Lidls Parkside bis zu dm Beauty.',
+    },
+    {
+      num: '02',
+      title: 'KI recherchiert live',
+      desc: 'Das Tool durchsucht automatisch Aktionsarchive der letzten 3 Jahre, Amazon-Bestseller, internationale Aldi- und Lidl-Launches sowie Trend-Signale aus TikTok, Pinterest und Branchenberichten.',
+    },
+    {
+      num: '03',
+      title: 'Produktkonzepte mit Scoring',
+      desc: '5–7 konkrete Produktideen bewertet nach vier Dimensionen: Trend-Dynamik, Discounter-Whitespace, Sell-through-Potenzial und Pitch-Reife — inklusive Preisrahmen und EK-Orientierung.',
+    },
+    {
+      num: '04',
+      title: 'Pitch-Deck auf Knopfdruck',
+      desc: 'Ein Klick generiert ein vollständiges Pitch-Konzept: Produktspezifikation, Preisarchitektur, Margenberechnung, Einkäufer-Argumentation und Roadmap. Direkt präsentationsfertig.',
+    },
+  ]
+
+  return (
+    <section className="how-section">
+      <div className="how-header">
+        <p className="how-eyebrow">So funktioniert Aktionspilot</p>
+        <h2 className="how-title">Der Slot ist gewonnen,<br />bevor der Pitch beginnt.</h2>
+        <p className="how-subtitle">
+          Aktionspilot ersetzt Wochen manueller Marktrecherche durch KI-gestützte Analyse
+          mit echten Webdaten — und liefert ein druckfertiges Pitch-Konzept in unter 60 Sekunden.
+        </p>
+      </div>
+
+      <div className="how-steps">
+        {steps.map((step, i) => (
+          <div key={i} className="how-step">
+            <div className="how-step-num">{step.num}</div>
+            <h3 className="how-step-title">{step.title}</h3>
+            <p className="how-step-desc">{step.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="how-usps">
+        <div className="how-usp">
+          <span className="how-usp-check">✓</span>
+          <span>Marktanalyse in unter 60 Sekunden</span>
+        </div>
+        <div className="how-usp">
+          <span className="how-usp-check">✓</span>
+          <span>Internationale Händler-Launches als Validierung</span>
+        </div>
+        <div className="how-usp">
+          <span className="how-usp-check">✓</span>
+          <span>Echte Webrecherche — keine KI-Spekulation</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+function Footer({ onImpressum }) {
+  return (
+    <footer className="site-footer">
+      <div className="footer-inner">
+        <span className="footer-brand">Aktions<span>pilot</span></span>
+        <div className="footer-links">
+          <button className="footer-link" onClick={onImpressum}>Impressum</button>
+        </div>
+        <span className="footer-copy">© {new Date().getFullYear()}</span>
+      </div>
+    </footer>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   IMPRESSUM VIEW
+   ═══════════════════════════════════════════════════════════ */
+function ImpressumView({ onBack }) {
+  return (
+    <div className="impressum-view">
+      <button className="back-btn" style={{ marginBottom: 32 }} onClick={onBack}>← Zurück</button>
+      <h1 className="impressum-title">Impressum</h1>
+      <p className="impressum-intro">Angaben gemäß § 5 TMG</p>
+
+      <div className="impressum-section">
+        <h2>Verantwortlich</h2>
+        <p>[Name eintragen]<br />[Straße, Nr.]<br />[PLZ Ort]</p>
+      </div>
+
+      <div className="impressum-section">
+        <h2>Kontakt</h2>
+        <p>E-Mail: [email@domain.de]<br />Telefon: [+49 ...]</p>
+      </div>
+
+      <div className="impressum-section">
+        <h2>Haftungsausschluss</h2>
+        <p>
+          Die Inhalte dieser Seite wurden mit größtmöglicher Sorgfalt erstellt.
+          Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte übernehmen
+          wir jedoch keine Gewähr. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG
+          für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
+        </p>
+      </div>
+
+      <div className="impressum-section">
+        <h2>Hinweis</h2>
+        <p>
+          Aktionspilot ist ein internes Analyse-Tool. Die generierten Inhalte dienen
+          als Entscheidungsunterstützung und ersetzen keine unternehmerische Prüfung.
+        </p>
+      </div>
     </div>
   )
 }
@@ -665,6 +790,7 @@ export default function App() {
               <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und fertigem Pitch-Deck.</p>
               <SearchForm onSearch={generateCards} loading={loading} />
             </div>
+            <HowItWorks />
             {error && <div className="error-box">⚠ {error}</div>}
           </>
         )}
@@ -733,7 +859,14 @@ export default function App() {
           />
         )}
 
+        {/* ── IMPRESSUM ── */}
+        {view === 'impressum' && (
+          <ImpressumView onBack={resetToSearch} />
+        )}
+
       </div>
+
+      <Footer onImpressum={() => setView('impressum')} />
     </div>
   )
 }
