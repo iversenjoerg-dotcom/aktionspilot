@@ -87,12 +87,18 @@ function SearchForm({ onSearch, loading }) {
   const [deepAnalysis, setDeepAnalysis] = useState(false)
   const freeRef = useRef(null)
 
-  const cats     = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
-  const wordCount = freeText.trim() ? freeText.trim().split(/\s+/).length : 0
+  const cats      = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
+  const charCount = freeText.trim().length
 
+  // CTA block erscheint: sobald Freitext-Feld fokussiert ODER guided vollständig
+  const showCTA =
+    (mode === 'guided' && retailer && category && season && price) ||
+    mode === 'custom'
+
+  // Button aktiv: min. 3 Zeichen im Freitext ODER guided vollständig
   const canSearch =
     (mode === 'guided' && retailer && category && season && price) ||
-    ((mode === 'initial' || mode === 'custom') && wordCount >= 3)
+    (mode === 'custom' && charCount >= 3)
 
   const handleRetailer = (val) => {
     setRetailer(val)
@@ -176,6 +182,7 @@ function SearchForm({ onSearch, loading }) {
             className="sf-input"
             value={freeText}
             onChange={handleFreeTextChange}
+            onFocus={() => { if (mode === 'initial') setMode('custom') }}
             onKeyDown={onKey}
             placeholder="z. B. DIY-Geschenke Weihnachten Aldi Süd 25–35 €"
           />
@@ -248,7 +255,7 @@ function SearchForm({ onSearch, loading }) {
       )}
 
       {/* ── ANALYSETIEFE + CTA — appear together ─────────── */}
-      {canSearch && (
+      {showCTA && (
         <div className="sf-cta fade-in-up" key="cta">
           <div className="sf-depth-options">
             <label className={`sf-depth-opt ${!deepAnalysis ? 'selected' : ''}`}>
@@ -266,7 +273,11 @@ function SearchForm({ onSearch, loading }) {
               </div>
             </label>
           </div>
-          <button className="sf-search-btn" onClick={search} disabled={loading}>
+          <button
+            className="sf-search-btn"
+            onClick={search}
+            disabled={!canSearch || loading}
+          >
             {loading ? 'Analysiert …' : 'Analysieren →'}
           </button>
         </div>
