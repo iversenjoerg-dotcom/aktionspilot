@@ -324,37 +324,24 @@ function HowItWorks() {
 
   return (
     <section className="how-section">
-      <div className="how-header">
-        <p className="how-eyebrow">Kurz erklärt</p>
-        <h2 className="how-title">So funktioniert<br />der Aktionspilot.</h2>
-        <p className="how-subtitle">
-          Aktionspilot bringt die Marktrecherche auf ein neues Level — mit KI-gestützter Analyse,
-          echten Webdaten und strukturiertem Pitch-Material als Arbeitsgrundlage für Ihr Team.
-        </p>
-      </div>
-
-      <div className="how-steps">
-        {steps.map((step, i) => (
-          <div key={i} className="how-step">
-            <div className="how-step-num">{step.num}</div>
-            <h3 className="how-step-title">{step.title}</h3>
-            <p className="how-step-desc">{step.desc}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="how-usps">
-        <div className="how-usp">
-          <span className="how-usp-check">✓</span>
-          <span>Marktanalyse in unter 60 Sekunden</span>
+      <div className="how-inner">
+        <div className="how-header">
+          <p className="how-eyebrow">Kurz erklärt</p>
+          <h2 className="how-title">So funktioniert<br />der Aktionspilot.</h2>
+          <p className="how-subtitle">
+            Aktionspilot bringt die Marktrecherche auf ein neues Level — mit KI-gestützter Analyse,
+            echten Webdaten und strukturiertem Pitch-Material als Arbeitsgrundlage für Ihr Team.
+          </p>
         </div>
-        <div className="how-usp">
-          <span className="how-usp-check">✓</span>
-          <span>Internationale Händler-Launches als Validierung</span>
-        </div>
-        <div className="how-usp">
-          <span className="how-usp-check">✓</span>
-          <span>Echte Webrecherche — keine KI-Spekulation</span>
+
+        <div className="how-steps">
+          {steps.map((step, i) => (
+            <div key={i} className="how-step">
+              <div className="how-step-num">{step.num}</div>
+              <h3 className="how-step-title">{step.title}</h3>
+              <p className="how-step-desc">{step.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -390,12 +377,12 @@ function ImpressumView({ onBack }) {
 
       <div className="impressum-section">
         <h2>Verantwortlich</h2>
-        <p>[Name eintragen]<br />[Straße, Nr.]<br />[PLZ Ort]</p>
+        <p>Jörg Iversen<br />Gaußstraße 196H<br />22765 Hamburg</p>
       </div>
 
       <div className="impressum-section">
         <h2>Kontakt</h2>
-        <p>E-Mail: [email@domain.de]<br />Telefon: [+49 ...]</p>
+        <p>E-Mail: <a href="mailto:hallo@joergiversen.de" className="impressum-link">hallo@joergiversen.de</a></p>
       </div>
 
       <div className="impressum-section">
@@ -777,7 +764,6 @@ export default function App() {
         <span className="topbar-logo" onClick={resetToSearch}>
           Aktions<span>pilot</span>
         </span>
-        <span className="topbar-meta">Jeder Slot. Immer gewonnen.</span>
       </header>
 
       <div className="main-content">
@@ -790,7 +776,6 @@ export default function App() {
               <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und fertigem Pitch-Deck.</p>
               <SearchForm onSearch={generateCards} loading={loading} />
             </div>
-            <HowItWorks />
             {error && <div className="error-box">⚠ {error}</div>}
           </>
         )}
@@ -865,6 +850,8 @@ export default function App() {
         )}
 
       </div>
+
+      {view === 'search' && <HowItWorks />}
 
       <Footer onImpressum={() => setView('impressum')} />
     </div>
