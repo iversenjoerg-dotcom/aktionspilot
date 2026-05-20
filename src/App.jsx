@@ -298,7 +298,7 @@ function SearchForm({ onSearch, loading }) {
 /* ═══════════════════════════════════════════════════════════
    ACCESS MODAL
    ═══════════════════════════════════════════════════════════ */
-function AccessModal({ onSuccess }) {
+function AccessModal({ onSuccess, onClose }) {
   const [code, setCode]   = useState('')
   const [error, setError] = useState('')
 
@@ -314,8 +314,13 @@ function AccessModal({ onSuccess }) {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Schließen">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
         <div className="modal-icon-wrap">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -748,6 +753,13 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() =>
     localStorage.getItem('ap_auth') === '1'
   )
+  const [navVisible, setNavVisible] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setNavVisible(window.scrollY > 80)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Browser back/forward button support
   useEffect(() => {
@@ -866,13 +878,23 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {showAccessModal && <AccessModal onSuccess={handleAccessGranted} />}
+      {showAccessModal && (
+        <AccessModal
+          onSuccess={handleAccessGranted}
+          onClose={() => setShowAccessModal(false)}
+        />
+      )}
 
-      {/* Topbar */}
-      <header className="topbar">
-        <span className="topbar-logo" onClick={resetToSearch}>
-          Aktions<span>pilot</span>
-        </span>
+      {/* Topbar — appears on scroll */}
+      <header className={`topbar ${navVisible || view !== 'search' ? 'topbar-visible' : ''}`}>
+        <div className="topbar-inner">
+          <img
+            src="/logo.png"
+            alt="Aktionspilot"
+            className="topbar-logo-img"
+            onClick={resetToSearch}
+          />
+        </div>
       </header>
 
       <div className="main-content">
@@ -881,6 +903,7 @@ export default function App() {
         {view === 'search' && (
           <>
             <div className="search-hero">
+              <img src="/logo.png" alt="Aktionspilot" className="hero-logo" />
               <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
               <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und fertigem Pitch-Deck.</p>
               <SearchForm onSearch={generateCards} loading={loading} />
