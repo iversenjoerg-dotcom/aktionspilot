@@ -81,23 +81,20 @@ body {
 .topbar {
   display: flex; align-items: center;
   height: 60px;
-  background: rgba(255,255,255,.92);
-  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-bottom: 1px solid transparent;
   position: fixed; top: 0; left: 0; right: 0;
   z-index: 100;
+  box-shadow: none;
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, backdrop-filter .3s ease;
+}
+
+.topbar.topbar-scrolled {
+  background: rgba(255,255,255,.95);
+  border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  opacity: 0;
-  transform: translateY(-100%);
-  transition: opacity .25s ease, transform .25s ease;
-  pointer-events: none;
-}
-
-.topbar.topbar-visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: all;
 }
 
 .topbar-inner {
@@ -107,27 +104,26 @@ body {
   display: flex; align-items: center;
 }
 
-.topbar-logo-img {
-  height: 26px; width: auto;
-  cursor: pointer; display: block;
+.topbar-logo {
+  font-family: var(--font);
+  font-size: 19px; font-weight: 700;
+  color: var(--text); letter-spacing: -.02em;
+  cursor: pointer; user-select: none;
 }
+.topbar-logo span { color: var(--violet); }
 
-/* ── Hero Logo ─────────────────────────────────────────── */
-.hero-logo {
-  height: 30px; width: auto;
-  display: block;
-  margin: 0 auto 28px;
-}
+/* ── Hero Logo (removed) ───────────────────────────────── */
+.hero-logo { display: none; }
 
 /* ── Main ──────────────────────────────────────────────── */
 .main-content {
   flex: 1; max-width: 1100px;
   margin: 0 auto; width: 100%;
-  padding: 0 32px 100px;
+  padding: 60px 32px 100px;
 }
 
 /* ── Search Hero ───────────────────────────────────────── */
-.search-hero { padding: 72px 0 14px; text-align: center; }
+.search-hero { padding: 48px 0 80px; text-align: center; }
 
 .search-hero h1 {
   font-family: var(--font); font-size: 48px; font-weight: 700;
@@ -146,8 +142,9 @@ body {
 }
 
 .search-hero p {
-  font-size: 17px; font-weight: 400;
-  color: var(--text-muted); margin-bottom: 44px;
+  font-size: 14px; font-weight: 400;
+  color: var(--text-muted); margin-bottom: 32px;
+  max-width: 500px; margin-left: auto; margin-right: auto;
   line-height: 1.6;
 }
 
@@ -789,7 +786,7 @@ body {
 .how-eyebrow {
   font-size: 11px; font-weight: 600;
   letter-spacing: .10em; text-transform: uppercase;
-  color: rgba(97,97,255,.9);
+  color: #A5B4FC;
   margin-bottom: 14px;
 }
 

@@ -764,8 +764,15 @@ export default function App() {
   // Browser back/forward button support
   useEffect(() => {
     const handlePop = () => {
-      if (window.location.hash === '#impressum') {
+      const hash = window.location.hash
+      if (hash === '#impressum') {
         setView('impressum')
+      } else if (hash === '#results') {
+        setView('cards')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else if (hash === '#pitch') {
+        setView('pitch')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
         setView('search')
         setCardsData(null)
@@ -821,6 +828,8 @@ export default function App() {
       const data = await res.json()
       setCardsData(data)
       setView('cards')
+      window.history.pushState({ view: 'cards' }, '', '#results')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (e) {
       setError(e.message)
       setView('search')
@@ -856,6 +865,7 @@ export default function App() {
       setPitchCache(prev => ({ ...prev, [concept.id]: data }))
       setPitchData(data)
       setView('pitch')
+      window.history.pushState({ view: 'pitch' }, '', '#pitch')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (e) {
       setError(e.message)
@@ -885,15 +895,12 @@ export default function App() {
         />
       )}
 
-      {/* Topbar — appears on scroll */}
-      <header className={`topbar ${navVisible || view !== 'search' ? 'topbar-visible' : ''}`}>
+      {/* Topbar — transparent initially, white on scroll */}
+      <header className={`topbar ${navVisible ? 'topbar-scrolled' : ''}`}>
         <div className="topbar-inner">
-          <img
-            src="/logo.png"
-            alt="Aktionspilot"
-            className="topbar-logo-img"
-            onClick={resetToSearch}
-          />
+          <span className="topbar-logo" onClick={resetToSearch}>
+            Aktions<span>pilot</span>
+          </span>
         </div>
       </header>
 
@@ -903,7 +910,6 @@ export default function App() {
         {view === 'search' && (
           <>
             <div className="search-hero">
-              <img src="/logo.png" alt="Aktionspilot" className="hero-logo" />
               <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
               <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und strukturiertem Pitchdeck-Material.</p>
               <SearchForm onSearch={generateCards} loading={loading} />
@@ -972,7 +978,7 @@ export default function App() {
         {view === 'pitch' && pitchData && (
           <PitchDeckView
             pitch={pitchData}
-            onBack={() => { setView('cards'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            onBack={() => window.history.back()}
           />
         )}
 
