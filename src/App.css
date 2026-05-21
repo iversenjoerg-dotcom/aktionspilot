@@ -119,6 +119,7 @@ body {
   cursor: pointer; user-select: none;
 }
 .topbar-logo span { color: var(--violet); }
+.topbar-logo .logo-petrol { color: var(--petrol); }
 
 /* ── Hero Logo (removed) ───────────────────────────────── */
 .hero-logo { display: none; }
@@ -1253,6 +1254,7 @@ body {
 
 /* ── PartnerPilot hero ─────────────────────────────────── */
 .partner-headline em,
+.search-hero h1 .em-petrol,
 .em-petrol {
   background: linear-gradient(135deg, #0D9488 0%, #14B8A6 55%, #10B981 100%);
   -webkit-background-clip: text;
