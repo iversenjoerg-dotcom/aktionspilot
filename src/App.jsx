@@ -494,12 +494,25 @@ function ScoreBar({ label, value, colorClass, delay = 0 }) {
 /* ═══════════════════════════════════════════════════════════
    PRODUCT CARD
    ═══════════════════════════════════════════════════════════ */
-function ProductCard({ concept, onSelect, index }) {
+function ProductCard({ concept, onSelect, onToggleSave, saved, index }) {
   const tierClass = { top: 'card-top', growth: 'card-growth', caution: 'card-caution' }[concept.tier] || 'card-growth'
   const tierLabelClass = { top: 'tier-top', growth: 'tier-growth', caution: 'tier-caution' }[concept.tier] || 'tier-growth'
   return (
     <div className={`product-card ${tierClass}`} onClick={() => onSelect(concept)}>
-      <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>
+      <div className="card-header-row">
+        <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>
+        {onToggleSave && (
+          <button
+            className={`card-bookmark ${saved ? 'saved' : ''}`}
+            onClick={e => { e.stopPropagation(); onToggleSave(concept) }}
+            title={saved ? 'Gespeichert – klicken zum Entfernen' : 'Speichern'}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+        )}
+      </div>
       <p className="card-name">{concept.name}</p>
       <p className="card-tagline">{concept.tagline}</p>
       <div className="scores">
@@ -757,7 +770,26 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() =>
     localStorage.getItem('ap_auth') === '1'
   )
+  const [savedConcepts, setSavedConcepts] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ap_saved') || '[]') }
+    catch { return [] }
+  })
   const [navVisible, setNavVisible] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('ap_saved', JSON.stringify(savedConcepts))
+  }, [savedConcepts])
+
+  const toggleSave = (concept) => {
+    setSavedConcepts(prev => {
+      const exists = prev.find(c => (c.id || c.name) === (concept.id || concept.name))
+      if (exists) return prev.filter(c => (c.id || c.name) !== (concept.id || concept.name))
+      return [...prev, { ...concept, savedAt: new Date().toISOString() }]
+    })
+  }
+
+  const isSaved = (concept) =>
+    savedConcepts.some(c => (c.id || c.name) === (concept.id || concept.name))
 
   useEffect(() => {
     const handleScroll = () => setNavVisible(window.scrollY > 80)
@@ -905,6 +937,15 @@ export default function App() {
           <span className="topbar-logo" onClick={resetToSearch}>
             Aktions<span>pilot</span>
           </span>
+          {savedConcepts.length > 0 && (
+            <button className="nav-saved-btn" onClick={() => setView('saved')}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+              Gespeichert
+              <span className="nav-saved-count">{savedConcepts.length}</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -950,7 +991,14 @@ export default function App() {
             </div>
             <div className="cards-grid">
               {cardsData.concepts?.map((concept, i) => (
-                <ProductCard key={concept.id || i} concept={concept} onSelect={generatePitch} index={i} />
+                <ProductCard
+                  key={concept.id || i}
+                  concept={concept}
+                  onSelect={generatePitch}
+                  onToggleSave={toggleSave}
+                  saved={isSaved(concept)}
+                  index={i}
+                />
               ))}
             </div>
             {cardsData.excluded?.length > 0 && (
@@ -986,7 +1034,39 @@ export default function App() {
           />
         )}
 
-        {/* ── IMPRESSUM ── */}
+        {/* ── SAVED ── */}
+        {view === 'saved' && (
+          <>
+            <div className="results-header">
+              <div>
+                <p className="results-context">Merkliste</p>
+                <h2 className="results-title">
+                  {savedConcepts.length} gespeicherte{savedConcepts.length !== 1 ? ' Konzepte' : 's Konzept'}
+                </h2>
+              </div>
+              <button className="new-search-btn" onClick={resetToSearch}>← Zur Suche</button>
+            </div>
+            {savedConcepts.length === 0 ? (
+              <div className="saved-empty">
+                <p>Noch keine Konzepte gespeichert.</p>
+                <p>Klicke auf das Lesezeichen-Icon auf einer Karte um sie zu speichern.</p>
+              </div>
+            ) : (
+              <div className="cards-grid">
+                {savedConcepts.map((concept, i) => (
+                  <ProductCard
+                    key={concept.id || i}
+                    concept={concept}
+                    onSelect={generatePitch}
+                    onToggleSave={toggleSave}
+                    saved={true}
+                    index={i}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
         {view === 'impressum' && (
           <ImpressumView onBack={resetToSearch} />
         )}

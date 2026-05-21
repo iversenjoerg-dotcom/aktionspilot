@@ -170,14 +170,17 @@ body {
 /* Each step block */
 .sf-block {
   margin-bottom: 20px;
+  text-align: left;
 }
 
 /* Step label */
 .sf-label {
+  display: block;
   font-size: 12px; font-weight: 600;
   letter-spacing: .04em; text-transform: uppercase;
   color: var(--text-muted);
   margin-bottom: 10px;
+  text-align: left;
 }
 
 .sf-optional {
@@ -1112,3 +1115,75 @@ body {
 }
 
 .modal-request:hover { color: var(--violet); }
+
+/* ════════════════════════════════════════════════════════
+   SAVE / BOOKMARK
+   ════════════════════════════════════════════════════════ */
+
+/* Topbar saved button */
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-saved-btn {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--font);
+  font-size: 13px; font-weight: 600;
+  color: var(--text-soft);
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-mid);
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.nav-saved-btn:hover {
+  border-color: var(--violet);
+  color: var(--violet);
+  background: var(--violet-muted);
+}
+
+.nav-saved-count {
+  background: var(--violet);
+  color: white;
+  font-size: 11px; font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Card header row with bookmark */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.card-bookmark {
+  background: none; border: none;
+  cursor: pointer;
+  padding: 4px 5px;
+  border-radius: 6px;
+  color: var(--text-faint);
+  transition: color .15s, background .15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.card-bookmark:hover { background: var(--bg-subtle); color: var(--text-muted); }
+.card-bookmark.saved { color: var(--yellow-dark); }
+.card-bookmark.saved:hover { color: var(--yellow-dark); background: var(--yellow-light); }
+
+/* Saved empty state */
+.saved-empty {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--text-faint);
+  font-size: 15px;
+  line-height: 1.8;
+}
