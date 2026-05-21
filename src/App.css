@@ -23,6 +23,13 @@
   --yellow-dark:   #F0BE00;
   --yellow-light:  #FFF8D6;
 
+  /* Petrol — PartnerPilot */
+  --petrol:        #0891B2;
+  --petrol-dark:   #0E7490;
+  --petrol-light:  #CFFAFE;
+  --petrol-muted:  rgba(8,145,178,.08);
+  --petrol-border: rgba(8,145,178,.25);
+
   --bg:            #F8F9FF;
   --bg-white:      #FFFFFF;
   --bg-subtle:     #EEF0F8;
@@ -123,7 +130,7 @@ body {
 }
 
 /* ── Search Hero ───────────────────────────────────────── */
-.search-hero { padding: 48px 0 64px; text-align: center; }
+.search-hero { padding: 48px 0 48px; text-align: center; }
 
 .search-hero h1 {
   font-family: var(--font); font-size: 48px; font-weight: 700;
@@ -165,12 +172,15 @@ body {
   max-width: 620px;
   margin: 0 auto;
   text-align: left;
+  width: 100%;
 }
 
 /* Each step block */
 .sf-block {
   margin-bottom: 20px;
   text-align: left;
+  width: 100%;
+  padding: 0;
 }
 
 /* Step label */
@@ -181,6 +191,7 @@ body {
   color: var(--text-muted);
   margin-bottom: 10px;
   text-align: left;
+  padding: 0;
 }
 
 .sf-optional {
@@ -290,6 +301,8 @@ body {
   opacity: 1;
   transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.3s ease;
   margin-bottom: 0;
+  width: 100%;
+  padding: 0;
 }
 
 .sf-section-hidden {
@@ -758,7 +771,7 @@ body {
 
 .how-section {
   width: 100%;
-  padding: 64px 0 96px;
+  padding: 48px 0 96px;
   margin-top: 0;
   background: linear-gradient(145deg, #0D1B2A 0%, #1A1050 55%, #0F1E3D 100%);
   position: relative;
@@ -1186,4 +1199,91 @@ body {
   color: var(--text-faint);
   font-size: 15px;
   line-height: 1.8;
+}
+
+/* ════════════════════════════════════════════════════════
+   TAB BAR — AktionsPilot / PartnerPilot
+   ════════════════════════════════════════════════════════ */
+
+.tab-bar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 36px;
+}
+
+.tab-bar {
+  display: inline-flex;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-mid);
+  border-radius: 50px;
+  padding: 4px;
+  gap: 2px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+  padding: 9px 24px;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 14px; font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:not(.active):hover {
+  background: var(--bg-subtle);
+  color: var(--text-soft);
+}
+
+.tab-btn.active {
+  background: var(--yellow);
+  color: #1a1000;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,.10);
+}
+
+/* ── Logo petrol variant ───────────────────────────────── */
+.logo-petrol { color: var(--petrol); }
+
+/* ── PartnerPilot hero ─────────────────────────────────── */
+.partner-headline em,
+.em-petrol {
+  background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: italic; font-weight: 800;
+  padding-right: 6px; display: inline-block;
+}
+
+.coming-soon-card {
+  max-width: 560px;
+  margin: 36px auto 0;
+  background: var(--petrol-muted);
+  border: 1.5px solid var(--petrol-border);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  text-align: left;
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--petrol);
+  background: var(--petrol-light);
+  border: 1px solid var(--petrol-border);
+  padding: 3px 12px; border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.coming-soon-card p {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.7;
+  margin: 0;
 }

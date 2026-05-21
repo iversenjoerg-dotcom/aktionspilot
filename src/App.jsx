@@ -333,7 +333,7 @@ function AccessModal({ onSuccess, onClose }) {
         </div>
         <h2 className="modal-title">Geschlossene Beta</h2>
         <p className="modal-desc">
-          Aktionspilot befindet sich in aktiver Entwicklung.
+          AktionsPilot befindet sich in aktiver Entwicklung.
           Der Zugang zur Analyse-Funktion ist derzeit nur
           ausgewählten Personen zugänglich.
         </p>
@@ -353,7 +353,7 @@ function AccessModal({ onSuccess, onClose }) {
         <div className="modal-divider" />
         <a
           className="modal-request"
-          href="mailto:hallo@joergiversen.de?subject=Aktionspilot%20%E2%80%94%20Zugangscode%20anfordern&body=Ich%20m%C3%B6chte%20gerne%20Aktionspilot%20testen%20und%20bitte%20um%20einen%20Zugangscode."
+          href="mailto:hallo@joergiversen.de?subject=AktionsPilot%20%E2%80%94%20Zugangscode%20anfordern&body=Ich%20m%C3%B6chte%20gerne%20AktionsPilot%20testen%20und%20bitte%20um%20einen%20Zugangscode."
         >
           Noch keinen Zugang? Zugang beantragen
         </a>
@@ -370,7 +370,7 @@ function HowItWorks() {
     {
       num: '01',
       title: 'Händler & Kategorie eingeben',
-      desc: 'Wähle den Händler, die Aktionskategorie und den Preisrahmen. Aktionspilot kennt die Sortimentsvorgaben und Aktionslogik jedes Händlers im Detail.',
+      desc: 'Wähle den Händler, die Aktionskategorie und den Preisrahmen. AktionsPilot kennt die Sortimentsvorgaben und Aktionslogik jedes Händlers im Detail.',
     },
     {
       num: '02',
@@ -394,9 +394,9 @@ function HowItWorks() {
       <div className="how-inner">
         <div className="how-header">
           <p className="how-eyebrow">Kurz erklärt</p>
-          <h2 className="how-title">So funktioniert<br />der Aktionspilot.</h2>
+          <h2 className="how-title">So funktioniert<br />der AktionsPilot.</h2>
           <p className="how-subtitle">
-            Aktionspilot bringt die Marktrecherche auf ein neues Level — mit KI-gestützter Analyse,
+            AktionsPilot bringt die Marktrecherche auf ein neues Level — mit KI-gestützter Analyse,
             echten Webdaten und strukturiertem Pitch-Material als Arbeitsgrundlage für Ihr Team.
           </p>
         </div>
@@ -422,7 +422,7 @@ function Footer({ onImpressum }) {
   return (
     <footer className="site-footer">
       <div className="footer-inner">
-        <span className="footer-brand">Aktions<span>pilot</span></span>
+        <span className="footer-brand">Aktions<span>Pilot</span></span>
         <div className="footer-links">
           <button className="footer-link" onClick={onImpressum}>Impressum</button>
         </div>
@@ -464,7 +464,7 @@ function ImpressumView({ onBack }) {
       <div className="impressum-section">
         <h2>Hinweis</h2>
         <p>
-          Aktionspilot ist ein internes Analyse-Tool. Die generierten Inhalte dienen
+          AktionsPilot ist ein internes Analyse-Tool. Die generierten Inhalte dienen
           als Entscheidungsunterstützung und ersetzen keine unternehmerische Prüfung.
         </p>
       </div>
@@ -570,7 +570,7 @@ function PitchDeckView({ pitch, onBack }) {
     <div className="pitch-view">
       <div className="pitch-topbar">
         <button className="back-btn" onClick={onBack}>← Zurück zu den Konzepten</button>
-        <span className="pitch-badge">Pitch-Konzept · Aktionspilot</span>
+        <span className="pitch-badge">Pitch-Konzept · AktionsPilot</span>
       </div>
 
       <div className="pitch-header">
@@ -764,6 +764,7 @@ export default function App() {
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
   const [error, setError]             = useState(null)
+  const [activeTab, setActiveTab] = useState('aktions') // 'aktions' | 'partner'
   const [showAccessModal, setShowAccessModal] = useState(false)
   const [pendingQuery, setPendingQuery]       = useState(null)
   const [pendingDeep, setPendingDeep]         = useState(false)
@@ -935,7 +936,10 @@ export default function App() {
       <header className={`topbar ${navVisible ? 'topbar-scrolled' : ''}`}>
         <div className="topbar-inner">
           <span className="topbar-logo" onClick={resetToSearch}>
-            Aktions<span>pilot</span>
+            {activeTab === 'partner'
+              ? <>Partner<span className="logo-petrol">Pilot</span></>
+              : <>Aktions<span>Pilot</span></>
+            }
           </span>
           {savedConcepts.length > 0 && (
             <button className="nav-saved-btn" onClick={() => setView('saved')}>
@@ -955,9 +959,36 @@ export default function App() {
         {view === 'search' && (
           <>
             <div className="search-hero">
-              <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
-              <p>Aktionspilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und strukturiertem Pitchdeck-Material.</p>
-              <SearchForm onSearch={generateCards} loading={loading} />
+
+              {/* Tab Bar */}
+              <div className="tab-bar-wrap">
+                <div className="tab-bar">
+                  <button
+                    className={`tab-btn ${activeTab === 'aktions' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('aktions')}
+                  >AktionsPilot</button>
+                  <button
+                    className={`tab-btn ${activeTab === 'partner' ? 'active active-partner' : ''}`}
+                    onClick={() => setActiveTab('partner')}
+                  >PartnerPilot</button>
+                </div>
+              </div>
+
+              {activeTab === 'aktions' && <>
+                <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
+                <p>AktionsPilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und strukturiertem Pitchdeck-Material.</p>
+                <SearchForm onSearch={generateCards} loading={loading} />
+              </>}
+
+              {activeTab === 'partner' && <>
+                <h1 className="partner-headline">Welche Promo- und Influencer-Kooperationen<br />bringen Ihr Produkt <em className="em-petrol">wirklich nach vorne?</em></h1>
+                <p>PartnerPilot findet die passenden Creator-Kooperationen und Promo-Formate für Ihr Produkt — mit KI-gestützter Zielgruppenanalyse, Reichweiten-Bewertung und konkreten Kooperationsvorschlägen.</p>
+                <div className="coming-soon-card">
+                  <span className="coming-soon-badge">In Entwicklung</span>
+                  <p>PartnerPilot ist das Geschwister-Tool von AktionsPilot und befindet sich in der frühen Entwicklungsphase. Es entsteht nach demselben Prinzip — diesmal für Promo- und Creator-Kooperationen.</p>
+                </div>
+              </>}
+
             </div>
             {error && <div className="error-box">⚠ {error}</div>}
           </>
@@ -1073,7 +1104,7 @@ export default function App() {
 
       </div>
 
-      {view === 'search' && <HowItWorks />}
+      {view === 'search' && activeTab === 'aktions' && <HowItWorks />}
 
       <Footer onImpressum={() => {
         setView('impressum')
