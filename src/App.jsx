@@ -418,11 +418,16 @@ function HowItWorks() {
 /* ═══════════════════════════════════════════════════════════
    FOOTER
    ═══════════════════════════════════════════════════════════ */
-function Footer({ onImpressum }) {
+function Footer({ onImpressum, activeTab }) {
   return (
     <footer className="site-footer">
       <div className="footer-inner">
-        <span className="footer-brand">Aktions<span>Pilot</span></span>
+        <span className="footer-brand">
+          {activeTab === 'partner'
+            ? <>Partner<span className="footer-petrol">Pilot</span></>
+            : <>Aktions<span>Pilot</span></>
+          }
+        </span>
         <div className="footer-links">
           <button className="footer-link" onClick={onImpressum}>Impressum</button>
         </div>
@@ -1106,7 +1111,7 @@ export default function App() {
 
       {view === 'search' && activeTab === 'aktions' && <HowItWorks />}
 
-      <Footer onImpressum={() => {
+      <Footer activeTab={activeTab} onImpressum={() => {
         setView('impressum')
         window.history.pushState({}, '', '#impressum')
       }} />

@@ -23,12 +23,13 @@
   --yellow-dark:   #F0BE00;
   --yellow-light:  #FFF8D6;
 
-  /* Petrol — PartnerPilot */
-  --petrol:        #0891B2;
-  --petrol-dark:   #0E7490;
-  --petrol-light:  #CFFAFE;
-  --petrol-muted:  rgba(8,145,178,.08);
-  --petrol-border: rgba(8,145,178,.25);
+  /* Petrol — PartnerPilot (shadcn Teal-500) */
+  --petrol:        #14B8A6;
+  --petrol-dark:   #0D9488;
+  --petrol-deeper: #0F766E;
+  --petrol-light:  #CCFBF1;
+  --petrol-muted:  rgba(20,184,166,.08);
+  --petrol-border: rgba(20,184,166,.25);
 
   --bg:            #F8F9FF;
   --bg-white:      #FFFFFF;
@@ -901,6 +902,7 @@ body {
 }
 
 .footer-brand span { color: var(--violet); }
+.footer-brand .footer-petrol { color: var(--petrol); }
 
 .footer-links { display: flex; gap: 20px; }
 
@@ -1252,7 +1254,7 @@ body {
 /* ── PartnerPilot hero ─────────────────────────────────── */
 .partner-headline em,
 .em-petrol {
-  background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 100%);
+  background: linear-gradient(135deg, #0D9488 0%, #14B8A6 55%, #10B981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
