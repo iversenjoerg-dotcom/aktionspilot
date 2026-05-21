@@ -986,11 +986,11 @@ export default function App() {
               </>}
 
               {activeTab === 'partner' && <>
-                <h1 className="partner-headline">Welche Promo- und Influencer-Kooperationen<br />bringen Ihr Produkt <em className="em-petrol">wirklich nach vorne?</em></h1>
-                <p>PartnerPilot findet die passenden Creator-Kooperationen und Promo-Formate für Ihr Produkt — mit KI-gestützter Zielgruppenanalyse, Reichweiten-Bewertung und konkreten Kooperationsvorschlägen.</p>
+                <h1 className="partner-headline">Welches Produkt gewinnt den<br />nächsten <em className="em-petrol">Creator-Deal?</em></h1>
+                <p>PartnerPilot analysiert Creator und Promis — ihren aktuellen Moment, ihr Publikum und ihre bestehenden Kooperationen — und entwickelt Produktkonzepte, die perfekt zu ihnen passen.</p>
                 <div className="coming-soon-card">
                   <span className="coming-soon-badge">In Entwicklung</span>
-                  <p>PartnerPilot ist das Geschwister-Tool von AktionsPilot und befindet sich in der frühen Entwicklungsphase. Es entsteht nach demselben Prinzip — diesmal für Promo- und Creator-Kooperationen.</p>
+                  <p>Geschwister-Tool von AktionsPilot, aktuell in der frühen Entwicklung.</p>
                 </div>
               </>}
 

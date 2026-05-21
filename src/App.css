@@ -1291,3 +1291,8 @@ body {
   line-height: 1.7;
   margin: 0;
 }
+
+.coming-soon-card strong {
+  color: var(--text);
+  font-weight: 600;
+}
