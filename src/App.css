@@ -194,6 +194,10 @@ body {
   margin-bottom: 10px;
   text-align: left;
   padding: 0;
+  /* Override .search-hero p which auto-centers all <p> tags */
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .sf-optional {
