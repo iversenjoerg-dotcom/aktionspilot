@@ -295,6 +295,10 @@ function SearchForm({ onSearch, loading }) {
   )
 }
 
+/* Strip <cite> tags from AI-generated text */
+const stripCite = (text = '') =>
+  text.replace(/<cite[^>]*>/g, '').replace(/<\/cite>/g, '')
+
 /* ═══════════════════════════════════════════════════════════
    ACCESS MODAL
    ═══════════════════════════════════════════════════════════ */
@@ -504,8 +508,8 @@ function ProductCard({ concept, onSelect, index }) {
         <ScoreBar label="Sell-through" value={concept.scores.sellthrough} colorClass="score-fill-2" delay={index * 40 + 120} />
         <ScoreBar label="Umsetzbar"    value={concept.scores.feasibility} colorClass="score-fill-3" delay={index * 40 + 180} />
       </div>
-      <p className="card-why">{concept.why}</p>
-      {concept.caveat && <p className="card-caveat">⚠ {concept.caveat}</p>}
+      <p className="card-why">{stripCite(concept.why)}</p>
+      {concept.caveat && <p className="card-caveat">⚠ {stripCite(concept.caveat)}</p>}
       <div className="card-price-row">
         <span className="card-price">VK {concept.priceRange}</span>
         <span className="card-ek">{concept.ekHint}</span>
@@ -690,8 +694,8 @@ function PitchDeckView({ pitch, onBack }) {
 
       {pitch.risks && (
         <section className="pitch-section">
-          <p className="pitch-section-num">07 — Risiken & Mitigationen</p>
-          <h2>Ehrliche Bewertung</h2>
+          <p className="pitch-section-num">07 — Risikoabwägung</p>
+          <h2>Risiken & Mitigationen</h2>
           <table className="risk-table">
             <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
             <tbody>
@@ -725,7 +729,7 @@ function PitchDeckView({ pitch, onBack }) {
 
       {pitch.summary && (
         <div className="ink-box">
-          <p><strong>Zusammenfassung für André / Wünsche Group</strong></p>
+          <p><strong>Zusammenfassung</strong></p>
           {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
             <p key={i}>{line}</p>
           ))}

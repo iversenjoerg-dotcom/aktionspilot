@@ -123,7 +123,7 @@ body {
 }
 
 /* ── Search Hero ───────────────────────────────────────── */
-.search-hero { padding: 48px 0 80px; text-align: center; }
+.search-hero { padding: 48px 0 64px; text-align: center; }
 
 .search-hero h1 {
   font-family: var(--font); font-size: 48px; font-weight: 700;
@@ -755,8 +755,8 @@ body {
 
 .how-section {
   width: 100%;
-  padding: 80px 0 96px;
-  margin-top: 20px;
+  padding: 64px 0 96px;
+  margin-top: 0;
   background: linear-gradient(145deg, #0D1B2A 0%, #1A1050 55%, #0F1E3D 100%);
   position: relative;
   overflow: hidden;
