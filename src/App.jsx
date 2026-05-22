@@ -394,7 +394,7 @@ function HowItWorks() {
       <div className="how-inner">
         <div className="how-header">
           <p className="how-eyebrow">Kurz erklärt</p>
-          <h2 className="how-title">So funktioniert<br />der AktionsPilot.</h2>
+          <h2 className="how-title">So funktioniert<br />der AktionsPilot</h2>
           <p className="how-subtitle">
             AktionsPilot bringt die Marktrecherche auf ein neues Level — mit KI-gestützter Analyse,
             echten Webdaten und strukturiertem Pitch-Material als Arbeitsgrundlage für Ihr Team.
@@ -769,8 +769,25 @@ export default function App() {
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
   const [error, setError]             = useState(null)
-  const [activeTab, setActiveTab] = useState('aktions') // 'aktions' | 'partner'
+  const [activeTab, setActiveTab] = useState('aktions')
+  const [toolsOpen, setToolsOpen] = useState(false)
   const [showAccessModal, setShowAccessModal] = useState(false)
+
+  const switchTool = (tab) => {
+    setActiveTab(tab)
+    resetToSearch()
+    setToolsOpen(false)
+  }
+
+  const scrollToHow = () => {
+    if (view !== 'search') {
+      setView('search')
+      setTimeout(() => document.querySelector('.how-section')?.scrollIntoView({ behavior: 'smooth' }), 120)
+    } else {
+      document.querySelector('.how-section')?.scrollIntoView({ behavior: 'smooth' })
+    }
+    setToolsOpen(false)
+  }
   const [pendingQuery, setPendingQuery]       = useState(null)
   const [pendingDeep, setPendingDeep]         = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(() =>
@@ -946,15 +963,43 @@ export default function App() {
               : <>Aktions<span>Pilot</span></>
             }
           </span>
-          {savedConcepts.length > 0 && (
-            <button className="nav-saved-btn" onClick={() => setView('saved')}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-              </svg>
-              Gespeichert
-              <span className="nav-saved-count">{savedConcepts.length}</span>
-            </button>
-          )}
+          <div className="topbar-nav">
+            {/* Tools dropdown */}
+            <div className="nav-tools-wrap" onMouseLeave={() => setToolsOpen(false)}>
+              <button
+                className={`nav-link ${toolsOpen ? 'active' : ''}`}
+                onClick={() => setToolsOpen(v => !v)}
+              >
+                Tools ▾
+              </button>
+              {toolsOpen && (
+                <div className="nav-dropdown">
+                  <button className={`nav-dropdown-item ${activeTab === 'aktions' ? 'current' : ''}`} onClick={() => switchTool('aktions')}>
+                    Aktions<strong>Pilot</strong>
+                  </button>
+                  <button className={`nav-dropdown-item ${activeTab === 'partner' ? 'current' : ''}`} onClick={() => switchTool('partner')}>
+                    Partner<strong>Pilot</strong>
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* How it works – only on AktionsPilot */}
+            {activeTab === 'aktions' && (
+              <button className="nav-link nav-how-link" onClick={scrollToHow}>
+                So funktioniert der AktionsPilot
+              </button>
+            )}
+            {/* Saved */}
+            {savedConcepts.length > 0 && (
+              <button className="nav-saved-btn" onClick={() => setView('saved')}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                Gespeichert
+                <span className="nav-saved-count">{savedConcepts.length}</span>
+              </button>
+            )}
+          </div>
         </div>
       </header>
 

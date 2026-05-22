@@ -52,7 +52,8 @@
   --blue:          #3B82F6;
   --blue-light:    #DBEAFE;
 
-  --font: 'Poppins', -apple-system, sans-serif;
+  --font:         'Poppins', -apple-system, sans-serif;
+  --font-display: 'Young Serif', Georgia, serif;
   --r:    12px;
   --r-sm:  8px;
   --r-lg: 16px;
@@ -110,7 +111,56 @@ body {
   margin: 0 auto; width: 100%;
   padding: 0 32px;
   display: flex; align-items: center;
+  justify-content: space-between;
 }
+
+/* Nav links */
+.topbar-nav {
+  display: flex; align-items: center; gap: 4px;
+}
+
+.nav-link {
+  background: none; border: none;
+  font-family: var(--font);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer; padding: 6px 12px;
+  border-radius: var(--r-sm);
+  transition: color .15s, background .15s;
+  white-space: nowrap;
+}
+
+.nav-link:hover,
+.nav-link.active { color: var(--text); background: var(--bg-subtle); }
+
+/* Tools dropdown */
+.nav-tools-wrap { position: relative; }
+
+.nav-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-md);
+  min-width: 160px;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.nav-dropdown-item {
+  display: block; width: 100%;
+  padding: 10px 16px;
+  background: none; border: none;
+  font-family: var(--font);
+  font-size: 13px; font-weight: 400;
+  color: var(--text-soft);
+  text-align: left; cursor: pointer;
+  transition: background .1s;
+}
+
+.nav-dropdown-item:hover { background: var(--bg-subtle); }
+.nav-dropdown-item.current { color: var(--violet); font-weight: 600; }
+.nav-dropdown-item strong { font-weight: 700; }
 
 .topbar-logo {
   font-family: var(--font);
@@ -135,8 +185,9 @@ body {
 .search-hero { padding: 48px 0 48px; text-align: center; }
 
 .search-hero h1 {
-  font-family: var(--font); font-size: 48px; font-weight: 700;
-  line-height: 1.12; letter-spacing: -.025em;
+  font-family: var(--font-display);
+  font-size: 48px; font-weight: 400;
+  line-height: 1.12; letter-spacing: -.01em;
   color: var(--text); margin-bottom: 14px;
 }
 .search-hero h1 em {
@@ -757,10 +808,13 @@ body {
 
 /* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .topbar { padding: 0 16px; }
-  .main-content { padding: 0 16px 60px; }
-  .search-hero { padding: 48px 0 36px; }
-  .search-hero h1 { font-size: 30px; }
+  .topbar { padding: 0; }
+  .topbar-inner { padding: 0 20px; }
+  .nav-how-link { display: none; }
+  .main-content { padding: 60px 20px 60px; }
+  .search-hero { padding: 32px 0 48px; }
+  .tab-bar-wrap { margin-top: 8px; margin-bottom: 28px; }
+  .search-hero h1 { font-size: 32px; }
   .cards-grid { grid-template-columns: 1fr; }
   .pitch-header h1 { font-size: 34px; }
   .margin-grid { grid-template-columns: 1fr; }
@@ -769,6 +823,9 @@ body {
   .pitch-stat-row { gap: 10px; }
   .sf-pills { gap: 6px; }
   .sf-pill { font-size: 12px; padding: 7px 12px; }
+  .how-inner { padding: 0 20px; }
+  .how-steps { grid-template-columns: 1fr 1fr; }
+  .how-title { font-size: 28px; }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -813,9 +870,9 @@ body {
 }
 
 .how-title {
-  font-family: var(--font);
-  font-size: 38px; font-weight: 700;
-  letter-spacing: -.025em; line-height: 1.15;
+  font-family: var(--font-display);
+  font-size: 38px; font-weight: 400;
+  letter-spacing: -.01em; line-height: 1.15;
   color: #FFFFFF; margin-bottom: 16px;
 }
 
