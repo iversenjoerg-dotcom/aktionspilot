@@ -195,9 +195,8 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-style: italic;
-  font-weight: 800;
-  padding-right: 6px; /* prevents italic overhang from clipping */
+  font-style: normal;
+  padding-right: 6px;
   display: inline-block;
 }
 
@@ -1321,7 +1320,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-style: italic; font-weight: 800;
+  font-style: normal;
   padding-right: 6px; display: inline-block;
 }
 
@@ -1356,4 +1355,78 @@ body {
 .coming-soon-card strong {
   color: var(--text);
   font-weight: 600;
+}
+
+/* ════════════════════════════════════════════════════════
+   BURGER MENU (mobile only)
+   ════════════════════════════════════════════════════════ */
+
+.burger-btn {
+  display: none; /* hidden on desktop */
+  background: none; border: none;
+  cursor: pointer; padding: 6px;
+  color: var(--text-soft);
+  border-radius: var(--r-sm);
+  transition: background .15s;
+}
+
+.burger-btn:hover { background: var(--bg-subtle); }
+
+@keyframes menuSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-menu-overlay {
+  display: none; /* hidden on desktop */
+  position: fixed;
+  inset: 0;
+  top: 60px;
+  background: rgba(10,15,30,.35);
+  backdrop-filter: blur(2px);
+  z-index: 500;
+}
+
+.mobile-menu {
+  background: var(--bg-white);
+  border-bottom: 1.5px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 8px 0 12px;
+  animation: menuSlideDown .2s ease;
+}
+
+.mobile-menu-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .10em; text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 10px 20px 6px;
+}
+
+.mobile-menu-item {
+  display: block; width: 100%;
+  padding: 13px 20px;
+  background: none; border: none;
+  font-family: var(--font);
+  font-size: 15px; font-weight: 400;
+  color: var(--text-soft);
+  text-align: left; cursor: pointer;
+  transition: background .1s;
+}
+
+.mobile-menu-item:hover { background: var(--bg-subtle); }
+.mobile-menu-item.current { color: var(--violet); }
+.mobile-menu-item strong { font-weight: 700; }
+
+.mobile-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 20px;
+}
+
+@media (max-width: 640px) {
+  .burger-btn { display: flex; align-items: center; justify-content: center; }
+  .mobile-menu-overlay { display: block; }
+  .nav-tools-wrap { display: none; }
+  .nav-how-link { display: none; }
+  .nav-saved-btn { display: none; }
 }

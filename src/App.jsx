@@ -771,7 +771,16 @@ export default function App() {
   const [error, setError]             = useState(null)
   const [activeTab, setActiveTab] = useState('aktions')
   const [toolsOpen, setToolsOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showAccessModal, setShowAccessModal] = useState(false)
+
+  // Close mobile menu on Escape
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const fn = (e) => { if (e.key === 'Escape') setMobileMenuOpen(false) }
+    document.addEventListener('keydown', fn)
+    return () => document.removeEventListener('keydown', fn)
+  }, [mobileMenuOpen])
 
   const switchTool = (tab) => {
     setActiveTab(tab)
@@ -964,14 +973,12 @@ export default function App() {
             }
           </span>
           <div className="topbar-nav">
-            {/* Tools dropdown */}
+            {/* Desktop: Tools dropdown */}
             <div className="nav-tools-wrap" onMouseLeave={() => setToolsOpen(false)}>
               <button
                 className={`nav-link ${toolsOpen ? 'active' : ''}`}
                 onClick={() => setToolsOpen(v => !v)}
-              >
-                Tools ▾
-              </button>
+              >Tools ▾</button>
               {toolsOpen && (
                 <div className="nav-dropdown">
                   <button className={`nav-dropdown-item ${activeTab === 'aktions' ? 'current' : ''}`} onClick={() => switchTool('aktions')}>
@@ -983,13 +990,11 @@ export default function App() {
                 </div>
               )}
             </div>
-            {/* How it works – only on AktionsPilot */}
             {activeTab === 'aktions' && (
               <button className="nav-link nav-how-link" onClick={scrollToHow}>
                 So funktioniert der AktionsPilot
               </button>
             )}
-            {/* Saved */}
             {savedConcepts.length > 0 && (
               <button className="nav-saved-btn" onClick={() => setView('saved')}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -999,8 +1004,48 @@ export default function App() {
                 <span className="nav-saved-count">{savedConcepts.length}</span>
               </button>
             )}
+            {/* Mobile: Burger */}
+            <button className="burger-btn" onClick={() => setMobileMenuOpen(v => !v)} aria-label="Menü">
+              {mobileMenuOpen
+                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              }
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu-overlay" onClick={() => setMobileMenuOpen(false)}>
+            <div className="mobile-menu" onClick={e => e.stopPropagation()}>
+              <p className="mobile-menu-label">Tools</p>
+              <button className={`mobile-menu-item ${activeTab === 'aktions' ? 'current' : ''}`}
+                onClick={() => { switchTool('aktions'); setMobileMenuOpen(false) }}>
+                Aktions<strong>Pilot</strong>
+              </button>
+              <button className={`mobile-menu-item ${activeTab === 'partner' ? 'current' : ''}`}
+                onClick={() => { switchTool('partner'); setMobileMenuOpen(false) }}>
+                Partner<strong>Pilot</strong>
+              </button>
+              {activeTab === 'aktions' && (
+                <>
+                  <div className="mobile-menu-divider" />
+                  <button className="mobile-menu-item" onClick={() => { scrollToHow(); setMobileMenuOpen(false) }}>
+                    So funktioniert der AktionsPilot
+                  </button>
+                </>
+              )}
+              {savedConcepts.length > 0 && (
+                <>
+                  <div className="mobile-menu-divider" />
+                  <button className="mobile-menu-item" onClick={() => { setView('saved'); setMobileMenuOpen(false) }}>
+                    Gespeichert ({savedConcepts.length})
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="main-content">
