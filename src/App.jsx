@@ -772,6 +772,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('aktions')
   const [toolsOpen, setToolsOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [pitchSource, setPitchSource] = useState('cards') // track where pitch was opened from
   const [showAccessModal, setShowAccessModal] = useState(false)
 
   // Close mobile menu on Escape
@@ -841,6 +842,9 @@ export default function App() {
       } else if (hash === '#pitch') {
         setView('pitch')
         window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else if (hash === '#saved') {
+        setView('saved')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
         setView('search')
         setCardsData(null)
@@ -907,11 +911,18 @@ export default function App() {
   }
 
   /* ── Generate Pitch ──────────────────────────────────── */
+  const pitchCacheKey = (c) => `${c.name}::${c.tagline || ''}`
+
   const generatePitch = async (concept) => {
-    if (pitchCache[concept.id]) {
+    const key = pitchCacheKey(concept)
+    const sourceView = view === 'loading-pitch' ? pitchSource : view // fallback safety
+    setPitchSource(view) // remember where we came from
+
+    if (pitchCache[key]) {
       setSelected(concept)
-      setPitchData(pitchCache[concept.id])
+      setPitchData(pitchCache[key])
       setView('pitch')
+      window.history.pushState({ view: 'pitch' }, '', '#pitch')
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
@@ -930,14 +941,14 @@ export default function App() {
         throw new Error(err.error || `API error ${res.status}`)
       }
       const data = await res.json()
-      setPitchCache(prev => ({ ...prev, [concept.id]: data }))
+      setPitchCache(prev => ({ ...prev, [key]: data }))
       setPitchData(data)
       setView('pitch')
       window.history.pushState({ view: 'pitch' }, '', '#pitch')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (e) {
       setError(e.message)
-      setView('cards')
+      setView(sourceView) // go back to where we came from, not always 'cards'
     } finally {
       setLoadingPitch(false)
     }
@@ -996,7 +1007,10 @@ export default function App() {
               </button>
             )}
             {savedConcepts.length > 0 && (
-              <button className="nav-saved-btn" onClick={() => setView('saved')}>
+              <button className="nav-saved-btn" onClick={() => {
+                setView('saved')
+                window.history.pushState({ view: 'saved' }, '', '#saved')
+              }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                 </svg>
@@ -1038,7 +1052,7 @@ export default function App() {
               {savedConcepts.length > 0 && (
                 <>
                   <div className="mobile-menu-divider" />
-                  <button className="mobile-menu-item" onClick={() => { setView('saved'); setMobileMenuOpen(false) }}>
+                  <button className="mobile-menu-item" onClick={() => { setView('saved'); window.history.pushState({ view: 'saved' }, '', '#saved'); setMobileMenuOpen(false) }}>
                     Gespeichert ({savedConcepts.length})
                   </button>
                 </>
@@ -1156,7 +1170,15 @@ export default function App() {
         {view === 'pitch' && pitchData && (
           <PitchDeckView
             pitch={pitchData}
-            onBack={() => window.history.back()}
+            onBack={() => {
+              if (pitchSource === 'saved') {
+                setView('saved')
+                window.history.pushState({ view: 'saved' }, '', '#saved')
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              } else {
+                window.history.back()
+              }
+            }}
           />
         )}
 
