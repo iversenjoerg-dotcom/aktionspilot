@@ -940,6 +940,11 @@ export default function App() {
         throw new Error(err.error || `API error ${res.status}`)
       }
       const data = await res.json()
+      // Eindeutige IDs vergeben — AI liefert immer "1","2","3", was zu falschen Bookmark-Matches führt
+      const ts = Date.now()
+      if (data.concepts) {
+        data.concepts = data.concepts.map((c, i) => ({ ...c, id: `${ts}-${i}` }))
+      }
       setCardsData(data)
       setView('cards')
       window.history.pushState({ view: 'cards' }, '', '#results')
