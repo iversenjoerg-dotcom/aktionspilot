@@ -101,7 +101,8 @@ async function callWithRetry(requestBody, apiKey, maxAttempts = 3) {
 
     if (response.status === 429 && attempt < maxAttempts - 1) {
       const retryAfter = response.headers.get('retry-after')
-      const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : delays[attempt]
+      const retryAfterMs = retryAfter ? Math.min(parseInt(retryAfter) * 1000, 8000) : delays[attempt]
+      const waitMs = retryAfterMs
       console.warn(`Rate limit (429) – Versuch ${attempt + 1}/${maxAttempts}, warte ${waitMs}ms …`)
       await new Promise(r => setTimeout(r, waitMs))
       continue
