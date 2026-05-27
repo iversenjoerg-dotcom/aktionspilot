@@ -45,25 +45,31 @@ Scores: Ganzzahlen 0–100, realistisch differenziert.
 Generiere 5–7 Konzepte (beste zuerst) + 3–5 Ausschlüsse.`
 
 const SEARCH_QUICK = `
-Führe 2–3 gezielte Websuchen durch bevor du antwortest:
-1. Ob dieser Händler in den letzten 3 Jahren ein ähnliches Produkt im Aktionssortiment hatte (z.B. via marktguru.de, kaufda.de)
-2. Aktuelle Amazon DE Bestseller in dieser Kategorie (Bewertungsanzahl als Sell-through-Signal)
-3. Was Konkurrenz-Discounter in dieser Kategorie aktuell anbieten (Aldi Nord vs. Süd, Lidl)
+Führe 4 gezielte Websuchen durch bevor du antwortest:
+1. PFLICHT-KEYWORDSUCHE: "[Händlername] [Produktname]" als einfache Keyword-Suche — findet Chip.de, Mydealz, Presseartikel und aktuelle Händler-Aktionen
+2. SCHWESTER-DISCOUNTER: Aldi Süd ↔ Aldi Nord; Lidl ↔ Kaufland. Gleiche Keyword-Logik: "Aldi Nord [Produkt]" etc. → Treffer = Validierungssignal (nicht Ausschluss)
+3. ECHTER WETTBEWERBER: Bei Aldi-Anfrage → "Lidl [Produkt]" und "Kaufland [Produkt]"; bei Lidl-Anfrage → "Aldi [Produkt]". Treffer = Whitespace-Problem, stärkt Ausschluss-Argument
+4. Amazon DE Bestseller der Kategorie als Sell-through-Signal
 
-Zitiere konkrete Fundstellen in deinen Begründungen.`
+FRAMING-REGEL:
+- Schwester-Treffer (Aldi Nord bei Aldi-Süd-Anfrage): im "why" als Beleg nennen, im "caveat" erklären warum kein Ausschluss ("geografisch getrennte Kundschaft")
+- Wettbewerber-Treffer (Lidl hat es aktiv): im "caveat" als ernstes Warnsignal, oder in "excluded" mit Begründung`
 
 const SEARCH_DEEP = `
-Führe 5–7 gezielte Websuchen durch bevor du antwortest:
-1. Ob dieser Händler in den letzten 3 Jahren ein ähnliches Produkt im Aktionssortiment hatte (marktguru.de, kaufda.de, Händler-Prospektarchive)
-2. Ob Aldi UK, Aldi Australien, Aldi USA oder Lidl international das Produkt bereits gelistet haben — das zeigt bewährtes Potenzial ohne DACH-Whitespace zu verringern (Beispiel: Mushroom Grow Box bei Aldi Australia 2024)
-3. Aktuelle Amazon DE Bestseller und Bewertungsanzahl als Sell-through-Signal
-4. Trendberichte von marktguru, EHI oder NielsenIQ zur Kategorie
-5. Social-Media-Signale: TikTok-Trends, Pinterest und Instagram zur Kategorie — bewerte ob das Publikum zum Händler-Kunden passt (z.B. Aldi-Käufer 30–55 Jahre)
-6. Für Food/Saisonal: aktuelle Lebensmittelzeitung-Berichte
-7. Für Spielzeug/Elektronik: Spielwarenmesse-Trends, aktuelle Toy-Trendberichte (NPD, Spielzeug-Industrie)
+Führe 6–8 gezielte Websuchen durch bevor du antwortest:
+1. PFLICHT-KEYWORDSUCHE: "[Händlername] [Produktname]" als einfache Keyword-Suche — exakt wie ein Mensch es bei Google eingeben würde (z.B. "Aldi Sofortbildkamera Kinder"). Findet Chip.de, Mydealz, aktuelle Deals, Presseartikel.
+2. SCHWESTER-DISCOUNTER: Wenn Aldi Süd → auch "Aldi Nord [Produkt]"; wenn Aldi Nord → "Aldi Süd [Produkt]"; wenn Lidl → "Kaufland [Produkt]". Treffer = Validierungssignal: zeigt Sellability ohne DACH-Whitespace zu verringern. Muss im Pitch-Material erscheinen.
+3. ECHTER WETTBEWERBER: Bei Aldi-Anfrage → "Lidl [Produkt]", "Kaufland [Produkt]", ggf. "dm [Produkt]" oder "Rossmann [Produkt]" je nach Kategorie. Treffer = Whitespace-Problem, stärkt Ausschluss-Argument.
+4. INTERNATIONAL: Aldi UK, Aldi Australien, Aldi USA oder Lidl international — zeigt bewährtes Potenzial ohne DACH-Whitespace zu verringern
+5. Amazon DE Bestseller und Bewertungsanzahl als Sell-through-Signal
+6. Trendberichte von marktguru, EHI oder NielsenIQ zur Kategorie
+7. Social-Media-Signale: TikTok, Pinterest, Instagram — bewerte ob Publikum zum Händler-Kunden passt
+8. Spielwarenmesse/NPD für Spielzeug/Elektronik — oder Lebensmittelzeitung für Food/Saisonal
 
-Zitiere konkrete Fundstellen mit Jahr in deinen Begründungen (z.B. "Aldi Australia listete X in 2024").
-Nutze echte Daten um Scores und Pitch-Argumente zu belegen.`
+FRAMING-PFLICHT:
+- Schwester-Treffer (z.B. "Aldi Nord hatte Produkt im März 2026 für 19,99 €"): MUSS in "why" als Validierungsbeleg erscheinen + in "caveat" erklären ("Aldi Süd hat geografisch eigene Kundschaft — kein Ausschlussgrund, stärkt Pitch")
+- Wettbewerber-Treffer (z.B. "Lidl hat es gerade aktiv im Sortiment"): in "caveat" als ernstes Warnsignal nennen, oder Konzept in "excluded" verschieben mit klarer Begründung
+Zitiere konkrete Fundstellen mit Jahr in den Begründungen.`
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
