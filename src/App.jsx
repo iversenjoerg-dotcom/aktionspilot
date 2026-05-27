@@ -540,6 +540,27 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   SOURCE BADGE
+   ═══════════════════════════════════════════════════════════ */
+function SourceBadge({ label, url }) {
+  if (!url) return null
+  return (
+    <a
+      className="source-badge"
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={e => e.stopPropagation()}
+    >
+      {label}
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 3 }}>
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
 function PitchDeckView({ pitch, onBack }) {
@@ -553,7 +574,10 @@ function PitchDeckView({ pitch, onBack }) {
     return (
       <div className="price-bar-row" key={i}>
         <span className="price-bar-lbl" style={comp.isAldi ? { fontWeight: 700, color: 'var(--text)' } : {}}>
-          {comp.name}
+          {comp.url
+            ? <a href={comp.url} target="_blank" rel="noopener noreferrer" className="comp-link">{comp.name}</a>
+            : comp.name
+          }
         </span>
         <div className="price-bar-track">
           <div className="price-bar-fill" style={{
@@ -683,6 +707,11 @@ function PitchDeckView({ pitch, onBack }) {
             <div key={i} className={`arg-block ${i % 2 === 1 ? 'forest' : ''}`}>
               <p className="arg-title">{h.title}</p>
               <p className="arg-body">{h.body}</p>
+              {h.sources?.length > 0 && (
+                <div className="source-badges">
+                  {h.sources.map((s, j) => <SourceBadge key={j} label={s.label} url={s.url} />)}
+                </div>
+              )}
             </div>
           ))}
         </section>
@@ -696,6 +725,11 @@ function PitchDeckView({ pitch, onBack }) {
             <div key={i} className="arg-block">
               <p className="arg-title">{arg.title}</p>
               <p className="arg-body">{arg.body}</p>
+              {arg.sources?.length > 0 && (
+                <div className="source-badges">
+                  {arg.sources.map((s, j) => <SourceBadge key={j} label={s.label} url={s.url} />)}
+                </div>
+              )}
             </div>
           ))}
           {pitch.buyerQA?.length > 0 && (

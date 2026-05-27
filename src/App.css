@@ -773,6 +773,23 @@ body {
 .arg-block { border-left: 3px solid var(--violet); background: var(--violet-muted); padding: 14px 18px; border-radius: 0 var(--r-sm) var(--r-sm) 0; margin-bottom: 14px; border-top: 1px solid var(--violet-light); border-right: 1px solid var(--violet-light); border-bottom: 1px solid var(--violet-light); }
 .arg-block.forest { border-left-color: var(--green); background: rgba(16,185,129,.06); border-color: #A7F3D0; border-left-color: var(--green); }
 .arg-block.blue   { border-left-color: var(--blue);  background: rgba(59,130,246,.06); border-color: #BFDBFE; border-left-color: var(--blue); }
+
+.source-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.source-badge {
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 600; letter-spacing: .03em;
+  color: var(--brand-blue); background: var(--brand-blue-light);
+  border: 1px solid rgba(37,99,235,.2); border-radius: 5px;
+  padding: 3px 8px; text-decoration: none; transition: background .15s;
+  white-space: nowrap;
+}
+.source-badge:hover { background: rgba(37,99,235,.12); }
+
+.comp-link {
+  color: inherit; text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 3px; transition: color .15s;
+}
+.comp-link:hover { color: var(--violet); }
 .arg-title { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 .arg-body  { font-size: 13.5px; color: var(--text-soft); line-height: 1.65; margin: 0; }
 
