@@ -2,6 +2,27 @@
 
 Alle Änderungen je Version. Neueste Version zuerst.
 
+## v39 — Quellen-Badges & Wettbewerber-Links im Pitch-Deck
+**Dateien:** `api/generate-pitch.js`, `src/App.jsx`, `src/App.css`
+
+- Web Search in `generate-pitch.js` aktiviert: 3 gezielte Suchen (Wettbewerber-URLs auf Amazon.de, Trend-Quelle, Händler-Referenz)
+- JSON-Schema erweitert: `competitors[].url` für direkte Shop-Links, `sources: [{label, url}]` auf `sellthrough.highlights[]` und `arguments[]`
+- `SourceBadge`-Komponente: kleine klickbare Chips mit Extern-Link-Icon, nur gerendert wenn echte URL vorhanden
+- Wettbewerbsprodukte in der Preisarchitektur-Tabelle verlinkt (gepunktete Unterstreichung, öffnet in neuem Tab)
+- JSON-Extraktion in `generate-pitch.js` auf Multi-Block-Antworten umgestellt (wie generate-cards.js)
+
+---
+## v38 — PDF-Export für Pitch-Deck
+**Dateien:** `src/App.jsx`, `src/App.css`
+
+- Download-Button "Als PDF speichern" in der Pitch-Deck-Topbar ergänzt (neben Back-Button)
+- Klick öffnet den Browser-eigenen Drucken/Speichern-Dialog — keine zusätzlichen Dependencies
+- `@media print` CSS-Block: Navigation, Topbar, Footer und PDF-Button werden ausgeblendet
+- Hintergrund, Dot-Grid und Box-Shadows werden für den Druck entfernt
+- Seitenumbrüche an sinnvollen Stellen gesetzt (zwischen Pitch-Sektionen)
+- Farbige Elemente (Stat-Cards, Score-Bars, Preis-Balken) mit `print-color-adjust: exact` erzwungen
+
+---
 
 ## v37 — 429 Rate-Limit-Fix + Vercel Timeout
 **Dateien:** `api/generate-cards.js`, `api/generate-pitch.js`, `vercel.json`
