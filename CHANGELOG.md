@@ -2,6 +2,15 @@
 
 Alle Änderungen je Version. Neueste Version zuerst.
 
+
+## v37 — 429 Rate-Limit-Fix + Vercel Timeout
+**Dateien:** `api/generate-cards.js`, `api/generate-pitch.js`, `vercel.json`
+
+- `callWithRetry`-Hilfsfunktion in beiden API-Dateien eingebaut: bei HTTP 429 bis zu 3 Versuche mit Exponential Backoff (2s → 5s → 10s)
+- `Retry-After`-Header von Anthropic wird berücksichtigt falls vorhanden
+- Nutzerfreundliche deutsche Fehlermeldung bei anhaltendem Rate-Limit statt rohem `Anthropic API returned 429`
+- `vercel.json`: `maxDuration: 60` für beide API-Funktionen ergänzt, damit Retry-Wartezeiten nicht in Vercel-Timeout laufen
+
 ---
 
 ## v9 — How It Works Section + Footer + Impressum

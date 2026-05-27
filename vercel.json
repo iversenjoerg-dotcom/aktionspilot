@@ -2,5 +2,9 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)",     "destination": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/generate-cards.js": { "maxDuration": 60 },
+    "api/generate-pitch.js": { "maxDuration": 60 }
+  }
 }
