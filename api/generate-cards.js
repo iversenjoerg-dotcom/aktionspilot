@@ -71,6 +71,37 @@ FRAMING-PFLICHT:
 - Wettbewerber-Treffer (z.B. "Lidl hat es gerade aktiv im Sortiment"): in "caveat" als ernstes Warnsignal nennen, oder Konzept in "excluded" verschieben mit klarer Begründung
 Zitiere konkrete Fundstellen mit Jahr in den Begründungen.`
 
+// ── Retry helper: bis zu 3 Versuche mit Exponential Backoff bei 429 ──────────
+async function callWithRetry(requestBody, apiKey, maxAttempts = 3) {
+  const delays = [2000, 5000, 10000] // 2s → 5s → 10s
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    if (response.ok) return response
+
+    if (response.status === 429 && attempt < maxAttempts - 1) {
+      // Retry-After Header berücksichtigen falls vorhanden
+      const retryAfter = response.headers.get('retry-after')
+      const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : delays[attempt]
+      console.warn(`Rate limit (429) – Versuch ${attempt + 1}/${maxAttempts}, warte ${waitMs}ms …`)
+      await new Promise(r => setTimeout(r, waitMs))
+      continue
+    }
+
+    // Andere Fehler oder letzter Versuch: direkt zurückgeben
+    return response
+  }
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -83,25 +114,23 @@ module.exports = async function handler(req, res) {
   const systemPrompt = SYSTEM_BASE + (deepAnalysis ? SEARCH_DEEP : SEARCH_QUICK)
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        system: systemPrompt,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: query }],
-      }),
-    })
+    const response = await callWithRetry({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system: systemPrompt,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      messages: [{ role: 'user', content: query }],
+    }, apiKey)
 
     if (!response.ok) {
       const errBody = await response.text()
       console.error('Anthropic API error:', response.status, errBody)
+
+      if (response.status === 429) {
+        return res.status(429).json({
+          error: 'Die KI ist gerade stark ausgelastet. Bitte versuche es in 30–60 Sekunden nochmal.',
+        })
+      }
       return res.status(502).json({ error: `Anthropic API returned ${response.status}` })
     }
 

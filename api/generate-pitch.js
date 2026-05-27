@@ -72,6 +72,35 @@ Regeln:
 - Sei konkret und produktspezifisch — keine generischen Phrasen
 - Aktuelle Jahreszahlen: Pitch jetzt (Mai/Juni 2026), Produktionsstart Herbst 2026, Aktionsstart Herbst 2027`
 
+// ── Retry helper: bis zu 3 Versuche mit Exponential Backoff bei 429 ──────────
+async function callWithRetry(requestBody, apiKey, maxAttempts = 3) {
+  const delays = [2000, 5000, 10000] // 2s → 5s → 10s
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    if (response.ok) return response
+
+    if (response.status === 429 && attempt < maxAttempts - 1) {
+      const retryAfter = response.headers.get('retry-after')
+      const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : delays[attempt]
+      console.warn(`Rate limit (429) – Versuch ${attempt + 1}/${maxAttempts}, warte ${waitMs}ms …`)
+      await new Promise(r => setTimeout(r, waitMs))
+      continue
+    }
+
+    return response
+  }
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -102,24 +131,22 @@ Kontext der ursprünglichen Anfrage: ${context || 'Weihnachtsaktion bei Aldi Sü
 Liefere jetzt das vollständige JSON-Pitch-Konzept.`
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 6000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    })
+    const response = await callWithRetry({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 6000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+    }, apiKey)
 
     if (!response.ok) {
       const errBody = await response.text()
       console.error('Anthropic API error:', response.status, errBody)
+
+      if (response.status === 429) {
+        return res.status(429).json({
+          error: 'Die KI ist gerade stark ausgelastet. Bitte versuche es in 30–60 Sekunden nochmal.',
+        })
+      }
       return res.status(502).json({ error: `Anthropic API returned ${response.status}` })
     }
 
