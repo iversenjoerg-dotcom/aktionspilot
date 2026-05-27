@@ -4,7 +4,7 @@
     { "source": "/(.*)",     "destination": "/index.html" }
   ],
   "functions": {
-    "api/generate-cards.js": { "maxDuration": 60 },
-    "api/generate-pitch.js": { "maxDuration": 60 }
+    "api/generate-cards.js": { "maxDuration": 120 },
+    "api/generate-pitch.js": { "maxDuration": 120 }
   }
 }
