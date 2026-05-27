@@ -82,52 +82,91 @@ function SearchForm({ onSearch, loading }) {
   const [retailer, setRetailer] = useState('')
   const [category, setCategory] = useState('')
   const [season, setSeason]     = useState('')
-  const [price, setPrice]       = useState('')
+  const [price, setPrice]       = useState('')   // nur für 'skip'
   const [freeText, setFreeText] = useState('')
   const [deepAnalysis, setDeepAnalysis] = useState(false)
-  const freeRef = useRef(null)
+
+  // Eigene Kategorie
+  const [showCustomCat, setShowCustomCat]     = useState(false)
+  const [customCatInput, setCustomCatInput]   = useState('')
+  // Eigener Anlass
+  const [showCustomSeason, setShowCustomSeason]   = useState(false)
+  const [customSeasonInput, setCustomSeasonInput] = useState('')
+  // Preis-Felder
+  const [priceMin, setPriceMin] = useState('')
+  const [priceMax, setPriceMax] = useState('')
+
+  const freeRef    = useRef(null)
+  const customCatRef    = useRef(null)
+  const customSeasonRef = useRef(null)
 
   const cats      = retailer ? (CATEGORIES[retailer] || DEFAULT_CATEGORIES) : []
   const charCount = freeText.trim().length
 
-  // CTA block erscheint: sobald Freitext-Feld fokussiert ODER guided vollständig
+  // Preis gilt als gesetzt wenn: skip ODER mind. ein Feld befüllt
+  const priceReady = price === 'skip' || priceMin !== '' || priceMax !== ''
+
   const showCTA =
-    (mode === 'guided' && retailer && category && season && price) ||
+    (mode === 'guided' && retailer && category && season && priceReady) ||
     mode === 'custom'
 
-  // Button aktiv: min. 3 Zeichen im Freitext ODER guided vollständig
   const canSearch =
-    (mode === 'guided' && retailer && category && season && price) ||
+    (mode === 'guided' && retailer && category && season && priceReady) ||
     (mode === 'custom' && charCount >= 3)
 
   const handleRetailer = (val) => {
     setRetailer(val)
-    setCategory('')
-    setSeason('')
-    setPrice('')
+    setCategory(''); setShowCustomCat(false); setCustomCatInput('')
+    setSeason('');   setShowCustomSeason(false); setCustomSeasonInput('')
+    setPrice(''); setPriceMin(''); setPriceMax('')
     if (val) setMode('guided')
   }
 
   const handleCategory = (val) => {
     setCategory(val)
-    setSeason('')
-    setPrice('')
+    setShowCustomCat(false); setCustomCatInput('')
+    setSeason(''); setShowCustomSeason(false); setCustomSeasonInput('')
+    setPrice(''); setPriceMin(''); setPriceMax('')
   }
 
   const reset = () => {
     setMode('initial')
     setRetailer('')
-    setCategory('')
-    setSeason('')
-    setPrice('')
+    setCategory(''); setShowCustomCat(false); setCustomCatInput('')
+    setSeason('');   setShowCustomSeason(false); setCustomSeasonInput('')
+    setPrice(''); setPriceMin(''); setPriceMax('')
     setFreeText('')
   }
 
   const handleFreeTextChange = (e) => {
     setFreeText(e.target.value)
-    // Aktiviert custom mode — aber nie automatisch zurücksetzen wenn Feld geleert wird
-    // Nur ← Zurück setzt den Mode zurück
     if (mode === 'initial') setMode('custom')
+  }
+
+  // Eigene Kategorie bestätigen
+  const confirmCustomCat = () => {
+    const val = customCatInput.trim()
+    if (val) { handleCategory(val) }
+    else     { setShowCustomCat(false) }
+  }
+
+  // Eigener Anlass bestätigen
+  const confirmCustomSeason = () => {
+    const val = customSeasonInput.trim()
+    if (val) { setSeason(val); setShowCustomSeason(false); setPrice(''); setPriceMin(''); setPriceMax('') }
+    else     { setShowCustomSeason(false) }
+  }
+
+  // Preis-String für Query bauen
+  const buildPriceStr = () => {
+    const mn = parseInt(priceMin)
+    const mx = parseInt(priceMax)
+    if (!isNaN(mn) && !isNaN(mx)) {
+      return mn <= mx ? `${mn}–${mx} €` : `${mx}–${mn} €`
+    }
+    if (!isNaN(mn)) return `ab ${mn} €`
+    if (!isNaN(mx)) return `bis ${mx} €`
+    return ''
   }
 
   const search = () => {
@@ -138,7 +177,8 @@ function SearchForm({ onSearch, loading }) {
     }
     let q = `Welche Produkte eignen sich für einen Aktions-Slot bei ${retailer}, Kategorie: ${category}`
     if (season && season !== 'skip') q += `, Saison / Anlass: ${season}`
-    if (price  && price  !== 'skip') q += `, Ziel-VK Preisrahmen: ${price}`
+    const priceStr = price !== 'skip' ? buildPriceStr() : ''
+    if (priceStr) q += `, Ziel-VK Preisrahmen: ${priceStr}`
     q += '. Analysiere Markttrends, Discounter-Whitespace und Sell-through-Potenzial. Liefere konkrete Produktkonzepte mit Scores.'
     onSearch(q, deepAnalysis)
   }
@@ -199,11 +239,28 @@ function SearchForm({ onSearch, loading }) {
               <span>{category}</span>
               <button className="sf-pill-clear" onClick={() => handleCategory('')}>✕</button>
             </div>
+          ) : showCustomCat ? (
+            <div className="sf-custom-input-wrap">
+              <input
+                ref={customCatRef}
+                className="sf-input sf-custom-input"
+                value={customCatInput}
+                onChange={e => setCustomCatInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') confirmCustomCat(); if (e.key === 'Escape') setShowCustomCat(false) }}
+                placeholder="z. B. Kinder-Elektronik"
+                autoFocus
+              />
+              <div className="sf-custom-actions">
+                <button className="sf-custom-confirm" onClick={confirmCustomCat} disabled={!customCatInput.trim()}>Übernehmen →</button>
+                <button className="sf-custom-back" onClick={() => { setShowCustomCat(false); setCustomCatInput('') }}>← Zurück zur Auswahl</button>
+              </div>
+            </div>
           ) : (
             <div className="sf-pills">
               {cats.map(c => (
                 <button key={c} className="sf-pill" onClick={() => handleCategory(c)}>{c}</button>
               ))}
+              <button className="sf-pill sf-pill-custom" onClick={() => setShowCustomCat(true)}>+ Eigene Kategorie</button>
             </div>
           )}
         </div>
@@ -219,13 +276,30 @@ function SearchForm({ onSearch, loading }) {
           {season ? (
             <div className="sf-pill-selected">
               <span>{season === 'skip' ? 'Keine Angabe' : season}</span>
-              <button className="sf-pill-clear" onClick={() => { setSeason(''); setPrice(''); }}>✕</button>
+              <button className="sf-pill-clear" onClick={() => { setSeason(''); setShowCustomSeason(false); setCustomSeasonInput(''); setPrice(''); setPriceMin(''); setPriceMax('') }}>✕</button>
+            </div>
+          ) : showCustomSeason ? (
+            <div className="sf-custom-input-wrap">
+              <input
+                ref={customSeasonRef}
+                className="sf-input sf-custom-input"
+                value={customSeasonInput}
+                onChange={e => setCustomSeasonInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') confirmCustomSeason(); if (e.key === 'Escape') setShowCustomSeason(false) }}
+                placeholder="z. B. Muttertag, Back-to-School …"
+                autoFocus
+              />
+              <div className="sf-custom-actions">
+                <button className="sf-custom-confirm" onClick={confirmCustomSeason} disabled={!customSeasonInput.trim()}>Übernehmen →</button>
+                <button className="sf-custom-back" onClick={() => { setShowCustomSeason(false); setCustomSeasonInput('') }}>← Zurück zur Auswahl</button>
+              </div>
             </div>
           ) : (
             <div className="sf-pills">
               {SEASONS.map(s => (
                 <button key={s} className="sf-pill" onClick={() => setSeason(s)}>{s}</button>
               ))}
+              <button className="sf-pill sf-pill-custom" onClick={() => setShowCustomSeason(true)}>+ Eigener Anlass</button>
               <button className="sf-pill sf-pill-skip" onClick={() => setSeason('skip')}>Überspringen</button>
             </div>
           )}
@@ -239,18 +313,36 @@ function SearchForm({ onSearch, loading }) {
             Ziel-VK Preisrahmen
             <span className="sf-optional"> – optional</span>
           </p>
-          {price ? (
+          {price === 'skip' ? (
             <div className="sf-pill-selected">
-              <span>{price === 'skip' ? 'Keine Angabe' : price}</span>
+              <span>Keine Angabe</span>
               <button className="sf-pill-clear" onClick={() => setPrice('')}>✕</button>
             </div>
           ) : (
-            <div className="sf-pills">
-              {PRICE_RANGES.map(p => (
-                <button key={p} className="sf-pill" onClick={() => setPrice(p)}>{p}</button>
-              ))}
-              <button className="sf-pill sf-pill-skip" onClick={() => setPrice('skip')}>Überspringen</button>
-            </div>
+            <>
+              <div className="sf-price-range">
+                <input
+                  className="sf-price-input"
+                  type="number" min="1" max="100"
+                  value={priceMin}
+                  onChange={e => setPriceMin(e.target.value)}
+                  onKeyDown={onKey}
+                  placeholder="1"
+                />
+                <span className="sf-price-unit">€</span>
+                <span className="sf-price-bis">bis</span>
+                <input
+                  className="sf-price-input"
+                  type="number" min="1" max="100"
+                  value={priceMax}
+                  onChange={e => setPriceMax(e.target.value)}
+                  onKeyDown={onKey}
+                  placeholder="100"
+                />
+                <span className="sf-price-unit">€</span>
+              </div>
+              <button className="sf-pill sf-pill-skip" style={{ marginTop: 10 }} onClick={() => setPrice('skip')}>Überspringen</button>
+            </>
           )}
         </div>
       )}

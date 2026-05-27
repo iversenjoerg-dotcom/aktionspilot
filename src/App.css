@@ -350,6 +350,52 @@ body {
   background: var(--bg-subtle);
 }
 
+.sf-pill-custom {
+  border-style: dashed;
+  color: var(--violet);
+  border-color: var(--violet-light);
+  background: var(--violet-muted);
+}
+.sf-pill-custom:hover {
+  background: var(--violet-muted);
+  border-color: var(--violet);
+}
+
+/* ── Custom Input (Eigene Kategorie / Eigener Anlass) ── */
+.sf-custom-input-wrap { display: flex; flex-direction: column; gap: 8px; }
+.sf-custom-input { margin-bottom: 0 !important; }
+.sf-custom-actions { display: flex; align-items: center; gap: 12px; }
+.sf-custom-confirm {
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  color: white; background: var(--violet); border: none;
+  border-radius: var(--r-sm); padding: 7px 14px; cursor: pointer; transition: opacity .15s;
+}
+.sf-custom-confirm:hover { opacity: .88; }
+.sf-custom-confirm:disabled { opacity: .4; cursor: not-allowed; }
+.sf-custom-back {
+  font-family: var(--font); font-size: 12px; color: var(--text-faint);
+  background: none; border: none; cursor: pointer; padding: 0; transition: color .15s;
+}
+.sf-custom-back:hover { color: var(--violet); }
+
+/* ── Preis-Range Eingabe ── */
+.sf-price-range {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.sf-price-input {
+  font-family: var(--font); font-size: 15px; font-weight: 500;
+  color: var(--text); background: var(--bg-white);
+  border: 1.5px solid var(--border-mid); border-radius: var(--r-sm);
+  padding: 9px 12px; width: 80px; text-align: center;
+  transition: border-color .15s;
+  -moz-appearance: textfield;
+}
+.sf-price-input::-webkit-outer-spin-button,
+.sf-price-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.sf-price-input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px var(--violet-muted); }
+.sf-price-unit { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+.sf-price-bis  { font-size: 13px; color: var(--text-faint); padding: 0 2px; }
+
 /* ── sf-section: collapse wrapper (same mechanic as sf-alt-wrap) ── */
 .sf-section {
   overflow: hidden;
