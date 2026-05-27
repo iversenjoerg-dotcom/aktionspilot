@@ -695,6 +695,20 @@ body {
 }
 .back-btn:hover { border-color: var(--violet); color: var(--violet); background: var(--violet-muted); }
 
+.pitch-topbar-right {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.pdf-btn {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  color: white; background: var(--violet);
+  border: none; border-radius: var(--r-sm);
+  padding: 8px 16px; cursor: pointer; transition: opacity .15s;
+  box-shadow: var(--shadow-violet);
+}
+.pdf-btn:hover { opacity: .88; }
+
 .pitch-badge {
   font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   color: var(--brand-blue); background: var(--brand-blue-light);
@@ -1429,4 +1443,47 @@ body {
   .nav-tools-wrap { display: none; }
   .nav-how-link { display: none; }
   .nav-saved-btn { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRINT / PDF EXPORT
+   ═══════════════════════════════════════════════════════════ */
+@media print {
+  /* Alles außer dem Pitch-Inhalt ausblenden */
+  .topbar,
+  .pitch-topbar,
+  .site-footer,
+  .how-section,
+  .tab-bar-wrap,
+  .pdf-btn { display: none !important; }
+
+  /* Hintergrund bereinigen */
+  body, .app-shell, .main-content { background: white !important; }
+
+  /* Dot-Grid-Pseudo-Element entfernen */
+  .app-shell::before { display: none !important; }
+
+  /* Seitenränder und Padding */
+  .pitch-view { padding: 0 !important; }
+  .main-content { padding: 0 !important; max-width: 100% !important; }
+
+  /* Schatten entfernen (drucken schlecht) */
+  * { box-shadow: none !important; }
+
+  /* Seitenumbrüche sinnvoll setzen */
+  .pitch-header  { break-after: avoid; }
+  .pitch-section { break-inside: avoid; }
+  .pitch-stat-row { break-inside: avoid; }
+
+  /* Farbige Elemente für Druck erzwingen */
+  .pitch-stat.accent,
+  .pdf-btn,
+  .score-fill,
+  .price-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Links ohne Unterstreichung */
+  a { text-decoration: none !important; }
+
+  /* Pitch-Header Schrift etwas verkleinern */
+  .pitch-header h1 { font-size: 28px !important; }
 }
