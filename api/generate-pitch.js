@@ -26,8 +26,8 @@ JSON-Schema (exakt einhalten):
     "margin": "≈ 47 %",
     "consumerArg": "Warum der Endkäufer den Preis als Vorteil wahrnimmt (1–2 Sätze)",
     "competitors": [
-      { "name": "Wettbewerber Name", "price": 59.99, "priceFormatted": "59,99 €", "channel": "Fachhandel", "isAldi": false },
-      { "name": "PRODUKTNAME (Aldi Süd)", "price": 29.99, "priceFormatted": "29,99 €", "channel": "Aktionspreis", "isAldi": true }
+      { "name": "Wettbewerber Name", "price": 59.99, "priceFormatted": "59,99 €", "channel": "Fachhandel", "isAldi": false, "url": "https://amazon.de/dp/ASIN" },
+      { "name": "PRODUKTNAME (Aldi Süd)", "price": 29.99, "priceFormatted": "29,99 €", "channel": "Aktionspreis", "isAldi": true, "url": null }
     ]
   },
   "packaging": [
@@ -41,16 +41,16 @@ JSON-Schema (exakt einhalten):
   "sellthrough": {
     "intro": "Einleitungssatz zum Sell-through",
     "highlights": [
-      { "title": "Kaufmotivation / Argument", "body": "Erklärung" },
-      { "title": "Marktdaten als Beweis", "body": "Konkrete Zahlen und Quellen" },
-      { "title": "POS-Dynamik", "body": "Warum der Kaufimpuls am Mittelgang funktioniert" }
+      { "title": "Kaufmotivation / Argument", "body": "Erklärung", "sources": [] },
+      { "title": "Marktdaten als Beweis", "body": "Konkrete Zahlen und Quellen", "sources": [{ "label": "NielsenIQ 2024", "url": "https://..." }] },
+      { "title": "POS-Dynamik", "body": "Warum der Kaufimpuls am Mittelgang funktioniert", "sources": [] }
     ]
   },
   "arguments": [
-    { "title": "Argument 1 — Titel", "body": "Ausformuliertes Argument für den Einkäufer" },
-    { "title": "Argument 2 — Titel", "body": "Ausformuliertes Argument" },
-    { "title": "Argument 3 — Titel", "body": "Ausformuliertes Argument" },
-    { "title": "Argument 4 — Titel", "body": "Ausformuliertes Argument" }
+    { "title": "Argument 1 — Titel", "body": "Ausformuliertes Argument für den Einkäufer", "sources": [] },
+    { "title": "Argument 2 — Titel", "body": "Ausformuliertes Argument", "sources": [{ "label": "Chip.de", "url": "https://..." }] },
+    { "title": "Argument 3 — Titel", "body": "Ausformuliertes Argument", "sources": [] },
+    { "title": "Argument 4 — Titel", "body": "Ausformuliertes Argument", "sources": [] }
   ],
   "buyerQA": [
     { "q": "Frage des Einkäufers", "a": "Antwort" }
@@ -70,7 +70,17 @@ Regeln:
 - pricing.competitors: immer absteigend nach price sortiert, Aldi-Version zuletzt (günstigster Preis, isAldi: true)
 - 6–10 specs, 4 arguments, 4–6 buyerQA, 4–6 risks, 5–7 timeline-Einträge
 - Sei konkret und produktspezifisch — keine generischen Phrasen
-- Aktuelle Jahreszahlen: Pitch jetzt (Mai/Juni 2026), Produktionsstart Herbst 2026, Aktionsstart Herbst 2027`
+- Aktuelle Jahreszahlen: Pitch jetzt (Mai/Juni 2026), Produktionsstart Herbst 2026, Aktionsstart Herbst 2027
+
+Führe vor der Antwort genau 3 Websuchen durch:
+1. WETTBEWERBER-URLS: Suche jedes Produkt in pricing.competitors auf Amazon.de (z.B. "Fujifilm Instax Mini 12 amazon.de") → trage die direkte Produkt-URL in competitors[].url ein. Aldi-Eigenmarke bekommt url: null.
+2. TREND-QUELLE: Suche einen aktuellen Marktbericht zur Produktkategorie (marktguru, EHI, NielsenIQ, Lebensmittelzeitung, Statista) → trage URL + Label in sources des passenden sellthrough.highlight ein.
+3. HÄNDLER-REFERENZ: Suche "[Händler] [Produkt]" auf Mydealz, Chip.de oder ähnlichen Quellen → wenn Treffer, trage URL + Label in sources des passenden arguments-Eintrags ein.
+
+QUELLEN-PFLICHT:
+- competitors[].url: Direkte Amazon.de- oder Shop-URL wenn gefunden, sonst null
+- highlights[].sources und arguments[].sources: nur befüllen wenn echte URL aus Websuche vorliegt — kein Erraten von URLs
+- Leere Arrays [] sind erlaubt wenn keine Quelle gefunden`
 
 // ── Retry helper: bis zu 3 Versuche mit Exponential Backoff bei 429 ──────────
 async function callWithRetry(requestBody, apiKey, maxAttempts = 3) {
@@ -135,6 +145,7 @@ Liefere jetzt das vollständige JSON-Pitch-Konzept.`
       model: 'claude-sonnet-4-20250514',
       max_tokens: 6000,
       system: SYSTEM_PROMPT,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{ role: 'user', content: userPrompt }],
     }, apiKey)
 
@@ -151,7 +162,9 @@ Liefere jetzt das vollständige JSON-Pitch-Konzept.`
     }
 
     const data = await response.json()
-    const rawText = data.content?.[0]?.text || ''
+    // Web Search liefert mehrere Content-Blöcke — Text-Block gezielt extrahieren
+    const textBlock = data.content?.find(block => block.type === 'text')
+    const rawText = textBlock?.text || data.content?.[0]?.text || ''
 
     // Robust JSON extraction
     let jsonStr = rawText.trim()
