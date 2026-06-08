@@ -2,6 +2,41 @@
 
 Alle Änderungen je Version. Neueste Version zuerst.
 
+## v44 — Einklappbare Sections im Pitch-Deck (Überarbeitung)
+**Dateien:** `src/App.jsx`, `src/App.css`
+
+- Neue `PitchSection`-Komponente mit Slide-Animation (CSS `grid-template-rows`)
+- Section 01 (Positionierung) standardmäßig ausgeklappt, Sections 02–08 + Zusammenfassung eingeklappt
+- Chevron-Icon dreht sich beim Öffnen/Schließen
+- Alle Section-Titel auf einen Blick sichtbar — ideal für Präsentationen
+- Toggle-Button mit Hover-Highlight in Violet-Muted
+
+---
+## v42 — Vercel Pro: maxDuration auf 120s erhöht
+**Dateien:** `vercel.json`
+
+- `maxDuration` für beide API-Funktionen von 60s auf 120s erhöht (setzt Vercel Pro voraus)
+- Gibt der Tiefenanalyse (6–8 Websuchen) ausreichend Laufzeit ohne Timeout
+
+---
+## v41 — Suchformular: Eigene Kategorie/Anlass + Preis-Eingabefelder
+**Dateien:** `src/App.jsx`, `src/App.css`
+
+- "+ Eigene Kategorie"-Pill in der Kategorie-Auswahl: öffnet Texteingabe-Feld mit Bestätigen/Zurück-Aktionen
+- "+ Eigener Anlass"-Pill in der Saison-Auswahl: identisches Muster
+- Preis-Bereich: Pill-Auswahl ersetzt durch zwei Zahlenfelder (1–100 €) im Format `[min] € bis [max] €`
+- Spin-Buttons ausgeblendet, Focus-Ring mit Violet-Highlight
+- "Überspringen" bleibt bei Saison und Preis erhalten
+- Swap-Logik beim Query-Building: wenn min > max werden Werte automatisch getauscht
+
+---
+## v40 — Bugfixes: Timeout & Bookmark-Bug
+**Dateien:** `api/generate-cards.js`, `api/generate-pitch.js`, `src/App.jsx`
+
+- `Retry-After`-Header auf max. 8 Sekunden gedeckelt — verhindert dass ein langer Retry-Wait die Funktion in den 60s-Vercel-Timeout treibt
+- Bookmark-Bug behoben: AI liefert immer `id: "1", "2", "3"` — neue Suchergebnisse matchten fälschlicherweise auf gespeicherte Konzepte gleicher ID. Fix: Beim Empfang der API-Antwort werden Konzepte mit eindeutigen IDs (`timestamp-index`) versehen
+
+---
 ## v39 — Quellen-Badges & Wettbewerber-Links im Pitch-Deck
 **Dateien:** `api/generate-pitch.js`, `src/App.jsx`, `src/App.css`
 
