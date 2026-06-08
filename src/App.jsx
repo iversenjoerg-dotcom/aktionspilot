@@ -391,6 +391,17 @@ function SearchForm({ onSearch, loading }) {
 const stripCite = (text = '') =>
   text.replace(/<cite[^>]*>/g, '').replace(/<\/cite>/g, '')
 
+function stripCiteDeep(obj) {
+  if (typeof obj === 'string') return stripCite(obj)
+  if (Array.isArray(obj)) return obj.map(stripCiteDeep)
+  if (obj && typeof obj === 'object') {
+    const out = {}
+    for (const k of Object.keys(obj)) out[k] = stripCiteDeep(obj[k])
+    return out
+  }
+  return obj
+}
+
 /* ═══════════════════════════════════════════════════════════
    ACCESS MODAL
    ═══════════════════════════════════════════════════════════ */
@@ -887,11 +898,9 @@ function PitchDeckView({ pitch, onBack }) {
 
       {pitch.summary && (
         <PitchSection num="Zusammenfassung">
-          <div className="ink-box">
-            {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
-          </div>
+          {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
+            <p key={i} style={{ marginBottom: 12 }}>{line}</p>
+          ))}
         </PitchSection>
       )}
     </div>
@@ -1087,8 +1096,9 @@ export default function App() {
         throw new Error(err.error || `API error ${res.status}`)
       }
       const data = await res.json()
-      setPitchCache(prev => ({ ...prev, [key]: data }))
-      setPitchData(data)
+      const cleanData = stripCiteDeep(data)
+      setPitchCache(prev => ({ ...prev, [key]: cleanData }))
+      setPitchData(cleanData)
       setView('pitch')
       window.history.pushState({ view: 'pitch' }, '', '#pitch')
       window.scrollTo({ top: 0, behavior: 'smooth' })
