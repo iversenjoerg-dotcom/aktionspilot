@@ -785,7 +785,44 @@ body {
 .pitch-stat.accent .pitch-stat-value { color: white; }
 .pitch-stat.accent .pitch-stat-sub   { color: rgba(255,255,255,.65); }
 
-.pitch-section { margin-bottom: 52px; }
+.pitch-section { margin-bottom: 12px; }
+
+/* ── Collapsible PitchSection ── */
+.pitch-section.collapsible {
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.ps-toggle {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; background: var(--bg-white); border: none; cursor: pointer;
+  padding: 18px 22px; text-align: left; gap: 12px;
+  transition: background .15s;
+}
+.ps-toggle:hover { background: var(--violet-muted); }
+.ps-left { display: flex; flex-direction: column; gap: 3px; }
+.ps-left .pitch-section-num { margin: 0; }
+.ps-title {
+  font-family: var(--font-head); font-size: 18px; font-weight: 400;
+  color: var(--text); margin: 0; line-height: 1.2;
+}
+.ps-chevron {
+  flex-shrink: 0; color: var(--text-faint);
+  transition: transform .3s ease;
+}
+.pitch-section.collapsible.is-open .ps-chevron { transform: rotate(180deg); }
+.pitch-section.collapsible.is-open .ps-toggle { background: var(--violet-muted); }
+
+/* Smooth slide using grid-template-rows */
+.ps-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .3s ease;
+}
+.pitch-section.collapsible.is-open .ps-body { grid-template-rows: 1fr; }
+.ps-inner { overflow: hidden; padding: 0 22px; }
+.pitch-section.collapsible.is-open .ps-inner { padding: 20px 22px 24px; }
 .pitch-section-num { font-size: 10.5px; font-weight: 600; letter-spacing: .10em; text-transform: uppercase; color: var(--brand-blue); margin-bottom: 4px; }
 .pitch-section h2 { font-family: var(--font); font-size: 26px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; color: var(--text); letter-spacing: -.015em; }
 .pitch-section p  { color: var(--text-soft); margin-bottom: 14px; line-height: 1.7; font-size: 15px; }

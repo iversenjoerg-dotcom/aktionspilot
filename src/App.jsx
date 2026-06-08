@@ -653,6 +653,31 @@ function SourceBadge({ label, url }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   PITCH SECTION — collapsible wrapper
+   ═══════════════════════════════════════════════════════════ */
+function PitchSection({ num, title, defaultOpen = false, children }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <section className={`pitch-section collapsible ${open ? 'is-open' : ''}`}>
+      <button className="ps-toggle" onClick={() => setOpen(o => !o)} aria-expanded={open}>
+        <span className="ps-left">
+          <span className="pitch-section-num">{num}</span>
+          <span className="ps-title">{title}</span>
+        </span>
+        <svg className="ps-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div className="ps-body">
+        <div className="ps-inner">
+          {children}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
 function PitchDeckView({ pitch, onBack }) {
@@ -718,19 +743,17 @@ function PitchDeckView({ pitch, onBack }) {
       </div>
 
       {pitch.positioning && (
-        <section className="pitch-section">
+        <PitchSection num="01 — Positionierung" title="Marktlage & Positionierung" defaultOpen={true}>
           <div className="ink-box">
             {pitch.positioning.split('\n').filter(l => l.trim()).map((line, i) => (
               <p key={i} dangerouslySetInnerHTML={{ __html: line }} />
             ))}
           </div>
-        </section>
+        </PitchSection>
       )}
 
       {pitch.specs?.length > 0 && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">02 — Produktsteckbrief</p>
-          <h2>Was das Produkt kann</h2>
+        <PitchSection num="02 — Produktsteckbrief" title="Was das Produkt kann">
           <div className="card-wrap">
             <table className="spec-table">
               <tbody>
@@ -743,13 +766,11 @@ function PitchDeckView({ pitch, onBack }) {
               </tbody>
             </table>
           </div>
-        </section>
+        </PitchSection>
       )}
 
       {pitch.pricing && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">03 — Preisarchitektur & Marge</p>
-          <h2>Der Preis-Vorteil als Kernargument</h2>
+        <PitchSection num="03 — Preisarchitektur & Marge" title="Der Preis-Vorteil als Kernargument">
           <div className="price-bar-wrap">
             {pitch.pricing.competitors?.map((c, i) => renderPriceBar(c, i))}
           </div>
@@ -771,13 +792,11 @@ function PitchDeckView({ pitch, onBack }) {
               <p className="mc-sub">Bei VK {pitch.pricing.vk}</p>
             </div>
           </div>
-        </section>
+        </PitchSection>
       )}
 
       {pitch.packaging && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">04 — Packaging-Konzept</p>
-          <h2>Die Verpackung als erstes Kaufargument</h2>
+        <PitchSection num="04 — Packaging-Konzept" title="Die Verpackung als erstes Kaufargument">
           <div className="card-wrap">
             <table className="pack-table">
               <tbody>
@@ -787,13 +806,11 @@ function PitchDeckView({ pitch, onBack }) {
               </tbody>
             </table>
           </div>
-        </section>
+        </PitchSection>
       )}
 
       {pitch.sellthrough && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">05 — Sell-Through-Story</p>
-          <h2>Warum dreht das beim Aldi-Kunden?</h2>
+        <PitchSection num="05 — Sell-Through-Story" title="Warum dreht das beim Aldi-Kunden?">
           {pitch.sellthrough.intro && <p>{pitch.sellthrough.intro}</p>}
           {pitch.sellthrough.highlights?.map((h, i) => (
             <div key={i} className={`arg-block ${i % 2 === 1 ? 'forest' : ''}`}>
@@ -806,13 +823,11 @@ function PitchDeckView({ pitch, onBack }) {
               )}
             </div>
           ))}
-        </section>
+        </PitchSection>
       )}
 
       {pitch.arguments && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">06 — Einkäufer-Argumentation</p>
-          <h2>Die Argumente im Gespräch</h2>
+        <PitchSection num="06 — Einkäufer-Argumentation" title="Die Argumente im Gespräch">
           {pitch.arguments.map((arg, i) => (
             <div key={i} className="arg-block">
               <p className="arg-title">{arg.title}</p>
@@ -841,13 +856,11 @@ function PitchDeckView({ pitch, onBack }) {
               </div>
             </>
           )}
-        </section>
+        </PitchSection>
       )}
 
       {pitch.risks && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">07 — Risikoabwägung</p>
-          <h2>Risiken & Mitigationen</h2>
+        <PitchSection num="07 — Risikoabwägung" title="Risiken & Mitigationen">
           <table className="risk-table">
             <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
             <tbody>
@@ -860,13 +873,11 @@ function PitchDeckView({ pitch, onBack }) {
               ))}
             </tbody>
           </table>
-        </section>
+        </PitchSection>
       )}
 
       {pitch.timeline && (
-        <section className="pitch-section">
-          <p className="pitch-section-num">08 — Roadmap</p>
-          <h2>Von heute zum Aktionsstarter</h2>
+        <PitchSection num="08 — Roadmap" title="Von heute zum Aktionsstarter">
           <div className="timeline">
             {pitch.timeline.map((tl, i) => (
               <div key={i} className={`tl-item ${tl.active ? 'tl-active' : ''}`}>
@@ -876,16 +887,17 @@ function PitchDeckView({ pitch, onBack }) {
               </div>
             ))}
           </div>
-        </section>
+        </PitchSection>
       )}
 
       {pitch.summary && (
-        <div className="ink-box">
-          <p><strong>Zusammenfassung</strong></p>
-          {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
-            <p key={i}>{line}</p>
-          ))}
-        </div>
+        <PitchSection num="Zusammenfassung" title="Das wichtigste auf einen Blick">
+          <div className="ink-box">
+            {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
+          </div>
+        </PitchSection>
       )}
     </div>
   )
