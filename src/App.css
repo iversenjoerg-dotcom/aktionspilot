@@ -794,6 +794,12 @@ body {
   overflow: hidden;
   margin-bottom: 10px;
 }
+.pitch-section.collapsible {
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
 .ps-toggle {
   display: flex; justify-content: space-between; align-items: center;
   width: 100%; background: var(--bg-white); border: none; cursor: pointer;
@@ -801,11 +807,14 @@ body {
   transition: background .15s;
 }
 .ps-toggle:hover { background: var(--violet-muted); }
-.ps-left { display: flex; flex-direction: column; gap: 3px; }
-.ps-left .pitch-section-num { margin: 0; }
-.ps-title {
-  font-family: var(--font-head); font-size: 18px; font-weight: 400;
-  color: var(--text); margin: 0; line-height: 1.2;
+.ps-toggle .pitch-section-num {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
 }
 .ps-chevron {
   flex-shrink: 0; color: var(--text-faint);

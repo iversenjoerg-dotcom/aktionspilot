@@ -660,10 +660,7 @@ function PitchSection({ num, title, defaultOpen = false, children }) {
   return (
     <section className={`pitch-section collapsible ${open ? 'is-open' : ''}`}>
       <button className="ps-toggle" onClick={() => setOpen(o => !o)} aria-expanded={open}>
-        <span className="ps-left">
-          <span className="pitch-section-num">{num}</span>
-          <span className="ps-title">{title}</span>
-        </span>
+        <span className="pitch-section-num">{num}</span>
         <svg className="ps-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
@@ -743,17 +740,15 @@ function PitchDeckView({ pitch, onBack }) {
       </div>
 
       {pitch.positioning && (
-        <PitchSection num="01 — Positionierung" title="Marktlage & Positionierung" defaultOpen={true}>
-          <div className="ink-box">
-            {pitch.positioning.split('\n').filter(l => l.trim()).map((line, i) => (
-              <p key={i} dangerouslySetInnerHTML={{ __html: line }} />
-            ))}
-          </div>
+        <PitchSection num="01 — Positionierung" defaultOpen={true}>
+          {pitch.positioning.split('\n').filter(l => l.trim()).map((line, i) => (
+            <p key={i} style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: line }} />
+          ))}
         </PitchSection>
       )}
 
       {pitch.specs?.length > 0 && (
-        <PitchSection num="02 — Produktsteckbrief" title="Was das Produkt kann">
+        <PitchSection num="02 — Produktsteckbrief">
           <div className="card-wrap">
             <table className="spec-table">
               <tbody>
@@ -770,7 +765,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.pricing && (
-        <PitchSection num="03 — Preisarchitektur & Marge" title="Der Preis-Vorteil als Kernargument">
+        <PitchSection num="03 — Preisarchitektur & Marge">
           <div className="price-bar-wrap">
             {pitch.pricing.competitors?.map((c, i) => renderPriceBar(c, i))}
           </div>
@@ -796,7 +791,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.packaging && (
-        <PitchSection num="04 — Packaging-Konzept" title="Die Verpackung als erstes Kaufargument">
+        <PitchSection num="04 — Packaging-Konzept">
           <div className="card-wrap">
             <table className="pack-table">
               <tbody>
@@ -810,7 +805,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.sellthrough && (
-        <PitchSection num="05 — Sell-Through-Story" title="Warum dreht das beim Aldi-Kunden?">
+        <PitchSection num="05 — Sell-Through-Story">
           {pitch.sellthrough.intro && <p>{pitch.sellthrough.intro}</p>}
           {pitch.sellthrough.highlights?.map((h, i) => (
             <div key={i} className={`arg-block ${i % 2 === 1 ? 'forest' : ''}`}>
@@ -827,7 +822,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.arguments && (
-        <PitchSection num="06 — Einkäufer-Argumentation" title="Die Argumente im Gespräch">
+        <PitchSection num="06 — Einkäufer-Argumentation">
           {pitch.arguments.map((arg, i) => (
             <div key={i} className="arg-block">
               <p className="arg-title">{arg.title}</p>
@@ -860,7 +855,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.risks && (
-        <PitchSection num="07 — Risikoabwägung" title="Risiken & Mitigationen">
+        <PitchSection num="07 — Risikoabwägung">
           <table className="risk-table">
             <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
             <tbody>
@@ -877,7 +872,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.timeline && (
-        <PitchSection num="08 — Roadmap" title="Von heute zum Aktionsstarter">
+        <PitchSection num="08 — Roadmap">
           <div className="timeline">
             {pitch.timeline.map((tl, i) => (
               <div key={i} className={`tl-item ${tl.active ? 'tl-active' : ''}`}>
@@ -891,7 +886,7 @@ function PitchDeckView({ pitch, onBack }) {
       )}
 
       {pitch.summary && (
-        <PitchSection num="Zusammenfassung" title="Das wichtigste auf einen Blick">
+        <PitchSection num="Zusammenfassung">
           <div className="ink-box">
             {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
               <p key={i}>{line}</p>
