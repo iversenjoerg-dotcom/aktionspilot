@@ -606,7 +606,7 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index }) {
   const tierClass = { top: 'card-top', growth: 'card-growth', caution: 'card-caution' }[concept.tier] || 'card-growth'
   const tierLabelClass = { top: 'tier-top', growth: 'tier-growth', caution: 'tier-caution' }[concept.tier] || 'tier-growth'
   return (
-    <div className={`product-card ${tierClass}`} onClick={() => onSelect(concept)}>
+    <div className={`product-card ${tierClass}`}>
       <div className="card-header-row">
         <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>
         {onToggleSave && (
@@ -635,7 +635,7 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index }) {
         <span className="card-price">VK {concept.priceRange}</span>
         <span className="card-ek">{concept.ekHint}</span>
       </div>
-      <button className="card-cta" type="button" onClick={(e) => { e.stopPropagation(); onSelect(concept) }}>
+      <button className="card-cta" type="button" onClick={() => onSelect(concept)}>
         Pitch-Konzept generieren →
       </button>
     </div>
@@ -911,9 +911,23 @@ function PitchDeckView({ pitch, onBack }) {
    MAIN APP
    ═══════════════════════════════════════════════════════════ */
 export default function App() {
-  const [view, setView]               = useState('search')
+  const [view, setView]               = useState(() => {
+    // Bei Reload auf Pitch-Seite bleiben wenn Daten vorhanden
+    if (window.location.hash === '#pitch') {
+      try {
+        const saved = sessionStorage.getItem('aktionspilot_pitch')
+        if (saved) return 'pitch'
+      } catch {}
+    }
+    return 'search'
+  })
   const [cardsData, setCardsData]     = useState(null)
-  const [pitchData, setPitchData]     = useState(null)
+  const [pitchData, setPitchData]     = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('aktionspilot_pitch')
+      return saved ? JSON.parse(saved) : null
+    } catch { return null }
+  })
   const [pitchCache, setPitchCache]   = useState({})
   const [selectedConcept, setSelected] = useState(null)
   const [loading, setLoading]         = useState(false)
@@ -1097,6 +1111,7 @@ export default function App() {
       }
       const data = await res.json()
       const cleanData = stripCiteDeep(data)
+      try { sessionStorage.setItem('aktionspilot_pitch', JSON.stringify(cleanData)) } catch {}
       setPitchCache(prev => ({ ...prev, [key]: cleanData }))
       setPitchData(cleanData)
       setView('pitch')
