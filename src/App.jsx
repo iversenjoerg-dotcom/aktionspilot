@@ -664,6 +664,90 @@ function SourceBadge({ label, url }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   EDITABLE FIELD — inline click-to-edit
+   ═══════════════════════════════════════════════════════════ */
+function EditableField({ value, onSave, displayContent = null, inputClassName = '' }) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft]     = useState(value)
+  const ref = useRef(null)
+
+  useEffect(() => { setDraft(value) }, [value])
+  useEffect(() => { if (editing && ref.current) ref.current.focus() }, [editing])
+
+  const commit = () => {
+    setEditing(false)
+    const trimmed = draft.trim()
+    if (trimmed && trimmed !== value) onSave(trimmed)
+    else setDraft(value)
+  }
+
+  if (editing) return (
+    <input
+      ref={ref}
+      type="text"
+      className={`ef-input ${inputClassName}`}
+      value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => {
+        if (e.key === 'Enter') { e.preventDefault(); commit() }
+        if (e.key === 'Escape') { setDraft(value); setEditing(false) }
+      }}
+    />
+  )
+
+  return (
+    <span className="ef-display" onClick={() => setEditing(true)} title="Klicken zum Bearbeiten">
+      {displayContent ?? value}
+      <svg className="ef-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+    </span>
+  )
+}
+
+function EditablePositioning({ value, onSave }) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft]     = useState(value)
+  const ref = useRef(null)
+
+  useEffect(() => { setDraft(value) }, [value])
+  useEffect(() => { if (editing && ref.current) ref.current.focus() }, [editing])
+
+  const commit = () => {
+    setEditing(false)
+    if (draft.trim() && draft.trim() !== value) onSave(draft.trim())
+  }
+
+  if (editing) return (
+    <textarea
+      ref={ref}
+      className="ef-input ef-textarea"
+      value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => { if (e.key === 'Escape') { setDraft(value); setEditing(false) } }}
+    />
+  )
+
+  return (
+    <div className="ef-display ef-multiline" onClick={() => setEditing(true)} title="Klicken zum Bearbeiten">
+      {value.split('\n').filter(l => l.trim()).map((line, i) => (
+        <p key={i} style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: line }} />
+      ))}
+      <span className="ef-edit-hint">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Bearbeiten
+      </span>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
    PITCH SECTION — collapsible wrapper
    ═══════════════════════════════════════════════════════════ */
 function PitchSection({ num, title, defaultOpen = false, children }) {
@@ -688,7 +772,7 @@ function PitchSection({ num, title, defaultOpen = false, children }) {
 /* ═══════════════════════════════════════════════════════════
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
-function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
+function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdateField }) {
   if (!pitch) return null
   const maxPrice = pitch.pricing?.competitors
     ? Math.max(...pitch.pricing.competitors.map(c => c.price))
@@ -745,13 +829,33 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
 
       <div className="pitch-header">
         <p className="pitch-header-meta">Pitch-Konzept</p>
-        <h1>{pitch.productName}</h1>
-        <p className="tagline" dangerouslySetInnerHTML={{ __html: pitch.tagline }} />
+        <h1>
+          <EditableField
+            value={pitch.productName}
+            onSave={v => onUpdateField(p => ({ ...p, productName: v }))}
+          />
+        </h1>
+        <p className="tagline">
+          <EditableField
+            value={pitch.tagline}
+            displayContent={<span dangerouslySetInnerHTML={{ __html: pitch.tagline }} />}
+            onSave={v => onUpdateField(p => ({ ...p, tagline: v }))}
+          />
+        </p>
         <div className="pitch-stat-row">
           {pitch.stats?.map((s, i) => (
             <div key={i} className={`pitch-stat ${s.accent ? 'accent' : ''}`}>
               <p className="pitch-stat-label">{s.label}</p>
-              <p className="pitch-stat-value">{s.value}</p>
+              <p className="pitch-stat-value">
+                <EditableField
+                  value={s.value}
+                  inputClassName={s.accent ? 'ef-input-accent' : ''}
+                  onSave={v => onUpdateField(p => {
+                    const stats = p.stats.map((st, idx) => idx === i ? { ...st, value: v } : st)
+                    return { ...p, stats }
+                  })}
+                />
+              </p>
               {s.sub && <p className="pitch-stat-sub">{s.sub}</p>}
             </div>
           ))}
@@ -759,10 +863,11 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
       </div>
 
       {pitch.positioning && (
-        <PitchSection num="01 — Positionierung" defaultOpen={true}>
-          {pitch.positioning.split('\n').filter(l => l.trim()).map((line, i) => (
-            <p key={i} style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: line }} />
-          ))}
+        <PitchSection num="01 — Marktchance" defaultOpen={true}>
+          <EditablePositioning
+            value={pitch.positioning}
+            onSave={v => onUpdateField(p => ({ ...p, positioning: v }))}
+          />
         </PitchSection>
       )}
 
@@ -809,8 +914,42 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
         </PitchSection>
       )}
 
+      {pitch.validation?.length > 0 && (
+        <PitchSection num="04 — Referenzmärkte">
+          <p style={{ marginBottom: 14, color: 'var(--text-muted)', fontSize: 14 }}>
+            Folgende Schwester-Discounter oder internationale Märkte hatten vergleichbare Produkte im Sortiment — ein starkes Validierungssignal für den Pitch.
+          </p>
+          <table className="spec-table">
+            <tbody>
+              {pitch.validation.map((v, i) => (
+                <tr key={i}>
+                  <td style={{ fontWeight: 600 }}>
+                    <EditableField
+                      value={v.market}
+                      onSave={val => onUpdateField(p => {
+                        const validation = p.validation.map((item, idx) => idx === i ? { ...item, market: val } : item)
+                        return { ...p, validation }
+                      })}
+                    />
+                  </td>
+                  <td>
+                    <EditableField
+                      value={v.detail}
+                      onSave={val => onUpdateField(p => {
+                        const validation = p.validation.map((item, idx) => idx === i ? { ...item, detail: val } : item)
+                        return { ...p, validation }
+                      })}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </PitchSection>
+      )}
+
       {pitch.packaging && (
-        <PitchSection num="04 — Packaging-Konzept">
+        <PitchSection num="05 — Packaging-Konzept">
           <div className="card-wrap">
             <table className="pack-table">
               <tbody>
@@ -824,7 +963,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
       )}
 
       {pitch.sellthrough && (
-        <PitchSection num="05 — Sell-Through-Story">
+        <PitchSection num="06 — Sell-Through-Story">
           {pitch.sellthrough.intro && <p>{pitch.sellthrough.intro}</p>}
           {pitch.sellthrough.highlights?.map((h, i) => (
             <div key={i} className={`arg-block ${i % 2 === 1 ? 'forest' : ''}`}>
@@ -841,7 +980,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
       )}
 
       {pitch.arguments && (
-        <PitchSection num="06 — Einkäufer-Argumentation">
+        <PitchSection num="07 — Einkäufer-Argumentation">
           {pitch.arguments.map((arg, i) => (
             <div key={i} className="arg-block">
               <p className="arg-title">{arg.title}</p>
@@ -874,7 +1013,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
       )}
 
       {pitch.risks && (
-        <PitchSection num="07 — Risikoabwägung">
+        <PitchSection num="08 — Risikoabwägung">
           <table className="risk-table">
             <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
             <tbody>
@@ -891,7 +1030,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
       )}
 
       {pitch.timeline && (
-        <PitchSection num="08 — Roadmap">
+        <PitchSection num="09 — Roadmap">
           <div className="timeline">
             {pitch.timeline.map((tl, i) => (
               <div key={i} className={`tl-item ${tl.active ? 'tl-active' : ''}`}>
@@ -901,24 +1040,6 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
               </div>
             ))}
           </div>
-        </PitchSection>
-      )}
-
-      {pitch.validation?.length > 0 && (
-        <PitchSection num="Marktvalidierung — Bewährte Referenzmärkte">
-          <p style={{ marginBottom: 14, color: 'var(--text-muted)', fontSize: 14 }}>
-            Folgende Schwester-Discounter oder internationale Märkte hatten vergleichbare Produkte im Sortiment — ein starkes Validierungssignal für den Pitch.
-          </p>
-          <table className="spec-table">
-            <tbody>
-              {pitch.validation.map((v, i) => (
-                <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>{v.market}</td>
-                  <td>{v.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </PitchSection>
       )}
     </div>
@@ -1013,6 +1134,23 @@ export default function App() {
   const pitchKey = (concept) => concept?.name || ''
 
   const isPitchSaved = (concept) => !!savedPitches[pitchKey(concept)]
+
+  const updateSavedPitch = (concept, data) => {
+    setSavedPitches(prev => {
+      const next = { ...prev, [pitchKey(concept)]: data }
+      try { localStorage.setItem('aktionspilot_saved_pitches', JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
+
+  const updatePitchField = (updater) => {
+    setPitchData(prev => {
+      const next = updater(prev)
+      try { sessionStorage.setItem('aktionspilot_pitch', JSON.stringify(next)) } catch {}
+      if (selectedConcept && isPitchSaved(selectedConcept)) updateSavedPitch(selectedConcept, next)
+      return next
+    })
+  }
 
   const toggleSavePitch = (concept, data) => {
     setSavedPitches(prev => {
@@ -1390,6 +1528,7 @@ export default function App() {
             pitch={pitchData}
             isSavedPitch={isPitchSaved(selectedConcept)}
             onToggleSavePitch={() => selectedConcept && toggleSavePitch(selectedConcept, pitchData)}
+            onUpdateField={updatePitchField}
             onBack={() => {
               if (pitchSource === 'saved') {
                 setView('saved')

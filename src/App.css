@@ -1608,3 +1608,55 @@ body {
   /* Pitch-Header Schrift etwas verkleinern */
   .pitch-header h1 { font-size: 28px !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   EDITABLE FIELD
+   ═══════════════════════════════════════════════════════════ */
+.ef-display {
+  cursor: text;
+  position: relative;
+}
+.ef-icon {
+  opacity: 0;
+  margin-left: 5px;
+  color: var(--violet);
+  vertical-align: middle;
+  transition: opacity .15s;
+  flex-shrink: 0;
+}
+.ef-display:hover .ef-icon { opacity: .7; }
+.ef-multiline { display: block; cursor: text; }
+.ef-multiline:hover { background: rgba(97,97,255,.03); border-radius: var(--r-sm); }
+.ef-edit-hint {
+  display: flex; align-items: center;
+  font-size: 11px; font-weight: 600; color: var(--violet);
+  opacity: 0; margin-top: 8px; transition: opacity .15s;
+}
+.ef-multiline:hover .ef-edit-hint { opacity: 1; }
+
+.ef-input {
+  font-family: var(--font);
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background: #fff;
+  border: 2px solid var(--violet);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--violet-muted);
+}
+.ef-input-accent {
+  background: rgba(255,255,255,.15);
+  border-color: rgba(255,255,255,.6);
+  color: white;
+  box-shadow: none;
+}
+.ef-textarea {
+  display: block;
+  min-height: 150px;
+  line-height: 1.65;
+  resize: vertical;
+  padding: 10px 12px;
+}
