@@ -942,10 +942,6 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('aktionspilot_saved_pitches') || '{}') }
     catch { return {} }
   })
-  const [savedPitches, setSavedPitches] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('aktionspilot_saved_pitches') || '{}') }
-    catch { return {} }
-  })
   const [selectedConcept, setSelected] = useState(null)
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
