@@ -14,7 +14,7 @@ JSON-Schema (exakt einhalten):
     { "label": "Zielgruppe", "value": "5–12 J.", "sub": "Eltern als Käufer", "accent": false },
     { "label": "Slot-Timing", "value": "Okt. 2027", "sub": "KW 41–44", "accent": false }
   ],
-  "positioning": "2–3 Absätze (durch Newline getrennt) zur Marktlücke. Konkret, mit Marktdaten wo sinnvoll.",
+  "positioning": "3–4 Absätze (durch Newline getrennt): (1) Marktlage und warum die Lücke existiert, mit konkreten Marktdaten, (2) Wettbewerbsumfeld und Preispositionierung, (3) Kern-Argument warum dieses Produkt jetzt den Slot gewinnt, (4) konkreter nächster Schritt für den Einkäufer.",
   "specs": [
     { "label": "Eigenschaft", "value": "Beschreibung", "badge": "USP" },
     { "label": "Eigenschaft 2", "value": "Beschreibung 2", "badge": null }
@@ -62,7 +62,9 @@ JSON-Schema (exakt einhalten):
     { "date": "Mai – Juni 2026 · Jetzt", "title": "Erster Schritt", "body": "Beschreibung", "active": true },
     { "date": "Juli 2026", "title": "Pitch-Termin", "body": "Beschreibung", "active": false }
   ],
-  "summary": "2–3 Absätze (durch Newline getrennt). Kern-Argument warum dieses Produkt jetzt, und was der nächste Schritt ist."
+  "validation": [
+    { "market": "Aldi Nord", "detail": "hatte vergleichbares Produkt im März 2026 für 19,99 €" }
+  ]
 }
 
 Regeln:
@@ -71,6 +73,7 @@ Regeln:
 - 6–10 specs, 4 arguments, 4–6 buyerQA, 4–6 risks, 5–7 timeline-Einträge
 - Sei konkret und produktspezifisch — keine generischen Phrasen
 - Aktuelle Jahreszahlen: Pitch jetzt (Mai/Juni 2026), Produktionsstart Herbst 2026, Aktionsstart Herbst 2027
+- validation-Pflicht: Wenn im Konzept-Kontext (why-Feld) ein Schwester-Discounter- oder Auslands-Treffer erwähnt wird (z.B. "Aldi Nord hatte...", "Aldi Australien", "Aldi UK"), MUSS dieser in validation[] erscheinen. Sonst validation: []
 
 Führe vor der Antwort genau 3 Websuchen durch:
 1. WETTBEWERBER-URLS: Suche jedes Produkt in pricing.competitors auf Amazon.de (z.B. "Fujifilm Instax Mini 12 amazon.de") → trage die direkte Produkt-URL in competitors[].url ein. Aldi-Eigenmarke bekommt url: null.
