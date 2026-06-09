@@ -602,7 +602,7 @@ function ScoreBar({ label, value, colorClass, delay = 0 }) {
 /* ═══════════════════════════════════════════════════════════
    PRODUCT CARD
    ═══════════════════════════════════════════════════════════ */
-function ProductCard({ concept, onSelect, onToggleSave, saved, index }) {
+function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved }) {
   const tierClass = { top: 'card-top', growth: 'card-growth', caution: 'card-caution' }[concept.tier] || 'card-growth'
   const tierLabelClass = { top: 'tier-top', growth: 'tier-growth', caution: 'tier-caution' }[concept.tier] || 'tier-growth'
   return (
@@ -636,7 +636,7 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index }) {
         <span className="card-ek">{concept.ekHint}</span>
       </div>
       <button className="card-cta" type="button" onClick={() => onSelect(concept)}>
-        Pitch-Konzept generieren →
+        {pitchSaved ? 'Pitch-Konzept aufrufen →' : 'Pitch-Konzept generieren →'}
       </button>
     </div>
   )
@@ -688,7 +688,7 @@ function PitchSection({ num, title, defaultOpen = false, children }) {
 /* ═══════════════════════════════════════════════════════════
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
-function PitchDeckView({ pitch, onBack }) {
+function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
   if (!pitch) return null
   const maxPrice = pitch.pricing?.competitors
     ? Math.max(...pitch.pricing.competitors.map(c => c.price))
@@ -725,6 +725,15 @@ function PitchDeckView({ pitch, onBack }) {
       <div className="pitch-topbar">
         <button className="back-btn" onClick={onBack}>← Zurück zu den Konzepten</button>
         <div className="pitch-topbar-right">
+          <button
+            className={`pitch-save-btn ${isSavedPitch ? 'saved' : ''}`}
+            onClick={onToggleSavePitch}
+            title={isSavedPitch ? 'Pitch-Konzept gespeichert – klicken zum Entfernen' : 'Pitch-Konzept speichern'}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill={isSavedPitch ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
           <button className="pdf-btn" onClick={() => window.print()}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -929,6 +938,14 @@ export default function App() {
     } catch { return null }
   })
   const [pitchCache, setPitchCache]   = useState({})
+  const [savedPitches, setSavedPitches] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('aktionspilot_saved_pitches') || '{}') }
+    catch { return {} }
+  })
+  const [savedPitches, setSavedPitches] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('aktionspilot_saved_pitches') || '{}') }
+    catch { return {} }
+  })
   const [selectedConcept, setSelected] = useState(null)
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
@@ -987,6 +1004,21 @@ export default function App() {
 
   const isSaved = (concept) =>
     savedConcepts.some(c => (c.id || c.name) === (concept.id || concept.name))
+
+  const pitchKey = (concept) => concept?.name || ''
+
+  const isPitchSaved = (concept) => !!savedPitches[pitchKey(concept)]
+
+  const toggleSavePitch = (concept, data) => {
+    setSavedPitches(prev => {
+      const next = { ...prev }
+      const k = pitchKey(concept)
+      if (next[k]) delete next[k]
+      else next[k] = data
+      try { localStorage.setItem('aktionspilot_saved_pitches', JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
 
   useEffect(() => {
     const handleScroll = () => setNavVisible(window.scrollY > 80)
@@ -1086,6 +1118,15 @@ export default function App() {
     const key = pitchCacheKey(concept)
     const sourceView = view === 'loading-pitch' ? pitchSource : view // fallback safety
     setPitchSource(view) // remember where we came from
+
+    if (savedPitches[concept.name]) {
+      setSelected(concept)
+      setPitchData(savedPitches[concept.name])
+      setView('pitch')
+      window.history.pushState({ view: 'pitch' }, '', '#pitch')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
 
     if (pitchCache[key]) {
       setSelected(concept)
@@ -1309,6 +1350,7 @@ export default function App() {
                   onToggleSave={toggleSave}
                   saved={isSaved(concept)}
                   index={i}
+                  pitchSaved={!!savedPitches[concept.name]}
                 />
               ))}
             </div>
@@ -1341,6 +1383,8 @@ export default function App() {
         {view === 'pitch' && pitchData && (
           <PitchDeckView
             pitch={pitchData}
+            isSavedPitch={isPitchSaved(selectedConcept)}
+            onToggleSavePitch={() => selectedConcept && toggleSavePitch(selectedConcept, pitchData)}
             onBack={() => {
               if (pitchSource === 'saved') {
                 setView('saved')
@@ -1380,6 +1424,7 @@ export default function App() {
                     onToggleSave={toggleSave}
                     saved={true}
                     index={i}
+                    pitchSaved={!!savedPitches[concept.name]}
                   />
                 ))}
               </div>

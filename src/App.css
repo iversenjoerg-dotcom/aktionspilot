@@ -745,6 +745,17 @@ body {
   display: flex; align-items: center; gap: 10px;
 }
 
+.pitch-save-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  background: var(--bg-white); border: 1.5px solid var(--border-mid);
+  border-radius: var(--r-sm); cursor: pointer; color: var(--text-faint);
+  transition: color .15s, border-color .15s, background .15s;
+  flex-shrink: 0;
+}
+.pitch-save-btn:hover { border-color: var(--violet); color: var(--violet); }
+.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(97,97,255,.1); }
+
 .pdf-btn {
   display: flex; align-items: center; gap: 7px;
   font-family: var(--font); font-size: 13px; font-weight: 600;
