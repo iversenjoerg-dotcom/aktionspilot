@@ -632,7 +632,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: var(--r-lg);
   padding: 24px 26px;
-  cursor: pointer;
+  cursor: default;
   transition: border-color .15s, box-shadow .15s, transform .12s;
   box-shadow: var(--shadow-sm);
   display: flex; flex-direction: column;
@@ -1613,8 +1613,17 @@ body {
    EDITABLE FIELD
    ═══════════════════════════════════════════════════════════ */
 .ef-display {
+  display: inline-block;
   cursor: text;
   position: relative;
+  pointer-events: auto;
+  border-radius: 3px;
+  transition: background .15s;
+}
+.ef-display:hover {
+  background: rgba(97,97,255,.07);
+  outline: 1px dashed rgba(97,97,255,.3);
+  outline-offset: 2px;
 }
 .ef-icon {
   opacity: 0;

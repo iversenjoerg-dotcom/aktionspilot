@@ -602,9 +602,10 @@ function ScoreBar({ label, value, colorClass, delay = 0 }) {
 /* ═══════════════════════════════════════════════════════════
    PRODUCT CARD
    ═══════════════════════════════════════════════════════════ */
-function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved }) {
+function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved, onUpdateConcept }) {
   const tierClass = { top: 'card-top', growth: 'card-growth', caution: 'card-caution' }[concept.tier] || 'card-growth'
   const tierLabelClass = { top: 'tier-top', growth: 'tier-growth', caution: 'tier-caution' }[concept.tier] || 'tier-growth'
+  const upd = onUpdateConcept // shorthand — only truthy for saved cards
   return (
     <div className={`product-card ${tierClass}`}>
       <div className="card-header-row">
@@ -621,19 +622,46 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved
           </button>
         )}
       </div>
-      <p className="card-name">{concept.name}</p>
-      <p className="card-tagline">{concept.tagline}</p>
+      <p className="card-name">
+        {upd
+          ? <EditableField value={concept.name} onSave={v => upd('name', v)} />
+          : concept.name}
+      </p>
+      <p className="card-tagline">
+        {upd
+          ? <EditableField value={concept.tagline} onSave={v => upd('tagline', v)} />
+          : concept.tagline}
+      </p>
       <div className="scores">
         <ScoreBar label="Trend"        value={concept.scores.trend}       colorClass="score-fill-0" delay={index * 40} />
         <ScoreBar label="Whitespace"   value={concept.scores.whitespace}  colorClass="score-fill-1" delay={index * 40 + 60} />
         <ScoreBar label="Sell-through" value={concept.scores.sellthrough} colorClass="score-fill-2" delay={index * 40 + 120} />
         <ScoreBar label="Umsetzbar"    value={concept.scores.feasibility} colorClass="score-fill-3" delay={index * 40 + 180} />
       </div>
-      <p className="card-why">{stripCite(concept.why)}</p>
-      {concept.caveat && <p className="card-caveat">⚠ {stripCite(concept.caveat)}</p>}
+      <p className="card-why">
+        {upd
+          ? <EditableField value={stripCite(concept.why)} onSave={v => upd('why', v)} />
+          : stripCite(concept.why)}
+      </p>
+      {concept.caveat && (
+        <p className="card-caveat">
+          ⚠{' '}
+          {upd
+            ? <EditableField value={stripCite(concept.caveat)} onSave={v => upd('caveat', v)} />
+            : stripCite(concept.caveat)}
+        </p>
+      )}
       <div className="card-price-row">
-        <span className="card-price">VK {concept.priceRange}</span>
-        <span className="card-ek">{concept.ekHint}</span>
+        <span className="card-price">VK{' '}
+          {upd
+            ? <EditableField value={concept.priceRange} onSave={v => upd('priceRange', v)} />
+            : concept.priceRange}
+        </span>
+        <span className="card-ek">
+          {upd
+            ? <EditableField value={concept.ekHint} onSave={v => upd('ekHint', v)} />
+            : concept.ekHint}
+        </span>
       </div>
       <button className="card-cta" type="button" onClick={() => onSelect(concept)}>
         {pitchSaved ? 'Pitch-Konzept aufrufen →' : 'Pitch-Konzept generieren →'}
@@ -697,7 +725,7 @@ function EditableField({ value, onSave, displayContent = null, inputClassName = 
   )
 
   return (
-    <span className="ef-display" onClick={() => setEditing(true)} title="Klicken zum Bearbeiten">
+    <span className="ef-display" onMouseDown={e => { e.preventDefault(); setEditing(true) }} title="Klicken zum Bearbeiten">
       {displayContent ?? value}
       <svg className="ef-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -1130,6 +1158,16 @@ export default function App() {
 
   const isSaved = (concept) =>
     savedConcepts.some(c => (c.id || c.name) === (concept.id || concept.name))
+
+  const updateSavedConcept = (concept, field, value) => {
+    setSavedConcepts(prev => {
+      const next = prev.map(c =>
+        (c.id || c.name) === (concept.id || concept.name) ? { ...c, [field]: value } : c
+      )
+      try { localStorage.setItem('ap_saved', JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
 
   const pitchKey = (concept) => concept?.name || ''
 
@@ -1569,6 +1607,7 @@ export default function App() {
                     saved={true}
                     index={i}
                     pitchSaved={!!savedPitches[concept.name]}
+                    onUpdateConcept={(field, value) => updateSavedConcept(concept, field, value)}
                   />
                 ))}
               </div>
