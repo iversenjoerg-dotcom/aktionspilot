@@ -740,12 +740,11 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
             </svg>
             Als PDF speichern
           </button>
-          <span className="pitch-badge">Pitch-Konzept · AktionsPilot</span>
         </div>
       </div>
 
       <div className="pitch-header">
-        <p className="pitch-header-meta">01 — Positionierung</p>
+        <p className="pitch-header-meta">Pitch-Konzept</p>
         <h1>{pitch.productName}</h1>
         <p className="tagline" dangerouslySetInnerHTML={{ __html: pitch.tagline }} />
         <div className="pitch-stat-row">
@@ -905,11 +904,21 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch }) {
         </PitchSection>
       )}
 
-      {pitch.summary && (
-        <PitchSection num="Zusammenfassung">
-          {pitch.summary.split('\n').filter(l => l.trim()).map((line, i) => (
-            <p key={i} style={{ marginBottom: 12 }}>{line}</p>
-          ))}
+      {pitch.validation?.length > 0 && (
+        <PitchSection num="Marktvalidierung — Bewährte Referenzmärkte">
+          <p style={{ marginBottom: 14, color: 'var(--text-muted)', fontSize: 14 }}>
+            Folgende Schwester-Discounter oder internationale Märkte hatten vergleichbare Produkte im Sortiment — ein starkes Validierungssignal für den Pitch.
+          </p>
+          <table className="spec-table">
+            <tbody>
+              {pitch.validation.map((v, i) => (
+                <tr key={i}>
+                  <td style={{ fontWeight: 600 }}>{v.market}</td>
+                  <td>{v.detail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </PitchSection>
       )}
     </div>
