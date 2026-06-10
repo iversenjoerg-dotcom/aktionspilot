@@ -776,6 +776,61 @@ function EditablePositioning({ value, onSave }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   EDITABLE SOURCE BADGES — für positioning_sources
+   ═══════════════════════════════════════════════════════════ */
+function EditableSourceBadges({ sources = [], onUpdate }) {
+  const [editingIndex, setEditingIndex] = useState(null)
+  const [draftLabel, setDraftLabel]     = useState('')
+  const [draftUrl, setDraftUrl]         = useState('')
+
+  if (!sources.length && !onUpdate) return null
+
+  const startEdit = (i) => {
+    setEditingIndex(i)
+    setDraftLabel(sources[i].label)
+    setDraftUrl(sources[i].url || '')
+  }
+
+  const commitEdit = () => {
+    if (!draftLabel.trim()) { setEditingIndex(null); return }
+    const next = sources.map((s, i) => i === editingIndex ? { label: draftLabel.trim(), url: draftUrl.trim() } : s)
+    onUpdate(next)
+    setEditingIndex(null)
+  }
+
+  const remove = (i) => onUpdate(sources.filter((_, idx) => idx !== i))
+
+  return (
+    <div className="pos-sources">
+      <span className="pos-sources-label">Quellen:</span>
+      <div className="pos-sources-badges">
+        {sources.map((s, i) => (
+          editingIndex === i ? (
+            <div key={i} className="pos-source-edit">
+              <input className="pos-source-input" value={draftLabel} onChange={e => setDraftLabel(e.target.value)} placeholder="Label" />
+              <input className="pos-source-input pos-source-url" value={draftUrl} onChange={e => setDraftUrl(e.target.value)} placeholder="URL" />
+              <button className="pos-source-confirm" onClick={commitEdit}>✓</button>
+              <button className="pos-source-cancel" onClick={() => setEditingIndex(null)}>✕</button>
+            </div>
+          ) : (
+            <div key={i} className="pos-source-wrap">
+              {s.url
+                ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="source-badge">{s.label}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 3 }}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+                : <span className="source-badge">{s.label}</span>
+              }
+              {onUpdate && <>
+                <button className="pos-source-btn" onClick={() => startEdit(i)} title="Bearbeiten">✎</button>
+                <button className="pos-source-btn pos-source-btn-remove" onClick={() => remove(i)} title="Entfernen">✕</button>
+              </>}
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
    PITCH SECTION — collapsible wrapper
    ═══════════════════════════════════════════════════════════ */
 function PitchSection({ num, title, defaultOpen = false, children }) {
@@ -895,6 +950,10 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
           <EditablePositioning
             value={pitch.positioning}
             onSave={v => onUpdateField(p => ({ ...p, positioning: v }))}
+          />
+          <EditableSourceBadges
+            sources={pitch.positioning_sources || []}
+            onUpdate={v => onUpdateField(p => ({ ...p, positioning_sources: v }))}
           />
         </PitchSection>
       )}

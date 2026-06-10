@@ -1669,3 +1669,44 @@ body {
   resize: vertical;
   padding: 10px 12px;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   POSITIONING SOURCES
+   ═══════════════════════════════════════════════════════════ */
+.pos-sources {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.pos-sources-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-faint);
+  padding-top: 4px; flex-shrink: 0;
+}
+.pos-sources-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.pos-source-wrap { display: flex; align-items: center; gap: 3px; }
+.pos-source-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: var(--text-faint); padding: 2px 4px;
+  border-radius: 3px; transition: color .15s, background .15s;
+  line-height: 1;
+}
+.pos-source-btn:hover { color: var(--violet); background: var(--violet-muted); }
+.pos-source-btn-remove:hover { color: #EF4444; background: rgba(239,68,68,.08); }
+.pos-source-edit {
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+}
+.pos-source-input {
+  font-family: var(--font); font-size: 12px;
+  border: 1.5px solid var(--violet); border-radius: var(--r-sm);
+  padding: 3px 7px; outline: none; width: 100px;
+  box-shadow: 0 0 0 2px var(--violet-muted);
+}
+.pos-source-url { width: 180px; }
+.pos-source-confirm, .pos-source-cancel {
+  font-size: 12px; font-weight: 700; border: none; border-radius: var(--r-sm);
+  padding: 3px 8px; cursor: pointer;
+}
+.pos-source-confirm { background: var(--violet); color: white; }
+.pos-source-cancel { background: var(--bg-subtle); color: var(--text-faint); }
