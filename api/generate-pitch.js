@@ -15,6 +15,10 @@ JSON-Schema (exakt einhalten):
     { "label": "Slot-Timing", "value": "Okt. 2027", "sub": "KW 41–44", "accent": false }
   ],
   "positioning": "3–4 Absätze (durch Newline getrennt): (1) Marktlage und warum die Lücke existiert, mit konkreten Marktdaten, (2) Wettbewerbsumfeld und Preispositionierung, (3) Kern-Argument warum dieses Produkt jetzt den Slot gewinnt, (4) konkreter nächster Schritt für den Einkäufer.",
+  "positioning_sources": [
+    { "label": "Statista 2025", "url": "https://statista.com/..." },
+    { "label": "Amazon Bestseller", "url": "https://amazon.de/..." }
+  ],
   "specs": [
     { "label": "Eigenschaft", "value": "Beschreibung", "badge": "USP" },
     { "label": "Eigenschaft 2", "value": "Beschreibung 2", "badge": null }
@@ -75,14 +79,16 @@ Regeln:
 - Aktuelle Jahreszahlen: Pitch jetzt (Mai/Juni 2026), Produktionsstart Herbst 2026, Aktionsstart Herbst 2027
 - validation-Pflicht: Wenn im Konzept-Kontext (why-Feld) ein Schwester-Discounter- oder Auslands-Treffer erwähnt wird (z.B. "Aldi Nord hatte...", "Aldi Australien", "Aldi UK"), MUSS dieser in validation[] erscheinen. Sonst validation: []
 
-Führe vor der Antwort genau 3 Websuchen durch:
+Führe vor der Antwort genau 4 Websuchen durch:
 1. WETTBEWERBER-URLS: Suche jedes Produkt in pricing.competitors auf Amazon.de (z.B. "Fujifilm Instax Mini 12 amazon.de") → trage die direkte Produkt-URL in competitors[].url ein. Aldi-Eigenmarke bekommt url: null.
 2. TREND-QUELLE: Suche einen aktuellen Marktbericht zur Produktkategorie (marktguru, EHI, NielsenIQ, Lebensmittelzeitung, Statista) → trage URL + Label in sources des passenden sellthrough.highlight ein.
 3. HÄNDLER-REFERENZ: Suche "[Händler] [Produkt]" auf Mydealz, Chip.de oder ähnlichen Quellen → wenn Treffer, trage URL + Label in sources des passenden arguments-Eintrags ein.
+4. MARKTCHANCE-QUELLEN: Suche 2–3 konkrete Belege für die Marktdaten-Aussagen in positioning (Absatzzahlen, Marktanteile, Trendberichte auf Statista, NielsenIQ, Amazon Bestseller, marktguru, EHI). Nur echte URLs aus Suchergebnissen. Trage diese in positioning_sources[] ein.
 
 QUELLEN-PFLICHT:
 - competitors[].url: Direkte Amazon.de- oder Shop-URL wenn gefunden, sonst null
 - highlights[].sources und arguments[].sources: nur befüllen wenn echte URL aus Websuche vorliegt — kein Erraten von URLs
+- positioning_sources[]: 2–3 echte URLs aus Suche 4 — kein Erraten, leeres Array [] wenn nichts gefunden
 - Leere Arrays [] sind erlaubt wenn keine Quelle gefunden`
 
 // ── Retry helper: bis zu 3 Versuche mit Exponential Backoff bei 429 ──────────
