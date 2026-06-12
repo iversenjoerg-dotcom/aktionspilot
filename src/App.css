@@ -5,25 +5,25 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Design Tokens — WISE THEME (via DESIGN.md) ────────── */
+/* ── Design Tokens — BMW THEME (via DESIGN.md) ─────────── */
 :root {
-  /* Wise Lime-Green — einzige Markenfarbe, dunkler Text darauf */
-  --violet:        #9FE870;
-  --violet-dark:   #8AD95C;
-  --violet-light:  #E2F6D5;
-  --violet-muted:  rgba(159,232,112,.14);
-  --violet-border: rgba(14,15,12,.18);
-  --violet-glow:   rgba(159,232,112,.30);
+  /* BMW Corporate-Blau — trägt alle CTAs, weißer Text darauf */
+  --violet:        #1C69D4;
+  --violet-dark:   #0653B6;
+  --violet-light:  #E4EDFB;
+  --violet-muted:  rgba(28,105,212,.07);
+  --violet-border: rgba(28,105,212,.22);
+  --violet-glow:   rgba(28,105,212,.16);
 
-  /* Keine zweite Markenfarbe — Brand-Blue = Wise-Green */
-  --brand-blue:        #163300;
-  --brand-blue-dark:   #0E0F0C;
-  --brand-blue-light:  #E2F6D5;
-  --brand-blue-muted:  rgba(22,51,0,.06);
+  /* Brand-Blue = BMW-Blau (keine zweite Akzentfarbe) */
+  --brand-blue:        #1C69D4;
+  --brand-blue-dark:   #0653B6;
+  --brand-blue-light:  #E4EDFB;
+  --brand-blue-muted:  rgba(28,105,212,.06);
 
-  --yellow:        #9FE870;
-  --yellow-dark:   #8AD95C;
-  --yellow-light:  #E2F6D5;
+  --yellow:        #1C69D4;
+  --yellow-dark:   #0653B6;
+  --yellow-light:  #E4EDFB;
 
   /* Petrol — PartnerPilot bleibt erhalten */
   --petrol:        #14B8A6;
@@ -33,77 +33,77 @@
   --petrol-muted:  rgba(20,184,166,.08);
   --petrol-border: rgba(20,184,166,.25);
 
-  /* Flächen — salbei-getöntes Canvas + weiße Karten */
-  --bg:            #E8EBE6;
+  /* Flächen — leicht cremiges Weiß, helle Surface-Stufen */
+  --bg:            #FFFFFF;
   --bg-white:      #FFFFFF;
-  --bg-page:       #E8EBE6;
-  --bg-subtle:     #E8EBE6;
-  --violet-pale:   #E2F6D5;
+  --bg-page:       #FFFFFF;
+  --bg-subtle:     #F7F7F7;
+  --violet-pale:   #EEF4FC;
   --dot-grid:      transparent;
-  --border:        #D5DAD0;
-  --border-mid:    #9DA39A;
+  --border:        #E6E6E6;
+  --border-mid:    #CCCCCC;
 
-  /* Kein Gradient — Wise nutzt flächige Farbe */
-  --gradient-brand: #163300;
+  /* Kein Gradient — BMW nutzt flächiges Blau / dunkle Navy-Bänder */
+  --gradient-brand: #1C69D4;
 
-  /* Status — semantische Palette von Wise */
-  --status-red:        #D03238;
-  --status-red-bg:     #FCE8E9;
-  --status-red-border: #F5C4C6;
-  --status-red-text:   #A72027;
-  --status-red-soft:   #FDF3F3;
-  --status-green-bg:   #E2F6D5;
-  --status-green-text: #054D28;
-  --status-green-border: #C5EDAB;
-  --status-blue-bg:    #E5F7FF;
+  /* Status */
+  --status-red:        #DC2626;
+  --status-red-bg:     #FDECEC;
+  --status-red-border: #F7C9C9;
+  --status-red-text:   #A91B1B;
+  --status-red-soft:   #FEF5F5;
+  --status-green-bg:   #E9F9EF;
+  --status-green-text: #137A3A;
+  --status-green-border: #B6E8C8;
+  --status-blue-bg:    #E4EDFB;
 
-  /* Text — Ink-Hierarchie (near-black) */
-  --text:          #0E0F0C;
-  --text-soft:     #454745;
-  --text-muted:    #454745;
-  --text-faint:    #868685;
+  /* Text — BMW Ink-Hierarchie */
+  --text:          #262626;
+  --text-soft:     #1A1A1A;
+  --text-muted:    #3C3C3C;
+  --text-faint:    #6B6B6B;
 
-  --score-1: #38C8FF;
-  --score-2: #9FE870;
+  --score-1: #1C69D4;
+  --score-2: #0066B1;
   --score-3: var(--petrol);
-  --score-4: #2EAD4B;
+  --score-4: #0653B6;
 
-  --green:         #2EAD4B;
-  --green-light:   #E2F6D5;
-  --blue:          #38C8FF;
-  --blue-light:    #E5F7FF;
-  --blue-border:   #B8EBFF;
+  --green:         #22C55E;
+  --green-light:   #DCFCE7;
+  --blue:          #1C69D4;
+  --blue-light:    #E4EDFB;
+  --blue-border:   #C2D9F6;
 
-  /* Text auf Akzent — bei Wise DUNKEL (grüner Button, schwarzer Text) */
-  --text-on-accent: #0E0F0C;
+  /* Text auf Akzent — weiß (BMW-Blau ist dunkel genug) */
+  --text-on-accent: #FFFFFF;
 
   /* Weitere getokenizte Werte */
-  --text-faint-2:  #868685;
-  --disabled-bg:   #E8EBE6;
-  --disabled-text: #A8AAA6;
-  --pill-amber-bg:     #FFF4CC;
-  --pill-amber-text:   #B86700;
-  --pill-amber-border: #FFE49A;
-  --ink-gradient:  #0E0F0C;
-  --ink-accent:    #9FE870;
-  --text-on-yellow: #0E0F0C;
-  --status-red-strong: #A72027;
+  --text-faint-2:  #6B6B6B;
+  --disabled-bg:   #EBEBEB;
+  --disabled-text: #9A9A9A;
+  --pill-amber-bg:     #FEF3C7;
+  --pill-amber-text:   #92400E;
+  --pill-amber-border: #FDE68A;
+  --ink-gradient:  #1A2129;
+  --ink-accent:    #1C69D4;
+  --text-on-yellow: #FFFFFF;
+  --status-red-strong: #DC2626;
 
-  /* Typografie — Inter (Display 900, Body 600/400) als Wise-Sans-Ersatz */
-  --font:         'Inter', -apple-system, system-ui, sans-serif;
+  /* Typografie — Inter als BMW-Type-Next-Ersatz (700 Display / 300 Body) */
+  --font:         'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Inter', -apple-system, system-ui, sans-serif;
 
-  /* Radien — Wise nutzt großzügige 24px für Buttons/Cards */
-  --r:    16px;
-  --r-sm:  8px;
-  --r-lg: 24px;
-  --r-xl: 24px;
+  /* Radien — BMW ist präzise/eckig, kleine Radien (max 12px) */
+  --r:     8px;
+  --r-sm:  4px;
+  --r-lg: 12px;
+  --r-xl: 12px;
 
-  /* Elevation — Wise ist flach: Flächenkontrast statt Schatten */
+  /* Elevation — BMW nutzt KEINE Schatten, Tiefe aus Farbkontrast */
   --shadow-xs: none;
   --shadow-sm: none;
-  --shadow-md: 0 2px 8px rgba(14,15,12,.06);
-  --shadow-lg: 0 8px 24px rgba(14,15,12,.10);
+  --shadow-md: 0 2px 8px rgba(38,38,38,.06);
+  --shadow-lg: 0 8px 24px rgba(38,38,38,.10);
   --shadow-violet: none;
 }
 
@@ -115,7 +115,7 @@ body {
   font-family: var(--font);
   color: var(--text);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   background-color: var(--bg-page);
 }
@@ -223,8 +223,8 @@ body {
 
 .search-hero h1 {
   font-family: var(--font-display);
-  font-size: 56px; font-weight: 900;
-  line-height: 1.0; letter-spacing: -.02em;
+  font-size: 48px; font-weight: 700;
+  line-height: 1.05; letter-spacing: 0;
   color: var(--text); margin-bottom: 14px;
 }
 .search-hero h1 em {
@@ -404,7 +404,7 @@ body {
 .sf-custom-actions { display: flex; align-items: center; gap: 12px; }
 .sf-custom-confirm {
   font-family: var(--font); font-size: 13px; font-weight: 600;
-  color: var(--text-on-accent); background: var(--violet); border: none;
+  color: white; background: var(--violet); border: none;
   border-radius: var(--r-sm); padding: 7px 14px; cursor: pointer; transition: opacity .15s;
 }
 .sf-custom-confirm:hover { opacity: .88; }
@@ -692,7 +692,7 @@ body {
   margin-bottom: 14px; width: fit-content; border: 1.5px solid;
 }
 
-.tier-top    { background: var(--violet-light); color: var(--violet-dark); border-color: rgba(159,232,112,.3); }
+.tier-top    { background: var(--violet-light); color: var(--violet-dark); border-color: rgba(28,105,212,.3); }
 .tier-growth { background: var(--status-green-bg); color: var(--status-green-text); border-color: rgba(16,185,129,.3); }
 .tier-caution{ background: var(--status-blue-bg); color: var(--brand-blue-dark); border-color: rgba(59,130,246,.3); }
 
@@ -742,7 +742,7 @@ body {
   letter-spacing: .01em; cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.product-card:hover .card-cta { background: var(--violet); border-color: var(--violet-dark); color: var(--text-on-accent); }
+.product-card:hover .card-cta { background: var(--violet); border-color: var(--violet-dark); color: white; }
 
 /* ── Excluded ──────────────────────────────────────────── */
 .excluded-section { margin-top: 8px; }
@@ -791,12 +791,12 @@ body {
   flex-shrink: 0;
 }
 .pitch-save-btn:hover { border-color: var(--violet); color: var(--violet); }
-.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(159,232,112,.1); }
+.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(28,105,212,.1); }
 
 .pdf-btn {
   display: flex; align-items: center; gap: 7px;
   font-family: var(--font); font-size: 13px; font-weight: 600;
-  color: var(--text-on-accent); background: var(--violet);
+  color: white; background: var(--violet);
   border: none; border-radius: var(--r-sm);
   padding: 8px 16px; cursor: pointer; transition: opacity .15s;
   box-shadow: var(--shadow-violet);
@@ -814,8 +814,8 @@ body {
 .pitch-header-meta { font-size: 11px; font-weight: 600; letter-spacing: .10em; text-transform: uppercase; color: var(--brand-blue); margin-bottom: 10px; }
 
 .pitch-header h1 {
-  font-family: var(--font-display); font-size: 48px; font-weight: 900;
-  line-height: 1.0; letter-spacing: -.025em;
+  font-family: var(--font-display); font-size: 48px; font-weight: 700;
+  line-height: 1.05; letter-spacing: -.025em;
   color: var(--text); margin-bottom: 12px;
 }
 
@@ -829,9 +829,9 @@ body {
 .pitch-stat-value { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -.01em; }
 .pitch-stat-sub   { font-size: 11.5px; color: var(--text-faint); margin-top: 3px; }
 .pitch-stat.accent { background: var(--violet); border-color: var(--violet-dark); box-shadow: var(--shadow-violet); }
-.pitch-stat.accent .pitch-stat-label { color: rgba(14,15,12,.65); }
-.pitch-stat.accent .pitch-stat-value { color: var(--text-on-accent); }
-.pitch-stat.accent .pitch-stat-sub   { color: rgba(14,15,12,.6); }
+.pitch-stat.accent .pitch-stat-label { color: rgba(255,255,255,.7); }
+.pitch-stat.accent .pitch-stat-value { color: white; }
+.pitch-stat.accent .pitch-stat-sub   { color: rgba(255,255,255,.65); }
 
 .pitch-section { margin-bottom: 12px; }
 
@@ -1017,7 +1017,7 @@ body {
   position: absolute;
   top: -40%; right: -5%;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(159,232,112,.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(28,105,212,.12) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -1332,7 +1332,7 @@ body {
   width: 100%;
   padding: 14px;
   background: var(--violet);
-  color: var(--text-on-accent);
+  color: white;
   border: none;
   border-radius: var(--r);
   font-family: var(--font);
@@ -1396,7 +1396,7 @@ body {
 
 .nav-saved-count {
   background: var(--violet);
-  color: var(--text-on-accent);
+  color: white;
   font-size: 11px; font-weight: 700;
   padding: 1px 7px;
   border-radius: 10px;
@@ -1658,8 +1658,8 @@ body {
   transition: background .15s;
 }
 .ef-display:hover {
-  background: rgba(159,232,112,.07);
-  outline: 1px dashed rgba(159,232,112,.3);
+  background: rgba(28,105,212,.07);
+  outline: 1px dashed rgba(28,105,212,.3);
   outline-offset: 2px;
 }
 .ef-icon {
@@ -1672,7 +1672,7 @@ body {
 }
 .ef-display:hover .ef-icon { opacity: .7; }
 .ef-multiline { display: block; cursor: text; }
-.ef-multiline:hover { background: rgba(159,232,112,.03); border-radius: var(--r-sm); }
+.ef-multiline:hover { background: rgba(28,105,212,.03); border-radius: var(--r-sm); }
 .ef-edit-hint {
   display: flex; align-items: center;
   font-size: 11px; font-weight: 600; color: var(--violet);
@@ -1745,5 +1745,5 @@ body {
   font-size: 12px; font-weight: 700; border: none; border-radius: var(--r-sm);
   padding: 3px 8px; cursor: pointer;
 }
-.pos-source-confirm { background: var(--violet); color: var(--text-on-accent); }
+.pos-source-confirm { background: var(--violet); color: white; }
 .pos-source-cancel { background: var(--bg-subtle); color: var(--text-faint); }
