@@ -5,28 +5,27 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Design Tokens — AIRBNB THEME (via DESIGN.md) ──────── */
+/* ── Design Tokens — WISE THEME (via DESIGN.md) ────────── */
 :root {
-  /* Rausch — die einzige Markenfarbe, trägt alle CTAs */
-  --violet:        #FF385C;
-  --violet-dark:   #E00B41;
-  --violet-light:  #FFE8EC;
-  --violet-muted:  rgba(255,56,92,.07);
-  --violet-border: rgba(255,56,92,.22);
-  --violet-glow:   rgba(255,56,92,.14);
+  /* Wise Lime-Green — einzige Markenfarbe, dunkler Text darauf */
+  --violet:        #9FE870;
+  --violet-dark:   #8AD95C;
+  --violet-light:  #E2F6D5;
+  --violet-muted:  rgba(159,232,112,.14);
+  --violet-border: rgba(14,15,12,.18);
+  --violet-glow:   rgba(159,232,112,.30);
 
-  /* Airbnb hat keine zweite Akzentfarbe — Brand-Blue = Rausch
-     (Ausnahme: Legal-Links #428bff) */
-  --brand-blue:        #FF385C;
-  --brand-blue-dark:   #E00B41;
-  --brand-blue-light:  #FFE8EC;
-  --brand-blue-muted:  rgba(255,56,92,.06);
+  /* Keine zweite Markenfarbe — Brand-Blue = Wise-Green */
+  --brand-blue:        #163300;
+  --brand-blue-dark:   #0E0F0C;
+  --brand-blue-light:  #E2F6D5;
+  --brand-blue-muted:  rgba(22,51,0,.06);
 
-  --yellow:        #FF385C;
-  --yellow-dark:   #E00B41;
-  --yellow-light:  #FFE8EC;
+  --yellow:        #9FE870;
+  --yellow-dark:   #8AD95C;
+  --yellow-light:  #E2F6D5;
 
-  /* Petrol — PartnerPilot bleibt als Sekundärprodukt erhalten */
+  /* Petrol — PartnerPilot bleibt erhalten */
   --petrol:        #14B8A6;
   --petrol-dark:   #0D9488;
   --petrol-deeper: #0F766E;
@@ -34,78 +33,78 @@
   --petrol-muted:  rgba(20,184,166,.08);
   --petrol-border: rgba(20,184,166,.25);
 
-  /* Flächen — reines Weiß, kein getönter Hintergrund */
-  --bg:            #FFFFFF;
+  /* Flächen — salbei-getöntes Canvas + weiße Karten */
+  --bg:            #E8EBE6;
   --bg-white:      #FFFFFF;
-  --bg-page:       #FFFFFF;
-  --bg-subtle:     #F7F7F7;
-  --violet-pale:   #FFF0F3;
+  --bg-page:       #E8EBE6;
+  --bg-subtle:     #E8EBE6;
+  --violet-pale:   #E2F6D5;
   --dot-grid:      transparent;
-  --border:        #DDDDDD;
-  --border-mid:    #C1C1C1;
+  --border:        #D5DAD0;
+  --border-mid:    #9DA39A;
 
-  /* Kein Gradient — Airbnb nutzt flächige Rausch-Farbe */
-  --gradient-brand: #FF385C;
+  /* Kein Gradient — Wise nutzt flächige Farbe */
+  --gradient-brand: #163300;
 
-  /* Status — Risk Pills & Tiers */
-  --status-red:        #C13515;
-  --status-red-bg:     #FFF0EC;
-  --status-red-border: #FBD9CE;
-  --status-red-text:   #B32505;
-  --status-red-soft:   #FFF6F3;
-  --status-green-bg:   #F2F2F2;
-  --status-green-text: #222222;
-  --status-green-border: #DDDDDD;
-  --status-blue-bg:    #EBF1FF;
+  /* Status — semantische Palette von Wise */
+  --status-red:        #D03238;
+  --status-red-bg:     #FCE8E9;
+  --status-red-border: #F5C4C6;
+  --status-red-text:   #A72027;
+  --status-red-soft:   #FDF3F3;
+  --status-green-bg:   #E2F6D5;
+  --status-green-text: #054D28;
+  --status-green-border: #C5EDAB;
+  --status-blue-bg:    #E5F7FF;
 
-  /* Text — Ink-Hierarchie */
-  --text:          #222222;
-  --text-soft:     #3F3F3F;
-  --text-muted:    #6A6A6A;
-  --text-faint:    #929292;
+  /* Text — Ink-Hierarchie (near-black) */
+  --text:          #0E0F0C;
+  --text-soft:     #454745;
+  --text-muted:    #454745;
+  --text-faint:    #868685;
 
-  --score-1: #FF385C;
-  --score-2: #E00B41;
+  --score-1: #38C8FF;
+  --score-2: #9FE870;
   --score-3: var(--petrol);
-  --score-4: #92174D;
+  --score-4: #2EAD4B;
 
-  --green:         #008A05;
-  --green-light:   #E6F4E6;
-  --blue:          #428BFF;
-  --blue-light:    #EBF1FF;
-  --blue-border:   #C9DBFF;
+  --green:         #2EAD4B;
+  --green-light:   #E2F6D5;
+  --blue:          #38C8FF;
+  --blue-light:    #E5F7FF;
+  --blue-border:   #B8EBFF;
 
-  /* Text auf farbigem Grund (bleibt themeübergreifend hell) */
-  --text-on-accent: #FFFFFF;
+  /* Text auf Akzent — bei Wise DUNKEL (grüner Button, schwarzer Text) */
+  --text-on-accent: #0E0F0C;
 
   /* Weitere getokenizte Werte */
-  --text-faint-2:  #6A6A6A;
-  --disabled-bg:   #F2F2F2;
-  --disabled-text: #B0B0B0;
-  --pill-amber-bg:     #FFF8E1;
-  --pill-amber-text:   #8A6D00;
-  --pill-amber-border: #FFE9A8;
-  --ink-gradient:  #222222;
-  --ink-accent:    #FFD1DA;
-  --text-on-yellow: #FFFFFF;
-  --status-red-strong: #C13515;
+  --text-faint-2:  #868685;
+  --disabled-bg:   #E8EBE6;
+  --disabled-text: #A8AAA6;
+  --pill-amber-bg:     #FFF4CC;
+  --pill-amber-text:   #B86700;
+  --pill-amber-border: #FFE49A;
+  --ink-gradient:  #0E0F0C;
+  --ink-accent:    #9FE870;
+  --text-on-yellow: #0E0F0C;
+  --status-red-strong: #A72027;
 
-  /* Typografie — Inter als Cereal/Circular-Ersatz (lt. DESIGN.md) */
-  --font:         'Inter', -apple-system, system-ui, 'Helvetica Neue', sans-serif;
+  /* Typografie — Inter (Display 900, Body 600/400) als Wise-Sans-Ersatz */
+  --font:         'Inter', -apple-system, system-ui, sans-serif;
   --font-display: 'Inter', -apple-system, system-ui, sans-serif;
 
-  /* Radien — runder, Airbnb-Charakter */
-  --r:    14px;
+  /* Radien — Wise nutzt großzügige 24px für Buttons/Cards */
+  --r:    16px;
   --r-sm:  8px;
-  --r-lg: 20px;
-  --r-xl: 32px;
+  --r-lg: 24px;
+  --r-xl: 24px;
 
-  /* Elevation — Airbnb hat genau EINE Schatten-Definition + flach */
+  /* Elevation — Wise ist flach: Flächenkontrast statt Schatten */
   --shadow-xs: none;
-  --shadow-sm: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
-  --shadow-md: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
-  --shadow-lg: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
-  --shadow-violet: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
+  --shadow-sm: none;
+  --shadow-md: 0 2px 8px rgba(14,15,12,.06);
+  --shadow-lg: 0 8px 24px rgba(14,15,12,.10);
+  --shadow-violet: none;
 }
 
 
@@ -224,8 +223,8 @@ body {
 
 .search-hero h1 {
   font-family: var(--font-display);
-  font-size: 44px; font-weight: 600;
-  line-height: 1.15; letter-spacing: -.02em;
+  font-size: 56px; font-weight: 900;
+  line-height: 1.0; letter-spacing: -.02em;
   color: var(--text); margin-bottom: 14px;
 }
 .search-hero h1 em {
@@ -405,7 +404,7 @@ body {
 .sf-custom-actions { display: flex; align-items: center; gap: 12px; }
 .sf-custom-confirm {
   font-family: var(--font); font-size: 13px; font-weight: 600;
-  color: white; background: var(--violet); border: none;
+  color: var(--text-on-accent); background: var(--violet); border: none;
   border-radius: var(--r-sm); padding: 7px 14px; cursor: pointer; transition: opacity .15s;
 }
 .sf-custom-confirm:hover { opacity: .88; }
@@ -693,7 +692,7 @@ body {
   margin-bottom: 14px; width: fit-content; border: 1.5px solid;
 }
 
-.tier-top    { background: var(--violet-light); color: var(--violet-dark); border-color: rgba(255,56,92,.3); }
+.tier-top    { background: var(--violet-light); color: var(--violet-dark); border-color: rgba(159,232,112,.3); }
 .tier-growth { background: var(--status-green-bg); color: var(--status-green-text); border-color: rgba(16,185,129,.3); }
 .tier-caution{ background: var(--status-blue-bg); color: var(--brand-blue-dark); border-color: rgba(59,130,246,.3); }
 
@@ -743,7 +742,7 @@ body {
   letter-spacing: .01em; cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.product-card:hover .card-cta { background: var(--violet); border-color: var(--violet-dark); color: white; }
+.product-card:hover .card-cta { background: var(--violet); border-color: var(--violet-dark); color: var(--text-on-accent); }
 
 /* ── Excluded ──────────────────────────────────────────── */
 .excluded-section { margin-top: 8px; }
@@ -792,12 +791,12 @@ body {
   flex-shrink: 0;
 }
 .pitch-save-btn:hover { border-color: var(--violet); color: var(--violet); }
-.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(255,56,92,.1); }
+.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(159,232,112,.1); }
 
 .pdf-btn {
   display: flex; align-items: center; gap: 7px;
   font-family: var(--font); font-size: 13px; font-weight: 600;
-  color: white; background: var(--violet);
+  color: var(--text-on-accent); background: var(--violet);
   border: none; border-radius: var(--r-sm);
   padding: 8px 16px; cursor: pointer; transition: opacity .15s;
   box-shadow: var(--shadow-violet);
@@ -815,8 +814,8 @@ body {
 .pitch-header-meta { font-size: 11px; font-weight: 600; letter-spacing: .10em; text-transform: uppercase; color: var(--brand-blue); margin-bottom: 10px; }
 
 .pitch-header h1 {
-  font-family: var(--font); font-size: 48px; font-weight: 700;
-  line-height: 1.05; letter-spacing: -.025em;
+  font-family: var(--font-display); font-size: 48px; font-weight: 900;
+  line-height: 1.0; letter-spacing: -.025em;
   color: var(--text); margin-bottom: 12px;
 }
 
@@ -830,9 +829,9 @@ body {
 .pitch-stat-value { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -.01em; }
 .pitch-stat-sub   { font-size: 11.5px; color: var(--text-faint); margin-top: 3px; }
 .pitch-stat.accent { background: var(--violet); border-color: var(--violet-dark); box-shadow: var(--shadow-violet); }
-.pitch-stat.accent .pitch-stat-label { color: rgba(255,255,255,.7); }
-.pitch-stat.accent .pitch-stat-value { color: white; }
-.pitch-stat.accent .pitch-stat-sub   { color: rgba(255,255,255,.65); }
+.pitch-stat.accent .pitch-stat-label { color: rgba(14,15,12,.65); }
+.pitch-stat.accent .pitch-stat-value { color: var(--text-on-accent); }
+.pitch-stat.accent .pitch-stat-sub   { color: rgba(14,15,12,.6); }
 
 .pitch-section { margin-bottom: 12px; }
 
@@ -1018,7 +1017,7 @@ body {
   position: absolute;
   top: -40%; right: -5%;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(255,56,92,.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(159,232,112,.12) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -1333,7 +1332,7 @@ body {
   width: 100%;
   padding: 14px;
   background: var(--violet);
-  color: white;
+  color: var(--text-on-accent);
   border: none;
   border-radius: var(--r);
   font-family: var(--font);
@@ -1397,7 +1396,7 @@ body {
 
 .nav-saved-count {
   background: var(--violet);
-  color: white;
+  color: var(--text-on-accent);
   font-size: 11px; font-weight: 700;
   padding: 1px 7px;
   border-radius: 10px;
@@ -1659,8 +1658,8 @@ body {
   transition: background .15s;
 }
 .ef-display:hover {
-  background: rgba(255,56,92,.07);
-  outline: 1px dashed rgba(255,56,92,.3);
+  background: rgba(159,232,112,.07);
+  outline: 1px dashed rgba(159,232,112,.3);
   outline-offset: 2px;
 }
 .ef-icon {
@@ -1673,7 +1672,7 @@ body {
 }
 .ef-display:hover .ef-icon { opacity: .7; }
 .ef-multiline { display: block; cursor: text; }
-.ef-multiline:hover { background: rgba(255,56,92,.03); border-radius: var(--r-sm); }
+.ef-multiline:hover { background: rgba(159,232,112,.03); border-radius: var(--r-sm); }
 .ef-edit-hint {
   display: flex; align-items: center;
   font-size: 11px; font-weight: 600; color: var(--violet);
@@ -1746,5 +1745,5 @@ body {
   font-size: 12px; font-weight: 700; border: none; border-radius: var(--r-sm);
   padding: 3px 8px; cursor: pointer;
 }
-.pos-source-confirm { background: var(--violet); color: white; }
+.pos-source-confirm { background: var(--violet); color: var(--text-on-accent); }
 .pos-source-cancel { background: var(--bg-subtle); color: var(--text-faint); }
