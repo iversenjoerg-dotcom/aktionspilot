@@ -5,25 +5,28 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Design Tokens ─────────────────────────────────────── */
+/* ── Design Tokens — AIRBNB THEME (via DESIGN.md) ──────── */
 :root {
-  --violet:        #6161FF;
-  --violet-dark:   #4848E8;
-  --violet-light:  #EDEDFF;
-  --violet-muted:  rgba(97,97,255,.08);
-  --violet-border: rgba(97,97,255,.22);
-  --violet-glow:   rgba(97,97,255,.14);
+  /* Rausch — die einzige Markenfarbe, trägt alle CTAs */
+  --violet:        #FF385C;
+  --violet-dark:   #E00B41;
+  --violet-light:  #FFE8EC;
+  --violet-muted:  rgba(255,56,92,.07);
+  --violet-border: rgba(255,56,92,.22);
+  --violet-glow:   rgba(255,56,92,.14);
 
-  --brand-blue:        #2563EB;
-  --brand-blue-dark:   #1D4ED8;
-  --brand-blue-light:  #DBEAFE;
-  --brand-blue-muted:  rgba(37,99,235,.07);
+  /* Airbnb hat keine zweite Akzentfarbe — Brand-Blue = Rausch
+     (Ausnahme: Legal-Links #428bff) */
+  --brand-blue:        #FF385C;
+  --brand-blue-dark:   #E00B41;
+  --brand-blue-light:  #FFE8EC;
+  --brand-blue-muted:  rgba(255,56,92,.06);
 
-  --yellow:        #FFD02F;
-  --yellow-dark:   #F0BE00;
-  --yellow-light:  #FFF8D6;
+  --yellow:        #FF385C;
+  --yellow-dark:   #E00B41;
+  --yellow-light:  #FFE8EC;
 
-  /* Petrol — PartnerPilot (shadcn Teal-500) */
+  /* Petrol — PartnerPilot bleibt als Sekundärprodukt erhalten */
   --petrol:        #14B8A6;
   --petrol-dark:   #0D9488;
   --petrol-deeper: #0F766E;
@@ -31,72 +34,78 @@
   --petrol-muted:  rgba(20,184,166,.08);
   --petrol-border: rgba(20,184,166,.25);
 
-  --bg:            #F8F9FF;
+  /* Flächen — reines Weiß, kein getönter Hintergrund */
+  --bg:            #FFFFFF;
   --bg-white:      #FFFFFF;
-  --bg-page:       #FAFBFF;
-  --bg-subtle:     #EEF0F8;
-  --violet-pale:   #EEEEFF;
-  --dot-grid:      #D4D9E8;
-  --border:        #E2E5EF;
-  --border-mid:    #CDD1E0;
+  --bg-page:       #FFFFFF;
+  --bg-subtle:     #F7F7F7;
+  --violet-pale:   #FFF0F3;
+  --dot-grid:      transparent;
+  --border:        #DDDDDD;
+  --border-mid:    #C1C1C1;
 
-  /* Hero / Pitch Gradient */
-  --gradient-brand: linear-gradient(135deg, #1D4ED8 0%, #6161FF 100%);
+  /* Kein Gradient — Airbnb nutzt flächige Rausch-Farbe */
+  --gradient-brand: #FF385C;
 
   /* Status — Risk Pills & Tiers */
-  --status-red:        #EF4444;
-  --status-red-bg:     #FEE2E2;
-  --status-red-border: #FECACA;
-  --status-red-text:   #991B1B;
-  --status-red-soft:   #FEF2F2;
-  --status-green-bg:   #ECFDF5;
-  --status-green-text: #065F46;
-  --status-green-border: #A7F3D0;
-  --status-blue-bg:    #EFF6FF;
+  --status-red:        #C13515;
+  --status-red-bg:     #FFF0EC;
+  --status-red-border: #FBD9CE;
+  --status-red-text:   #B32505;
+  --status-red-soft:   #FFF6F3;
+  --status-green-bg:   #F2F2F2;
+  --status-green-text: #222222;
+  --status-green-border: #DDDDDD;
+  --status-blue-bg:    #EBF1FF;
 
-  --text:          #111827;
-  --text-soft:     #374151;
-  --text-muted:    #4B5563;
-  --text-faint:    #71717A; /* WCAG AA: 4.9:1 auf Weiß ✓ */
+  /* Text — Ink-Hierarchie */
+  --text:          #222222;
+  --text-soft:     #3F3F3F;
+  --text-muted:    #6A6A6A;
+  --text-faint:    #929292;
 
-  --score-1: #3B82F6;
-  --score-2: #6161FF;
+  --score-1: #FF385C;
+  --score-2: #E00B41;
   --score-3: var(--petrol);
-  --score-4: #8B5CF6;
+  --score-4: #92174D;
 
-  --green:         #10B981;
-  --green-light:   #D1FAE5;
-  --blue:          #3B82F6;
-  --blue-light:    #DBEAFE;
-  --blue-border:   #BFDBFE;
+  --green:         #008A05;
+  --green-light:   #E6F4E6;
+  --blue:          #428BFF;
+  --blue-light:    #EBF1FF;
+  --blue-border:   #C9DBFF;
 
   /* Text auf farbigem Grund (bleibt themeübergreifend hell) */
   --text-on-accent: #FFFFFF;
 
-  /* Weitere getokenizte Werte (vormals hartkodiert) */
-  --text-faint-2:  #6B7280; /* WCAG AA 4.6:1 */
-  --disabled-bg:   #E8EAF6;
-  --disabled-text: #9CA3AF;
-  --pill-amber-bg:     #FEF3C7;
-  --pill-amber-text:   #92400E;
-  --pill-amber-border: #FDE68A;
-  --ink-gradient:  linear-gradient(145deg, #0D1B2A 0%, #1A1050 55%, #0F1E3D 100%);
-  --ink-accent:    #A5B4FC;
-  --text-on-yellow: #1a1000;
-  --status-red-strong: #DC2626;
+  /* Weitere getokenizte Werte */
+  --text-faint-2:  #6A6A6A;
+  --disabled-bg:   #F2F2F2;
+  --disabled-text: #B0B0B0;
+  --pill-amber-bg:     #FFF8E1;
+  --pill-amber-text:   #8A6D00;
+  --pill-amber-border: #FFE9A8;
+  --ink-gradient:  #222222;
+  --ink-accent:    #FFD1DA;
+  --text-on-yellow: #FFFFFF;
+  --status-red-strong: #C13515;
 
-  --font:         'Poppins', -apple-system, sans-serif;
-  --font-display: 'Young Serif', Georgia, serif;
-  --r:    12px;
+  /* Typografie — Inter als Cereal/Circular-Ersatz (lt. DESIGN.md) */
+  --font:         'Inter', -apple-system, system-ui, 'Helvetica Neue', sans-serif;
+  --font-display: 'Inter', -apple-system, system-ui, sans-serif;
+
+  /* Radien — runder, Airbnb-Charakter */
+  --r:    14px;
   --r-sm:  8px;
-  --r-lg: 16px;
-  --r-xl: 24px;
+  --r-lg: 20px;
+  --r-xl: 32px;
 
-  --shadow-xs: 0 1px 2px rgba(0,0,0,.05);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,.10);
-  --shadow-violet: 0 4px 16px rgba(97,97,255,.2);
+  /* Elevation — Airbnb hat genau EINE Schatten-Definition + flach */
+  --shadow-xs: none;
+  --shadow-sm: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
+  --shadow-md: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
+  --shadow-lg: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
+  --shadow-violet: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
 }
 
 
@@ -106,16 +115,10 @@ html { scroll-behavior: smooth; }
 body {
   font-family: var(--font);
   color: var(--text);
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   background-color: var(--bg-page);
-  background-image:
-    radial-gradient(ellipse at 12% 45%, rgba(97,97,255,0.04) 0%, transparent 55%),
-    radial-gradient(ellipse at 88% 12%, rgba(255,208,47,0.035) 0%, transparent 55%),
-    radial-gradient(ellipse at 60% 85%, rgba(97,97,255,0.025) 0%, transparent 45%),
-    radial-gradient(circle, var(--dot-grid) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
 }
 
 /* ── Shell ─────────────────────────────────────────────── */
@@ -221,8 +224,8 @@ body {
 
 .search-hero h1 {
   font-family: var(--font-display);
-  font-size: 48px; font-weight: 400;
-  line-height: 1.12; letter-spacing: -.01em;
+  font-size: 44px; font-weight: 600;
+  line-height: 1.15; letter-spacing: -.02em;
   color: var(--text); margin-bottom: 14px;
 }
 .search-hero h1 em {
@@ -690,7 +693,7 @@ body {
   margin-bottom: 14px; width: fit-content; border: 1.5px solid;
 }
 
-.tier-top    { background: var(--violet-light); color: var(--violet-dark); border-color: rgba(97,97,255,.3); }
+.tier-top    { background: var(--violet-light); color: var(--violet-dark); border-color: rgba(255,56,92,.3); }
 .tier-growth { background: var(--status-green-bg); color: var(--status-green-text); border-color: rgba(16,185,129,.3); }
 .tier-caution{ background: var(--status-blue-bg); color: var(--brand-blue-dark); border-color: rgba(59,130,246,.3); }
 
@@ -789,7 +792,7 @@ body {
   flex-shrink: 0;
 }
 .pitch-save-btn:hover { border-color: var(--violet); color: var(--violet); }
-.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(97,97,255,.1); }
+.pitch-save-btn.saved { color: var(--violet); border-color: var(--violet); background: rgba(255,56,92,.1); }
 
 .pdf-btn {
   display: flex; align-items: center; gap: 7px;
@@ -1015,7 +1018,7 @@ body {
   position: absolute;
   top: -40%; right: -5%;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(97,97,255,.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,56,92,.12) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -1656,8 +1659,8 @@ body {
   transition: background .15s;
 }
 .ef-display:hover {
-  background: rgba(97,97,255,.07);
-  outline: 1px dashed rgba(97,97,255,.3);
+  background: rgba(255,56,92,.07);
+  outline: 1px dashed rgba(255,56,92,.3);
   outline-offset: 2px;
 }
 .ef-icon {
@@ -1670,7 +1673,7 @@ body {
 }
 .ef-display:hover .ef-icon { opacity: .7; }
 .ef-multiline { display: block; cursor: text; }
-.ef-multiline:hover { background: rgba(97,97,255,.03); border-radius: var(--r-sm); }
+.ef-multiline:hover { background: rgba(255,56,92,.03); border-radius: var(--r-sm); }
 .ef-edit-hint {
   display: flex; align-items: center;
   font-size: 11px; font-weight: 600; color: var(--violet);
