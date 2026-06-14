@@ -423,22 +423,24 @@ function AccessModal({ onSuccess, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Schließen">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+        {onClose && (
+          <button className="modal-close" onClick={onClose} aria-label="Schließen">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        )}
         <div className="modal-icon-wrap">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
         </div>
-        <h2 className="modal-title">Geschlossene Beta</h2>
+        <h2 className="modal-title">Geschlossener Zugang</h2>
         <p className="modal-desc">
-          AktionsPilot befindet sich in aktiver Entwicklung.
-          Der Zugang zur Analyse-Funktion ist derzeit nur
-          ausgewählten Personen zugänglich.
+          AktionsPilot ist derzeit nur ausgewählten Personen
+          zugänglich. Bitte gib deinen Zugangscode ein, um
+          fortzufahren.
         </p>
         <input
           className="modal-input"
@@ -595,6 +597,7 @@ function ScoreBar({ label, value, colorClass, delay = 0 }) {
       <div className="score-track">
         <div className={`score-fill ${colorClass}`} style={{ width: `${width}%` }} />
       </div>
+      <span className="score-value">{value}</span>
     </div>
   )
 }
@@ -609,7 +612,10 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved
   return (
     <div className={`product-card ${tierClass}`}>
       <div className="card-header-row">
-        <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>
+        <div className="card-pills">
+          {concept.tierLabel && <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>}
+          {concept.retailer && <span className="card-retailer-pill">{concept.retailer}</span>}
+        </div>
         {onToggleSave && (
           <button
             className={`card-bookmark ${saved ? 'saved' : ''}`}
@@ -791,9 +797,11 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <section className="dv2-hero">
         <div className="dv2-blob dv2-blob-a" />
         <div className="dv2-blob dv2-blob-b" />
-        <div className="dv2-toggle">
-          <button className={`dv2-toggle-btn ${dashMode === 'aktion' ? 'sel' : ''}`} onClick={() => onSetMode('aktion')}>Aktionsprodukt</button>
-          <button className={`dv2-toggle-btn ${dashMode === 'partner' ? 'sel' : ''}`} onClick={() => onSetMode('partner')}>Partnerprodukt</button>
+        <div className="dv2-toggle-wrap">
+          <div className="dv2-toggle">
+            <button className={`dv2-toggle-btn ${dashMode === 'aktion' ? 'sel' : ''}`} onClick={() => onSetMode('aktion')}>Aktionsprodukt</button>
+            <button className={`dv2-toggle-btn ${dashMode === 'partner' ? 'sel' : ''}`} onClick={() => onSetMode('partner')}>Partnerprodukt</button>
+          </div>
         </div>
         <button className="dv2-hero-cta" onClick={onNewAction}>
           <div className="dv2-hero-plus">
@@ -1492,14 +1500,8 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePop)
   }, [])
 
-  /* ── Auth gate ───────────────────────────────────────── */
+  /* ── Generate (Auth-Gate erfolgt global beim Seitenladen) ── */
   const generateCards = (query, deepAnalysis = false) => {
-    if (!isAuthenticated) {
-      setPendingQuery(query)
-      setPendingDeep(deepAnalysis)
-      setShowAccessModal(true)
-      return
-    }
     runGenerateCards(query, deepAnalysis)
   }
 
@@ -1535,9 +1537,10 @@ export default function App() {
       }
       const data = await res.json()
       // Eindeutige IDs vergeben — AI liefert immer "1","2","3", was zu falschen Bookmark-Matches führt
+      // Händler (retailer) an jedes concept anhängen, damit gespeicherte Cards ihn kennen
       const ts = Date.now()
       if (data.concepts) {
-        data.concepts = data.concepts.map((c, i) => ({ ...c, id: `${ts}-${i}` }))
+        data.concepts = data.concepts.map((c, i) => ({ ...c, id: `${ts}-${i}`, retailer: c.retailer || data.retailer }))
       }
       setCardsData(data)
       setView('cards')
@@ -1631,12 +1634,12 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {showAccessModal && (
-        <AccessModal
-          onSuccess={handleAccessGranted}
-          onClose={() => setShowAccessModal(false)}
-        />
+      {/* ── ZUGANGS-GATE: blockiert die gesamte App bis Code eingegeben ── */}
+      {!isAuthenticated && (
+        <AccessModal onSuccess={handleAccessGranted} />
       )}
+
+      {isAuthenticated && <>
 
       {/* ── SEARCH MODAL (global, neues Design) ── */}
       <Modal open={searchModalOpen} onClose={() => setSearchModalOpen(false)}>
@@ -1853,6 +1856,7 @@ export default function App() {
 
         </div>{/* dash-content */}
       </div>{/* dash-layout */}
+      </>}
     </div>
   )
 }
