@@ -692,6 +692,147 @@ function SourceBadge({ label, url }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   SIDEBAR — schmal, ausfahrbar
+   ═══════════════════════════════════════════════════════════ */
+function Sidebar({ activeTab, onSwitchTool, onUserClick }) {
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <aside
+      className={`dash-sidebar ${expanded ? 'expanded' : ''}`}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
+      <div className="dash-sidebar-logo">
+        <div className="dash-logo-mark">A</div>
+        <span className="dash-sidebar-label">AktionsPilot</span>
+      </div>
+
+      <nav className="dash-sidebar-nav">
+        <button
+          className={`dash-nav-item ${activeTab === 'aktions' ? 'active' : ''}`}
+          onClick={() => onSwitchTool('aktions')}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14"/>
+          </svg>
+          <span className="dash-sidebar-label">AktionsPilot</span>
+        </button>
+
+        <button
+          className={`dash-nav-item ${activeTab === 'partner' ? 'active' : ''}`}
+          onClick={() => onSwitchTool('partner')}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span className="dash-sidebar-label">PartnerPilot</span>
+          <span className="dash-soon-badge">Bald</span>
+        </button>
+
+        <button className="dash-nav-item" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span className="dash-sidebar-label">Einstellungen</span>
+        </button>
+      </nav>
+
+      <button className="dash-nav-item dash-user" onClick={onUserClick}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span className="dash-sidebar-label">Mein Konto</span>
+      </button>
+    </aside>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL — frosted glass overlay
+   ═══════════════════════════════════════════════════════════ */
+function Modal({ open, onClose, children }) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  if (!open) return null
+  return (
+    <div className="dash-modal-overlay" onClick={onClose}>
+      <div className="dash-modal" onClick={e => e.stopPropagation()}>
+        <button className="dash-modal-close" onClick={onClose} aria-label="Schließen">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD VIEW
+   ═══════════════════════════════════════════════════════════ */
+function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches }) {
+  return (
+    <div className="dash-main">
+      <div className="dash-header">
+        <h1 className="dash-greeting">Willkommen zurück.<br /><span className="dash-greeting-accent">Bereit für den nächsten Slot?</span></h1>
+      </div>
+
+      <button className="dash-new-action" onClick={onNewAction}>
+        <div className="dash-new-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+        <div className="dash-new-text">
+          <span className="dash-new-title">Neue Aktion analysieren</span>
+          <span className="dash-new-sub">Marktlücke finden, Produktidee generieren, Pitch-Konzept erstellen</span>
+        </div>
+        <svg className="dash-new-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+
+      <div className="dash-section-head">
+        <h2 className="dash-section-title">Gespeicherte Produktideen</h2>
+        {savedConcepts.length > 0 && <span className="dash-section-count">{savedConcepts.length}</span>}
+      </div>
+
+      {savedConcepts.length === 0 ? (
+        <div className="dash-empty">
+          <div className="dash-empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <p className="dash-empty-title">Noch keine gespeicherten Produktideen</p>
+          <p className="dash-empty-sub">Starte eine neue Aktion, um Produktideen zu generieren und hier zu sammeln.</p>
+        </div>
+      ) : (
+        <div className="dash-grid">
+          {savedConcepts.map((concept, i) => (
+            <ProductCard
+              key={concept.id || i}
+              concept={concept}
+              onSelect={onOpenConcept}
+              onToggleSave={onToggleSave}
+              saved={true}
+              index={i}
+              pitchSaved={!!savedPitches[concept.name]}
+              onUpdateConcept={(field, value) => onUpdateConcept(concept, field, value)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
+/* ═══════════════════════════════════════════════════════════
    EDITABLE FIELD — inline click-to-edit
    ═══════════════════════════════════════════════════════════ */
 function EditableField({ value, onSave, displayContent = null, inputClassName = '' }) {
@@ -1145,7 +1286,8 @@ export default function App() {
         if (saved) return 'pitch'
       } catch {}
     }
-    return 'search'
+    if (window.location.hash === '#search') return 'search'
+    return 'dashboard'
   })
   const [cardsData, setCardsData]     = useState(null)
   const [pitchData, setPitchData]     = useState(() => {
@@ -1168,6 +1310,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [pitchSource, setPitchSource] = useState('cards') // track where pitch was opened from
   const [showAccessModal, setShowAccessModal] = useState(false)
+  const [searchModalOpen, setSearchModalOpen] = useState(false)
 
   // Close mobile menu on Escape
   useEffect(() => {
@@ -1321,6 +1464,7 @@ export default function App() {
   const runGenerateCards = async (query, deepAnalysis = false) => {
     if (!query) return
     setError(null)
+    setSearchModalOpen(false)
     setLoading(true)
     setView('loading-cards')
     try {
@@ -1407,7 +1551,7 @@ export default function App() {
   }
 
   const resetToSearch = () => {
-    setView('search')
+    setView('dashboard')
     setCardsData(null)
     setPitchData(null)
     setSelected(null)
@@ -1426,7 +1570,8 @@ export default function App() {
         />
       )}
 
-      {/* Topbar — transparent initially, white on scroll */}
+      {/* Topbar — transparent initially, white on scroll. Im Dashboard ausgeblendet (Sidebar übernimmt) */}
+      {view !== 'dashboard' && (
       <header className={`topbar ${navVisible ? 'topbar-scrolled' : ''}`}>
         <div className="topbar-inner">
           <span className="topbar-logo" onClick={resetToSearch}>
@@ -1513,8 +1658,36 @@ export default function App() {
           </div>
         )}
       </header>
+      )}
 
       <div className="main-content">
+
+        {/* ── DASHBOARD ── */}
+        {view === 'dashboard' && (
+          <div className="dash-layout">
+            <Sidebar
+              activeTab={activeTab}
+              onSwitchTool={switchTool}
+              onUserClick={() => {}}
+            />
+            <DashboardView
+              savedConcepts={savedConcepts}
+              savedPitches={savedPitches}
+              onNewAction={() => setSearchModalOpen(true)}
+              onOpenConcept={generatePitch}
+              onToggleSave={toggleSave}
+              onUpdateConcept={updateSavedConcept}
+            />
+          </div>
+        )}
+
+        {/* ── SEARCH MODAL (vom Dashboard) ── */}
+        <Modal open={searchModalOpen} onClose={() => setSearchModalOpen(false)}>
+          <div className="dash-modal-search">
+            <h2 className="dash-modal-title">Neue Aktion analysieren</h2>
+            <SearchForm onSearch={generateCards} loading={loading} />
+          </div>
+        </Modal>
 
         {/* ── SEARCH ── */}
         {view === 'search' && (
