@@ -694,7 +694,7 @@ function SourceBadge({ label, url }) {
 /* ═══════════════════════════════════════════════════════════
    SIDEBAR — schmal, ausfahrbar
    ═══════════════════════════════════════════════════════════ */
-function Sidebar({ activeTab, onSwitchTool, onUserClick }) {
+function Sidebar({ activeTab, onSwitchTool, onUserClick, onDashboard, onSaved, onHowItWorks, savedCount, currentView }) {
   const [expanded, setExpanded] = useState(false)
   return (
     <aside
@@ -702,20 +702,20 @@ function Sidebar({ activeTab, onSwitchTool, onUserClick }) {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      <div className="dash-sidebar-logo">
+      <button className="dash-sidebar-logo" onClick={onDashboard}>
         <div className="dash-logo-mark">A</div>
         <span className="dash-sidebar-label">AktionsPilot</span>
-      </div>
+      </button>
 
       <nav className="dash-sidebar-nav">
         <button
-          className={`dash-nav-item ${activeTab === 'aktions' ? 'active' : ''}`}
-          onClick={() => onSwitchTool('aktions')}
+          className={`dash-nav-item ${activeTab === 'aktions' && currentView === 'dashboard' ? 'active' : ''}`}
+          onClick={onDashboard}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14"/>
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
           </svg>
-          <span className="dash-sidebar-label">AktionsPilot</span>
+          <span className="dash-sidebar-label">Dashboard</span>
         </button>
 
         <button
@@ -727,6 +727,27 @@ function Sidebar({ activeTab, onSwitchTool, onUserClick }) {
           </svg>
           <span className="dash-sidebar-label">PartnerPilot</span>
           <span className="dash-soon-badge">Bald</span>
+        </button>
+
+        <button
+          className={`dash-nav-item ${currentView === 'saved' ? 'active' : ''}`}
+          onClick={onSaved}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill={savedCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span className="dash-sidebar-label">Gespeichert</span>
+          {savedCount > 0 && <span className="dash-count-badge">{savedCount}</span>}
+        </button>
+
+        <button
+          className={`dash-nav-item ${currentView === 'howitworks' ? 'active' : ''}`}
+          onClick={onHowItWorks}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span className="dash-sidebar-label">So funktioniert's</span>
         </button>
 
         <button className="dash-nav-item" disabled>
@@ -776,7 +797,7 @@ function Modal({ open, onClose, children }) {
    ═══════════════════════════════════════════════════════════ */
 function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches }) {
   return (
-    <div className="dash-main">
+    <div className="dash-content-inner">
       <div className="dash-header">
         <p className="dash-greeting">Willkommen zurück, Jörg</p>
       </div>
@@ -1301,7 +1322,14 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('aktionspilot_saved_pitches') || '{}') }
     catch { return {} }
   })
-  const [selectedConcept, setSelected] = useState(null)
+  const [selectedConcept, setSelected] = useState(() => {
+    // Bug-Fix: selectedConcept beim Reload aus sessionStorage wiederherstellen,
+    // damit das angezeigte Pitch zum richtigen Konzept gehört
+    try {
+      const saved = sessionStorage.getItem('aktionspilot_selected_concept')
+      return saved ? JSON.parse(saved) : null
+    } catch { return null }
+  })
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
   const [error, setError]             = useState(null)
@@ -1319,6 +1347,15 @@ export default function App() {
     document.addEventListener('keydown', fn)
     return () => document.removeEventListener('keydown', fn)
   }, [mobileMenuOpen])
+
+  // Bug-Fix: selectedConcept in sessionStorage spiegeln, damit Reload das
+  // korrekte Pitch zum richtigen Konzept anzeigt
+  useEffect(() => {
+    try {
+      if (selectedConcept) sessionStorage.setItem('aktionspilot_selected_concept', JSON.stringify(selectedConcept))
+      else sessionStorage.removeItem('aktionspilot_selected_concept')
+    } catch {}
+  }, [selectedConcept])
 
   const switchTool = (tab) => {
     setActiveTab(tab)
@@ -1561,6 +1598,18 @@ export default function App() {
     }
   }
 
+  const goDashboard = () => {
+    setView('dashboard'); setCardsData(null); setPitchData(null); setSelected(null); setError(null)
+    if (window.location.hash) window.history.pushState({}, '', window.location.pathname)
+    window.scrollTo({ top: 0 })
+  }
+  const goSaved = () => {
+    setView('saved'); window.history.pushState({ view: 'saved' }, '', '#saved'); window.scrollTo({ top: 0 })
+  }
+  const goHowItWorks = () => {
+    setView('howitworks'); window.history.pushState({ view: 'howitworks' }, '', '#howitworks'); window.scrollTo({ top: 0 })
+  }
+
   return (
     <div className="app-shell">
       {showAccessModal && (
@@ -1570,106 +1619,31 @@ export default function App() {
         />
       )}
 
-      {/* Topbar — transparent initially, white on scroll. Im Dashboard ausgeblendet (Sidebar übernimmt) */}
-      {view !== 'dashboard' && (
-      <header className={`topbar ${navVisible ? 'topbar-scrolled' : ''}`}>
-        <div className="topbar-inner">
-          <span className="topbar-logo" onClick={resetToSearch}>
-            {activeTab === 'partner'
-              ? <>Partner<span className="logo-petrol">Pilot</span></>
-              : <>Aktions<span>Pilot</span></>
-            }
-          </span>
-          <div className="topbar-nav">
-            {/* Desktop: Tools dropdown */}
-            <div className="nav-tools-wrap" onMouseLeave={() => setToolsOpen(false)}>
-              <button
-                className={`nav-link ${toolsOpen ? 'active' : ''}`}
-                onClick={() => setToolsOpen(v => !v)}
-              >Tools ▾</button>
-              {toolsOpen && (
-                <div className="nav-dropdown">
-                  <button className={`nav-dropdown-item ${activeTab === 'aktions' ? 'current' : ''}`} onClick={() => switchTool('aktions')}>
-                    Aktions<strong>Pilot</strong>
-                  </button>
-                  <button className={`nav-dropdown-item ${activeTab === 'partner' ? 'current' : ''}`} onClick={() => switchTool('partner')}>
-                    Partner<strong>Pilot</strong>
-                  </button>
-                </div>
-              )}
-            </div>
-            {activeTab === 'aktions' && (
-              <button className="nav-link nav-how-link" onClick={scrollToHow}>
-                So funktioniert der AktionsPilot
-              </button>
-            )}
-            {savedConcepts.length > 0 && (
-              <button className="nav-saved-btn" onClick={() => {
-                setView('saved')
-                window.history.pushState({ view: 'saved' }, '', '#saved')
-              }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-                </svg>
-                Gespeichert
-                <span className="nav-saved-count">{savedConcepts.length}</span>
-              </button>
-            )}
-            {/* Mobile: Burger */}
-            <button className="burger-btn" onClick={() => setMobileMenuOpen(v => !v)} aria-label="Menü">
-              {mobileMenuOpen
-                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-              }
-            </button>
-          </div>
+      {/* ── SEARCH MODAL (global) ── */}
+      <Modal open={searchModalOpen} onClose={() => setSearchModalOpen(false)}>
+        <div className="dash-modal-search">
+          <h2 className="dash-modal-title">Neue Aktion analysieren</h2>
+          <SearchForm onSearch={generateCards} loading={loading} />
         </div>
+      </Modal>
 
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="mobile-menu-overlay" onClick={() => setMobileMenuOpen(false)}>
-            <div className="mobile-menu" onClick={e => e.stopPropagation()}>
-              <p className="mobile-menu-label">Tools</p>
-              <button className={`mobile-menu-item ${activeTab === 'aktions' ? 'current' : ''}`}
-                onClick={() => { switchTool('aktions'); setMobileMenuOpen(false) }}>
-                Aktions<strong>Pilot</strong>
-              </button>
-              <button className={`mobile-menu-item ${activeTab === 'partner' ? 'current' : ''}`}
-                onClick={() => { switchTool('partner'); setMobileMenuOpen(false) }}>
-                Partner<strong>Pilot</strong>
-              </button>
-              {activeTab === 'aktions' && (
-                <>
-                  <div className="mobile-menu-divider" />
-                  <button className="mobile-menu-item" onClick={() => { scrollToHow(); setMobileMenuOpen(false) }}>
-                    So funktioniert der AktionsPilot
-                  </button>
-                </>
-              )}
-              {savedConcepts.length > 0 && (
-                <>
-                  <div className="mobile-menu-divider" />
-                  <button className="mobile-menu-item" onClick={() => { setView('saved'); window.history.pushState({ view: 'saved' }, '', '#saved'); setMobileMenuOpen(false) }}>
-                    Gespeichert ({savedConcepts.length})
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </header>
-      )}
+      {/* ── PERMANENTER LAYOUT-RAHMEN: Sidebar + Content ── */}
+      <div className="dash-layout">
+        <Sidebar
+          activeTab={activeTab}
+          currentView={view}
+          savedCount={savedConcepts.length}
+          onSwitchTool={switchTool}
+          onDashboard={goDashboard}
+          onSaved={goSaved}
+          onHowItWorks={goHowItWorks}
+          onUserClick={() => {}}
+        />
 
-      <div className="main-content">
+        <div className="dash-content">
 
         {/* ── DASHBOARD ── */}
         {view === 'dashboard' && (
-          <div className="dash-layout">
-            <Sidebar
-              activeTab={activeTab}
-              onSwitchTool={switchTool}
-              onUserClick={() => {}}
-            />
             <DashboardView
               savedConcepts={savedConcepts}
               savedPitches={savedPitches}
@@ -1678,16 +1652,14 @@ export default function App() {
               onToggleSave={toggleSave}
               onUpdateConcept={updateSavedConcept}
             />
-          </div>
         )}
 
-        {/* ── SEARCH MODAL (vom Dashboard) ── */}
-        <Modal open={searchModalOpen} onClose={() => setSearchModalOpen(false)}>
-          <div className="dash-modal-search">
-            <h2 className="dash-modal-title">Neue Aktion analysieren</h2>
-            <SearchForm onSearch={generateCards} loading={loading} />
+        {/* ── HOW IT WORKS (eigene View) ── */}
+        {view === 'howitworks' && (
+          <div className="dash-content-inner">
+            <HowItWorks />
           </div>
-        </Modal>
+        )}
 
         {/* ── SEARCH ── */}
         {view === 'search' && (
@@ -1739,7 +1711,7 @@ export default function App() {
 
         {/* ── CARDS ── */}
         {view === 'cards' && cardsData && (
-          <>
+          <div className="dash-content-inner">
             <div className="results-header">
               <div>
                 <p className="results-context">{cardsData.retailer} · {cardsData.season}</p>
@@ -1780,7 +1752,7 @@ export default function App() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* ── LOADING PITCH ── */}
@@ -1794,6 +1766,7 @@ export default function App() {
 
         {/* ── PITCH ── */}
         {view === 'pitch' && pitchData && (
+          <div className="dash-content-inner">
           <PitchDeckView
             pitch={pitchData}
             isSavedPitch={isPitchSaved(selectedConcept)}
@@ -1809,11 +1782,12 @@ export default function App() {
               }
             }}
           />
+          </div>
         )}
 
         {/* ── SAVED ── */}
         {view === 'saved' && (
-          <>
+          <div className="dash-content-inner">
             <div className="results-header">
               <div>
                 <p className="results-context">Merkliste</p>
@@ -1844,20 +1818,19 @@ export default function App() {
                 ))}
               </div>
             )}
-          </>
+          </div>
         )}
         {view === 'impressum' && (
           <ImpressumView onBack={resetToSearch} />
         )}
 
-      </div>
+          <Footer activeTab={activeTab} onImpressum={() => {
+            setView('impressum')
+            window.history.pushState({}, '', '#impressum')
+          }} />
 
-      {view === 'search' && activeTab === 'aktions' && <HowItWorks />}
-
-      <Footer activeTab={activeTab} onImpressum={() => {
-        setView('impressum')
-        window.history.pushState({}, '', '#impressum')
-      }} />
+        </div>{/* dash-content */}
+      </div>{/* dash-layout */}
     </div>
   )
 }

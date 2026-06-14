@@ -1613,17 +1613,20 @@ body {
   .site-footer,
   .how-section,
   .tab-bar-wrap,
+  .dash-sidebar,
   .pdf-btn { display: none !important; }
 
   /* Hintergrund bereinigen */
-  body, .app-shell, .main-content { background: white !important; }
+  body, .app-shell, .main-content, .dash-content, .dash-layout { background: white !important; }
 
-  /* Dot-Grid-Pseudo-Element entfernen */
-  .app-shell::before { display: none !important; }
+  /* Dot-Grid- und Pastell-Pseudo-Element entfernen */
+  .app-shell::before,
+  .dash-layout::before { display: none !important; }
 
   /* Seitenränder und Padding */
   .pitch-view { padding: 0 !important; }
   .main-content { padding: 0 !important; max-width: 100% !important; }
+  .dash-content-inner { padding: 0 !important; max-width: 100% !important; }
 
   /* Schatten entfernen (drucken schlecht) */
   * { box-shadow: none !important; }
@@ -1754,11 +1757,10 @@ body {
 .dash-layout {
   display: flex;
   min-height: 100vh;
-  margin: -60px calc(50% - 50vw) -100px;  /* aus main-content max-width ausbrechen, bis Bildschirmrand */
-  width: 100vw;
+  width: 100%;
   position: relative;
 }
-/* Pastell-Verlauf-Hintergrund statt Dot-Grid */
+/* Pastell-Verlauf-Hintergrund statt Dot-Grid — für ALLE Views */
 .dash-layout::before {
   content: '';
   position: fixed; inset: 0; z-index: -1;
@@ -1767,6 +1769,20 @@ body {
     radial-gradient(ellipse 70% 50% at 90% 20%, rgba(120,160,230,.12) 0%, transparent 55%),
     radial-gradient(ellipse 90% 70% at 70% 95%, rgba(28,105,212,.06) 0%, transparent 60%),
     linear-gradient(180deg, #F4F7FC 0%, #FBFCFE 100%);
+}
+
+/* Content-Bereich rechts neben der Sidebar */
+.dash-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dash-content-inner {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 48px;
 }
 
 /* ── Sidebar ── */
@@ -1979,4 +1995,42 @@ body {
   .dash-greeting { font-size: 30px; }
   .dash-grid { grid-template-columns: 1fr; }
   .dash-modal { padding: 28px 20px; }
+}
+
+/* ── Alt-Views (search/cards/pitch/saved/impressum) im Dashboard-Rahmen zentrieren ── */
+.dash-content > .search-hero,
+.dash-content > .results-header,
+.dash-content > .results-grid,
+.dash-content > .excluded-section,
+.dash-content > .pitch-deck,
+.dash-content > .loading-wrap,
+.dash-content > .error-box,
+.dash-content > .impressum-view,
+.dash-content > .site-footer {
+  max-width: 1180px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 48px;
+  padding-right: 48px;
+  box-sizing: border-box;
+}
+.dash-content > .search-hero { padding-top: 56px; }
+.dash-content > .site-footer { margin-top: auto; }
+
+/* Footer transparent im neuen Look */
+.dash-content > .site-footer { background: transparent; }
+
+@media (max-width: 768px) {
+  .dash-content > .search-hero,
+  .dash-content > .results-header,
+  .dash-content > .results-grid,
+  .dash-content > .pitch-deck,
+  .dash-content > .loading-wrap,
+  .dash-content > .error-box,
+  .dash-content > .impressum-view,
+  .dash-content > .site-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }
