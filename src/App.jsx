@@ -778,7 +778,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
   return (
     <div className="dash-main">
       <div className="dash-header">
-        <h1 className="dash-greeting">Willkommen zurück.<br /><span className="dash-greeting-accent">Bereit für den nächsten Slot?</span></h1>
+        <p className="dash-greeting">Willkommen zurück, Jörg</p>
       </div>
 
       <button className="dash-new-action" onClick={onNewAction}>

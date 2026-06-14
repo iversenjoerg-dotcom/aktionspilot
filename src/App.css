@@ -1754,7 +1754,8 @@ body {
 .dash-layout {
   display: flex;
   min-height: 100vh;
-  margin: -60px -32px -100px;  /* main-content padding aufheben */
+  margin: -60px calc(50% - 50vw) -100px;  /* aus main-content max-width ausbrechen, bis Bildschirmrand */
+  width: 100vw;
   position: relative;
 }
 /* Pastell-Verlauf-Hintergrund statt Dot-Grid */
@@ -1837,19 +1838,20 @@ body {
 /* ── Main ── */
 .dash-main {
   flex: 1;
-  padding: 56px 56px 80px;
-  max-width: 1180px;
+  padding: 40px 48px 80px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
   animation: dashFadeIn .5s ease;
 }
 @keyframes dashFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-.dash-header { margin-bottom: 36px; }
+.dash-header { margin-bottom: 32px; text-align: center; }
 .dash-greeting {
-  font-family: var(--font-display);
-  font-size: 42px; font-weight: 700; line-height: 1.1;
-  letter-spacing: -.02em; color: var(--text);
+  font-size: 14px; font-weight: 500;
+  color: var(--text-faint);
+  letter-spacing: .01em;
 }
-.dash-greeting-accent { color: var(--violet); }
 
 /* Neue Aktion CTA */
 .dash-new-action {
@@ -1895,8 +1897,11 @@ body {
 /* Grid */
 .dash-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 22px;
+}
+@media (max-width: 1100px) {
+  .dash-grid { grid-template-columns: repeat(2, 1fr); }
 }
 .dash-grid > * { animation: dashCardIn .5s ease backwards; }
 .dash-grid > *:nth-child(1) { animation-delay: .04s; }
