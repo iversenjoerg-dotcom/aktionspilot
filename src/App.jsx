@@ -695,75 +695,37 @@ function SourceBadge({ label, url }) {
    SIDEBAR — schmal, ausfahrbar
    ═══════════════════════════════════════════════════════════ */
 function Sidebar({ activeTab, onSwitchTool, onUserClick, onDashboard, onSaved, onHowItWorks, savedCount, currentView }) {
-  const [expanded, setExpanded] = useState(false)
   return (
-    <aside
-      className={`dash-sidebar ${expanded ? 'expanded' : ''}`}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
-    >
-      <button className="dash-sidebar-logo" onClick={onDashboard}>
-        <div className="dash-logo-mark">A</div>
-        <span className="dash-sidebar-label">AktionsPilot</span>
+    <aside className="dash-sidebar-v2">
+      <div className="dsb-logo">A</div>
+
+      <button className={`dsb-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={onDashboard} title="Dashboard">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>
       </button>
 
-      <nav className="dash-sidebar-nav">
-        <button
-          className={`dash-nav-item ${activeTab === 'aktions' && currentView === 'dashboard' ? 'active' : ''}`}
-          onClick={onDashboard}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-          <span className="dash-sidebar-label">Dashboard</span>
-        </button>
-
-        <button
-          className={`dash-nav-item ${activeTab === 'partner' ? 'active' : ''}`}
-          onClick={() => onSwitchTool('partner')}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-          <span className="dash-sidebar-label">PartnerPilot</span>
-          <span className="dash-soon-badge">Bald</span>
-        </button>
-
-        <button
-          className={`dash-nav-item ${currentView === 'saved' ? 'active' : ''}`}
-          onClick={onSaved}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={savedCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span className="dash-sidebar-label">Gespeichert</span>
-          {savedCount > 0 && <span className="dash-count-badge">{savedCount}</span>}
-        </button>
-
-        <button
-          className={`dash-nav-item ${currentView === 'howitworks' ? 'active' : ''}`}
-          onClick={onHowItWorks}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-          <span className="dash-sidebar-label">So funktioniert's</span>
-        </button>
-
-        <button className="dash-nav-item" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-          <span className="dash-sidebar-label">Einstellungen</span>
-        </button>
-      </nav>
-
-      <button className="dash-nav-item dash-user" onClick={onUserClick}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-        </svg>
-        <span className="dash-sidebar-label">Mein Konto</span>
+      <button className="dsb-item" onClick={onDashboard} title="Anfragen">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 9h4l2 3h4l2-3h4"/></svg>
       </button>
+
+      <button className={`dsb-item ${currentView === 'saved' ? 'active' : ''}`} onClick={onSaved} title="Gespeichert">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
+      </button>
+
+      <button className="dsb-item" onClick={onDashboard} title="Analysen">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 19V11"/><path d="M12 19V5"/><path d="M19 19v-6"/></svg>
+      </button>
+
+      <div className="dsb-spacer" />
+
+      <button className={`dsb-item ${currentView === 'howitworks' ? 'active' : ''}`} onClick={onHowItWorks} title="Hilfe">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.4 2.4 0 1 1 3.4 2.2c-.8.4-1.3 1-1.3 1.9"/><circle cx="12" cy="16.4" r=".6" fill="currentColor" stroke="none"/></svg>
+      </button>
+
+      <button className="dsb-item" disabled title="Einstellungen">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.1"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.1"/></svg>
+      </button>
+
+      <button className="dsb-user" onClick={onUserClick} title="Mein Konto">J</button>
     </aside>
   )
 }
@@ -795,45 +757,101 @@ function Modal({ open, onClose, children }) {
 /* ═══════════════════════════════════════════════════════════
    DASHBOARD VIEW
    ═══════════════════════════════════════════════════════════ */
-function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches }) {
+function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches, dashMode, onSetMode }) {
+  const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const topPicks = savedConcepts.filter(c => c.tier === 'top').length
+  const pitchCount = Object.keys(savedPitches).length
+
   return (
-    <div className="dash-content-inner">
-      <div className="dash-header">
-        <p className="dash-greeting">Willkommen zurück, Jörg</p>
+    <div className="dash-v2">
+      {/* Header */}
+      <header className="dv2-header">
+        <div className="dv2-header-left">
+          <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
+          <span className="dv2-date">{today}</span>
+        </div>
+        <div className="dv2-header-right">
+          <div className="dv2-search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+            <span>Produktidee oder Händler suchen</span>
+          </div>
+          <button className="dv2-icon-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.6 21a2 2 0 0 1-3.2 0"/></svg>
+            <span className="dv2-notif-dot" />
+          </button>
+          <button className="dv2-user-chip">
+            <span className="dv2-user-avatar">J</span>
+            <span className="dv2-user-name">Jörg</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA0B4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="dv2-hero">
+        <div className="dv2-blob dv2-blob-a" />
+        <div className="dv2-blob dv2-blob-b" />
+        <div className="dv2-toggle">
+          <button className={`dv2-toggle-btn ${dashMode === 'aktion' ? 'sel' : ''}`} onClick={() => onSetMode('aktion')}>Aktionsprodukt</button>
+          <button className={`dv2-toggle-btn ${dashMode === 'partner' ? 'sel' : ''}`} onClick={() => onSetMode('partner')}>Partnerprodukt</button>
+        </div>
+        <button className="dv2-hero-cta" onClick={onNewAction}>
+          <div className="dv2-hero-plus">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </div>
+          <h2 className="dv2-hero-title">{dashMode === 'aktion' ? 'Neues Aktionsprodukt' : 'Neues Partnerprodukt'}</h2>
+        </button>
+      </section>
+
+      {/* Stats */}
+      <div className="dv2-stats">
+        <div className="dv2-stat">
+          <div className="dv2-stat-icon dv2-stat-blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
+          </div>
+          <div className="dv2-stat-text"><span className="dv2-stat-num">{savedConcepts.length}</span><span className="dv2-stat-label">Produktideen gespeichert</span></div>
+        </div>
+        <div className="dv2-stat">
+          <div className="dv2-stat-icon dv2-stat-sky">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.2 6.9 18.7l1-5.7-4.1-4 5.7-.8z"/></svg>
+          </div>
+          <div className="dv2-stat-text"><span className="dv2-stat-num">{topPicks}</span><span className="dv2-stat-label">Top-Picks markiert</span></div>
+        </div>
+        <div className="dv2-stat">
+          <div className="dv2-stat-icon dv2-stat-green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 13h5M10 16.5h5"/></svg>
+          </div>
+          <div className="dv2-stat-text"><span className="dv2-stat-num">{pitchCount}</span><span className="dv2-stat-label">Pitch-Konzepte erstellt</span></div>
+        </div>
       </div>
 
-      <button className="dash-new-action" onClick={onNewAction}>
-        <div className="dash-new-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
+      {/* Section head */}
+      <div className="dv2-section-head">
+        <div className="dv2-section-title-wrap">
+          <h3 className="dv2-section-title">Gespeicherte Produktideen</h3>
+          {savedConcepts.length > 0 && <span className="dv2-section-count">{savedConcepts.length}</span>}
         </div>
-        <div className="dash-new-text">
-          <span className="dash-new-title">Neue Aktion analysieren</span>
-          <span className="dash-new-sub">Marktlücke finden, Produktidee generieren, Pitch-Konzept erstellen</span>
+        <div className="dv2-filters">
+          <div className="dv2-filter">Zuletzt hinzugefügt
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div className="dv2-filter">Alle Händler
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
         </div>
-        <svg className="dash-new-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </button>
-
-      <div className="dash-section-head">
-        <h2 className="dash-section-title">Gespeicherte Produktideen</h2>
-        {savedConcepts.length > 0 && <span className="dash-section-count">{savedConcepts.length}</span>}
       </div>
 
+      {/* Grid */}
       {savedConcepts.length === 0 ? (
         <div className="dash-empty">
           <div className="dash-empty-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-            </svg>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </div>
           <p className="dash-empty-title">Noch keine gespeicherten Produktideen</p>
           <p className="dash-empty-sub">Starte eine neue Aktion, um Produktideen zu generieren und hier zu sammeln.</p>
         </div>
       ) : (
-        <div className="dash-grid">
+        <div className="dv2-grid">
           {savedConcepts.map((concept, i) => (
             <ProductCard
               key={concept.id || i}
@@ -1339,6 +1357,7 @@ export default function App() {
   const [pitchSource, setPitchSource] = useState('cards') // track where pitch was opened from
   const [showAccessModal, setShowAccessModal] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [dashMode, setDashMode] = useState('aktion')
 
   // Close mobile menu on Escape
   useEffect(() => {
@@ -1619,9 +1638,10 @@ export default function App() {
         />
       )}
 
-      {/* ── SEARCH MODAL (global) ── */}
+      {/* ── SEARCH MODAL (global, neues Design) ── */}
       <Modal open={searchModalOpen} onClose={() => setSearchModalOpen(false)}>
         <div className="dash-modal-search">
+          <span className="dv2-modal-eyebrow">ZENTRALE AKTION</span>
           <h2 className="dash-modal-title">Neue Aktion analysieren</h2>
           <SearchForm onSearch={generateCards} loading={loading} />
         </div>
@@ -1647,6 +1667,8 @@ export default function App() {
             <DashboardView
               savedConcepts={savedConcepts}
               savedPitches={savedPitches}
+              dashMode={dashMode}
+              onSetMode={setDashMode}
               onNewAction={() => setSearchModalOpen(true)}
               onOpenConcept={generatePitch}
               onToggleSave={toggleSave}
