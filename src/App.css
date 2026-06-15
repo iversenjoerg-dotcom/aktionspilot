@@ -2401,3 +2401,16 @@ body {
   .pa-amount { width: 60px; }
 }
 .mc-landed { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); line-height: 1.4; }
+
+/* ── v68: Section 04 Add/Remove, eigene Preiszeile ── */
+.val-row-content { display: flex; align-items: center; gap: 10px; }
+.val-row-content .ef-display { flex: 1; }
+.val-empty { color: var(--text-faint); font-size: 13.5px; font-style: italic; margin-bottom: 14px; }
+
+/* Eigene Produktzeile dezent hervorheben (Checkbox entfällt) */
+.pa-row-own { 
+  background: rgba(34,197,94,.05); 
+  border-radius: 10px; 
+  padding: 6px 8px; 
+  margin-left: -8px; margin-right: -8px;
+}

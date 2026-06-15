@@ -1065,8 +1065,21 @@ function PriceArchitecture({ pricing, retailer, onUpdateField }) {
     ? Math.max(...competitors.map(c => parsePrice(c.price ?? c.priceFormatted)), 1)
     : 100
 
+  // Sortiert die Liste: Wettbewerber absteigend nach Preis, eigenes Produkt (isAldi) immer zuletzt.
+  // Falls keine Zeile als isAldi markiert ist, gilt die letzte Zeile als eigenes Produkt.
+  const sortComps = (comps) => {
+    const hasOwn = comps.some(c => c.isAldi)
+    const normalized = hasOwn ? comps : comps.map((c, idx) => idx === comps.length - 1 ? { ...c, isAldi: true } : c)
+    const own = normalized.filter(c => c.isAldi)
+    const others = normalized.filter(c => !c.isAldi)
+      .sort((a, b) => parsePrice(b.price ?? b.priceFormatted) - parsePrice(a.price ?? a.priceFormatted))
+    return [...others, ...own]
+  }
+
   const updateComp = (i, patch) => onUpdateField(p => {
-    const comps = (p.pricing.competitors || []).map((c, idx) => idx === i ? { ...c, ...patch } : c)
+    let comps = (p.pricing.competitors || []).map((c, idx) => idx === i ? { ...c, ...patch } : c)
+    // Nach Preis-Änderung neu einsortieren (eigenes Produkt bleibt unten)
+    if ('price' in patch) comps = sortComps(comps)
     return { ...p, pricing: { ...p.pricing, competitors: comps } }
   })
   const removeComp = (i) => onUpdateField(p => {
@@ -1074,12 +1087,9 @@ function PriceArchitecture({ pricing, retailer, onUpdateField }) {
     return { ...p, pricing: { ...p.pricing, competitors: comps } }
   })
   const addComp = () => onUpdateField(p => {
-    const comps = [...(p.pricing.competitors || []), { name: 'Neues Produkt', price: 0, channel: 'Kanal', isAldi: false, url: null }]
-    return { ...p, pricing: { ...p.pricing, competitors: comps } }
-  })
-  const setOwn = (i) => onUpdateField(p => {
-    // Nur eine Zeile darf "eigenes Produkt" sein
-    const comps = (p.pricing.competitors || []).map((c, idx) => ({ ...c, isAldi: idx === i }))
+    const existing = p.pricing.competitors || []
+    // Neue Wettbewerber-Zeile (nicht eigenes Produkt) einfügen und einsortieren
+    const comps = sortComps([...existing, { name: 'Neues Produkt', price: 0, channel: 'Kanal', isAldi: false, url: null }])
     return { ...p, pricing: { ...p.pricing, competitors: comps } }
   })
 
@@ -1089,19 +1099,10 @@ function PriceArchitecture({ pricing, retailer, onUpdateField }) {
         {competitors.map((c, i) => {
           const priceNum = parsePrice(c.price ?? c.priceFormatted)
           const pct = Math.max(Math.round((priceNum / maxPrice) * 100), 6)
-          const isOwn = !!c.isAldi
+          // Eigenes Produkt = letzte Zeile ODER explizit isAldi markiert
+          const isOwn = !!c.isAldi || i === competitors.length - 1
           return (
-            <div className="pa-row" key={i}>
-              <button
-                className={`pa-own-toggle ${isOwn ? 'on' : ''}`}
-                title={isOwn ? 'Eigenes Produkt' : 'Als eigenes Produkt markieren'}
-                onClick={() => setOwn(i)}
-              >
-                {isOwn
-                  ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  : <span className="pa-own-empty" />}
-              </button>
-
+            <div className={`pa-row ${isOwn ? 'pa-row-own' : ''}`} key={i}>
               <span className={`pa-name ${isOwn ? 'own' : ''}`}>
                 <EditableField value={c.name} onSave={v => updateComp(i, { name: v })} />
                 <EditableField
@@ -1296,39 +1297,59 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
         </PitchSection>
       )}
 
-      {pitch.validation?.length > 0 && (
+      {(() => { const validation = pitch.validation || []; return (
         <PitchSection num="04 — Referenzmärkte">
           <p style={{ marginBottom: 14, color: 'var(--text-muted)', fontSize: 14 }}>
             Folgende Schwester-Discounter oder internationale Märkte hatten vergleichbare Produkte im Sortiment — ein starkes Validierungssignal für den Pitch.
           </p>
-          <table className="spec-table">
-            <tbody>
-              {pitch.validation.map((v, i) => (
-                <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>
-                    <EditableField
-                      value={v.market}
-                      onSave={val => onUpdateField(p => {
-                        const validation = p.validation.map((item, idx) => idx === i ? { ...item, market: val } : item)
-                        return { ...p, validation }
-                      })}
-                    />
-                  </td>
-                  <td>
-                    <EditableField
-                      value={v.detail}
-                      onSave={val => onUpdateField(p => {
-                        const validation = p.validation.map((item, idx) => idx === i ? { ...item, detail: val } : item)
-                        return { ...p, validation }
-                      })}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {validation.length > 0 && (
+            <table className="spec-table">
+              <tbody>
+                {validation.map((v, i) => (
+                  <tr key={i}>
+                    <td style={{ fontWeight: 600 }}>
+                      <EditableField
+                        value={v.market}
+                        onSave={val => onUpdateField(p => {
+                          const validation = p.validation.map((item, idx) => idx === i ? { ...item, market: val } : item)
+                          return { ...p, validation }
+                        })}
+                      />
+                    </td>
+                    <td>
+                      <div className="val-row-content">
+                        <EditableField
+                          value={v.detail}
+                          onSave={val => onUpdateField(p => {
+                            const validation = p.validation.map((item, idx) => idx === i ? { ...item, detail: val } : item)
+                            return { ...p, validation }
+                          })}
+                        />
+                        <button className="pa-remove" title="Zeile entfernen" onClick={() => onUpdateField(p => {
+                          const validation = p.validation.filter((_, idx) => idx !== i)
+                          return { ...p, validation }
+                        })}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {validation.length === 0 && (
+            <p className="val-empty">Noch keine Referenzmärkte hinterlegt.</p>
+          )}
+          <button className="pa-add" onClick={() => onUpdateField(p => {
+            const validation = [...(p.validation || []), { market: 'Händler / Markt', detail: 'Beschreibung des Referenzprodukts' }]
+            return { ...p, validation }
+          })}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Referenzmarkt hinzufügen
+          </button>
         </PitchSection>
-      )}
+      )})()}
 
       {pitch.packaging && (
         <PitchSection num="05 — Packaging-Konzept">
