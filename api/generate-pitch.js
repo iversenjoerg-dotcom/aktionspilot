@@ -27,7 +27,9 @@ JSON-Schema (exakt einhalten):
     "vk": "29,99 €",
     "ek": "8,00–9,50 €",
     "ekNote": "FOB China, ≥ 80.000 Stück",
-    "margin": "≈ 47 %",
+    "ekLanded": "11,50–13,50 €",
+    "margin": "≈ 42 %",
+    "factor": "≈ 1,8",
     "consumerArg": "Warum der Endkäufer den Preis als Vorteil wahrnimmt (1–2 Sätze)",
     "competitors": [
       { "name": "Wettbewerber Name", "price": 59.99, "priceFormatted": "59,99 €", "channel": "Fachhandel", "isAldi": false, "url": "https://amazon.de/dp/ASIN" },
@@ -78,6 +80,16 @@ Regeln:
 - Sei konkret und produktspezifisch — keine generischen Phrasen
 - Aktuelle Jahreszahlen: Pitch jetzt (Mai/Juni 2026), Produktionsstart Herbst 2026, Aktionsstart Herbst 2027
 - validation-Pflicht: Wenn im Konzept-Kontext (why-Feld) ein Schwester-Discounter- oder Auslands-Treffer erwähnt wird (z.B. "Aldi Nord hatte...", "Aldi Australien", "Aldi UK"), MUSS dieser in validation[] erscheinen. Sonst validation: []
+
+MARGEN-KALKULATION (wichtig — handelsübliche Logik):
+- "ek" = FOB-Preis (Warenpreis ab Werk/Hafen Asien). "ekNote" beschreibt diese FOB-Basis.
+- "ekLanded" = realistischer ANGELIEFERTER EK an den Händler = FOB + Seefracht + Zoll (0–4,7 %) + Importhandling + Intermediärmarge. Typisch FOB × 1,35–1,45.
+- "margin" = HANDELSSPANNE auf Netto-VK, berechnet aus dem LANDED EK (NICHT dem FOB-Preis):
+  Netto-VK = Brutto-VK / 1,19 (19 % MwSt). Handelsspanne = (Netto-VK − ekLanded) / Netto-VK × 100.
+  Beispiel: VK 24,99 € → Netto-VK 21,00 €; landed EK 12,00 € → Spanne (21,00−12,00)/21,00 = 42,9 %.
+- "factor" = Kalkulationsfaktor = Brutto-VK / landed EK (z.B. 24,99 / 13,50 = 1,85).
+- Realistischer Korridor für Nonfood-II-Aktionsware: Handelsspanne 38–48 %. Niemals mit FOB als EK rechnen (ergäbe unrealistische 53–60 %).
+- Begriff ist "Handelsspanne", NICHT "Bruttohandelsspanne".
 
 Führe vor der Antwort genau 4 Websuchen durch:
 1. WETTBEWERBER-URLS: Suche jedes Produkt in pricing.competitors auf Amazon.de (z.B. "Fujifilm Instax Mini 12 amazon.de") → trage die direkte Produkt-URL in competitors[].url ein. Aldi-Eigenmarke bekommt url: null.
