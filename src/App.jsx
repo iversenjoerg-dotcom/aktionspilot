@@ -1043,37 +1043,152 @@ function PitchSection({ num, title, defaultOpen = false, children }) {
 /* ═══════════════════════════════════════════════════════════
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
-function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdateField, hideBack }) {
-  if (!pitch) return null
-  const maxPrice = pitch.pricing?.competitors
-    ? Math.max(...pitch.pricing.competitors.map(c => c.price))
+/* ═══════════════════════════════════════════════════════════
+   PRICE ARCHITECTURE — editierbare Wettbewerbszeilen + dynamische Balken
+   ═══════════════════════════════════════════════════════════ */
+function parsePrice(str) {
+  if (typeof str === 'number') return str
+  if (!str) return 0
+  // "24,99 €" / "1.299,00" / "31.80" → Zahl
+  const cleaned = String(str).replace(/[^0-9,.-]/g, '').replace(/\.(?=\d{3})/g, '').replace(',', '.')
+  const n = parseFloat(cleaned)
+  return isNaN(n) ? 0 : n
+}
+function formatPrice(n) {
+  return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
+}
+
+function PriceArchitecture({ pricing, retailer, onUpdateField }) {
+  const competitors = pricing.competitors || []
+  // Balken-Skalierung: höchster Preis = 100%
+  const maxPrice = competitors.length
+    ? Math.max(...competitors.map(c => parsePrice(c.price ?? c.priceFormatted)), 1)
     : 100
 
-  const renderPriceBar = (comp, i) => {
-    const pct = Math.round((comp.price / maxPrice) * 100)
-    return (
-      <div className="price-bar-row" key={i}>
-        <span className="price-bar-lbl" style={comp.isAldi ? { fontWeight: 700, color: 'var(--text)' } : {}}>
-          {comp.url
-            ? <a href={comp.url} target="_blank" rel="noopener noreferrer" className="comp-link">{comp.name}</a>
-            : comp.name
-          }
-        </span>
-        <div className="price-bar-track">
-          <div className="price-bar-fill" style={{
-            width: `${pct}%`,
-            background: comp.isAldi ? 'var(--green)' : 'var(--violet)',
-            fontWeight: comp.isAldi ? 700 : 400,
-          }}>
-            {comp.channel}
-          </div>
-        </div>
-        <span className="price-bar-amount" style={comp.isAldi ? { color: 'var(--green)' } : {}}>
-          {comp.priceFormatted}
-        </span>
+  const updateComp = (i, patch) => onUpdateField(p => {
+    const comps = (p.pricing.competitors || []).map((c, idx) => idx === i ? { ...c, ...patch } : c)
+    return { ...p, pricing: { ...p.pricing, competitors: comps } }
+  })
+  const removeComp = (i) => onUpdateField(p => {
+    const comps = (p.pricing.competitors || []).filter((_, idx) => idx !== i)
+    return { ...p, pricing: { ...p.pricing, competitors: comps } }
+  })
+  const addComp = () => onUpdateField(p => {
+    const comps = [...(p.pricing.competitors || []), { name: 'Neues Produkt', price: 0, channel: 'Kanal', isAldi: false, url: null }]
+    return { ...p, pricing: { ...p.pricing, competitors: comps } }
+  })
+  const setOwn = (i) => onUpdateField(p => {
+    // Nur eine Zeile darf "eigenes Produkt" sein
+    const comps = (p.pricing.competitors || []).map((c, idx) => ({ ...c, isAldi: idx === i }))
+    return { ...p, pricing: { ...p.pricing, competitors: comps } }
+  })
+
+  return (
+    <>
+      <div className="price-bar-wrap">
+        {competitors.map((c, i) => {
+          const priceNum = parsePrice(c.price ?? c.priceFormatted)
+          const pct = Math.max(Math.round((priceNum / maxPrice) * 100), 6)
+          const isOwn = !!c.isAldi
+          return (
+            <div className="pa-row" key={i}>
+              <button
+                className={`pa-own-toggle ${isOwn ? 'on' : ''}`}
+                title={isOwn ? 'Eigenes Produkt' : 'Als eigenes Produkt markieren'}
+                onClick={() => setOwn(i)}
+              >
+                {isOwn
+                  ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  : <span className="pa-own-empty" />}
+              </button>
+
+              <span className={`pa-name ${isOwn ? 'own' : ''}`}>
+                <EditableField value={c.name} onSave={v => updateComp(i, { name: v })} />
+                <EditableField
+                  value={c.url || ''}
+                  onSave={v => updateComp(i, { url: v.trim() || null })}
+                  displayContent={
+                    c.url
+                      ? <a href={c.url} target="_blank" rel="noopener noreferrer" className="pa-link-icon" title={c.url} onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                      : <span className="pa-link-add" title="Link hinzufügen">+ Link</span>
+                  }
+                />
+              </span>
+
+              <div className="pa-track">
+                <div className="pa-fill" style={{
+                  width: `${pct}%`,
+                  background: isOwn ? 'var(--green)' : 'var(--violet)',
+                  fontWeight: isOwn ? 700 : 400,
+                }}>
+                  <EditableField value={c.channel || ''} onSave={v => updateComp(i, { channel: v })} inputClassName="pa-channel-input" />
+                </div>
+              </div>
+
+              <span className={`pa-amount ${isOwn ? 'own' : ''}`}>
+                <EditableField
+                  value={formatPrice(priceNum)}
+                  onSave={v => updateComp(i, { price: parsePrice(v), priceFormatted: formatPrice(parsePrice(v)) })}
+                />
+              </span>
+
+              <button className="pa-remove" title="Zeile entfernen" onClick={() => removeComp(i)}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          )
+        })}
+        <button className="pa-add" onClick={addComp}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Wettbewerber / Produkt hinzufügen
+        </button>
       </div>
-    )
-  }
+
+      {pricing.consumerArg !== undefined && (
+        <div className="arg-block forest" style={{ marginBottom: 16 }}>
+          <p className="arg-title">Argument für den Endkäufer</p>
+          <p className="arg-body">
+            <EditableField value={pricing.consumerArg} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, consumerArg: v } }))} />
+          </p>
+        </div>
+      )}
+
+      <div className="margin-grid">
+        <div className="margin-card">
+          <p className="mc-label">EK-Ziel (FOB)</p>
+          <p className="mc-value"><EditableField value={pricing.ek} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, ek: v } }))} /></p>
+          <p className="mc-sub"><EditableField value={pricing.ekNote} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, ekNote: v } }))} /></p>
+          {pricing.ekLanded !== undefined && (
+            <p className="mc-landed">+ Fracht/Zoll/Handling → angeliefert (landed): <EditableField value={pricing.ekLanded} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, ekLanded: v } }))} /></p>
+          )}
+        </div>
+        <div className="margin-card highlight">
+          <p className="mc-label">{retailer}-Handelsspanne</p>
+          <p className="mc-value"><EditableField value={pricing.margin} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, margin: v } }))} /></p>
+          <p className="mc-sub">auf Netto-VK · bei VK <EditableField value={pricing.vk} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, vk: v } }))} /></p>
+        </div>
+        <div className="margin-card factor">
+          <p className="mc-label">Kalkulationsfaktor</p>
+          <p className="mc-value"><EditableField value={pricing.factor || '—'} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, factor: v } }))} /></p>
+          <p className="mc-sub">VK ÷ EK</p>
+        </div>
+      </div>
+
+      <p className="pa-caveat">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        FOB ≠ {retailer}-EK: Seefracht, Zoll (0–4,7 %), Importhandling und Intermediärmarge liegen dazwischen. Die Handelsspanne bezieht sich auf den angelieferten (landed) EK, nicht auf den FOB-Preis.
+      </p>
+    </>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PITCH DECK VIEW
+   ═══════════════════════════════════════════════════════════ */
+function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdateField, hideBack }) {
+  if (!pitch) return null
 
   return (
     <div className="pitch-view">
@@ -1177,27 +1292,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
 
       {pitch.pricing && (
         <PitchSection num="03 — Preisarchitektur & Marge">
-          <div className="price-bar-wrap">
-            {pitch.pricing.competitors?.map((c, i) => renderPriceBar(c, i))}
-          </div>
-          {pitch.pricing.consumerArg && (
-            <div className="arg-block forest" style={{ marginBottom: 16 }}>
-              <p className="arg-title">Argument für den Endkäufer</p>
-              <p className="arg-body">{pitch.pricing.consumerArg}</p>
-            </div>
-          )}
-          <div className="margin-grid">
-            <div className="margin-card">
-              <p className="mc-label">EK-Ziel (FOB, ≥ 80k Stück)</p>
-              <p className="mc-value">{pitch.pricing.ek}</p>
-              <p className="mc-sub">{pitch.pricing.ekNote}</p>
-            </div>
-            <div className="margin-card highlight">
-              <p className="mc-label">{(pitch.retailer || pitch.pricing.retailer || 'Aldi')}-Handelsspanne</p>
-              <p className="mc-value">{pitch.pricing.margin}</p>
-              <p className="mc-sub">Bei VK {pitch.pricing.vk}</p>
-            </div>
-          </div>
+          <PriceArchitecture pricing={pitch.pricing} retailer={pitch.retailer || pitch.pricing.retailer || 'Aldi'} onUpdateField={onUpdateField} />
         </PitchSection>
       )}
 

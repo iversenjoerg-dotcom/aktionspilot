@@ -903,9 +903,10 @@ body {
 .price-bar-fill  { height: 100%; border-radius: 8px; display: flex; align-items: center; padding-left: 12px; font-size: 11.5px; font-weight: 600; color: var(--bg-white); white-space: nowrap; }
 .price-bar-amount{ font-size: 13.5px; font-weight: 700; color: var(--text); width: 64px; text-align: right; flex-shrink: 0; }
 
-.margin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.margin-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 18px; }
 .margin-card { background: var(--bg-white); border: 1.5px solid var(--border); border-radius: var(--r); padding: 18px 20px; box-shadow: var(--shadow-xs); }
 .margin-card.highlight { background: var(--violet-light); border-color: var(--violet-border); }
+.margin-card.factor { background: var(--bg-subtle); }
 .mc-label { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 5px; }
 .mc-value { font-size: 22px; font-weight: 700; color: var(--text); }
 .mc-sub   { font-size: 12px; color: var(--text-faint); margin-top: 4px; }
@@ -2321,3 +2322,82 @@ body {
   font-size: 9px;
   opacity: .55;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v67: PRICE ARCHITECTURE (editierbar)
+   ═══════════════════════════════════════════════════════════ */
+.pa-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+.pa-own-toggle {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px;
+  border: 1.5px solid var(--border-mid); background: var(--bg-white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; transition: all .18s;
+}
+.pa-own-toggle.on { background: var(--green); border-color: var(--green); }
+.pa-own-toggle:hover:not(.on) { border-color: var(--green); }
+.pa-own-empty { width: 8px; height: 8px; }
+
+.pa-name {
+  width: 188px; flex-shrink: 0; font-size: 13px; color: var(--text-soft);
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+}
+.pa-name.own { font-weight: 700; color: var(--text); }
+.pa-link-icon { color: var(--violet); display: inline-flex; }
+.pa-link-icon:hover { color: var(--violet-dark); }
+.pa-link-add { font-size: 10.5px; color: var(--text-faint); font-weight: 600; opacity: .7; }
+.pa-link-add:hover { opacity: 1; color: var(--violet); }
+
+.pa-track {
+  flex: 1; height: 30px; background: var(--bg-subtle);
+  border-radius: 8px; overflow: hidden; border: 1px solid var(--border);
+  min-width: 60px;
+}
+.pa-fill {
+  height: 100%; border-radius: 8px; display: flex; align-items: center;
+  padding-left: 12px; font-size: 11.5px; color: var(--bg-white);
+  white-space: nowrap; transition: width .35s cubic-bezier(.4,0,.2,1);
+}
+.pa-fill .ef-display { color: #fff; }
+.pa-channel-input { background: rgba(255,255,255,.9); color: var(--text); border-radius: 4px; padding: 1px 5px; font-size: 11px; }
+
+.pa-amount {
+  font-size: 13.5px; font-weight: 700; color: var(--text);
+  width: 72px; text-align: right; flex-shrink: 0;
+}
+.pa-amount.own { color: var(--green); }
+
+.pa-remove {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  border: none; background: transparent; color: var(--text-faint);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .18s; opacity: .5;
+}
+.pa-remove:hover { background: var(--status-red-bg); color: var(--status-red); opacity: 1; }
+
+.pa-add {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 6px; padding: 9px 16px; border-radius: 10px;
+  border: 1.5px dashed var(--border-mid); background: transparent;
+  color: var(--text-muted); font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all .2s;
+}
+.pa-add:hover { border-color: var(--violet); color: var(--violet); background: var(--violet-muted); }
+
+.pa-caveat {
+  display: flex; align-items: flex-start; gap: 9px;
+  margin-top: 16px; padding: 12px 15px; border-radius: 10px;
+  background: rgba(245,158,11,.08); color: #9A7321;
+  font-size: 12.5px; font-weight: 500; line-height: 1.45;
+}
+.pa-caveat svg { flex-shrink: 0; margin-top: 1px; }
+
+.margin-card.factor .mc-value { color: var(--text-muted); }
+
+@media (max-width: 768px) {
+  .margin-grid { grid-template-columns: 1fr; }
+  .pa-name { width: 130px; }
+  .pa-amount { width: 60px; }
+}
+.mc-landed { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); line-height: 1.4; }
