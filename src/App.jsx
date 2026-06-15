@@ -1043,7 +1043,7 @@ function PitchSection({ num, title, defaultOpen = false, children }) {
 /* ═══════════════════════════════════════════════════════════
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
-function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdateField }) {
+function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdateField, hideBack }) {
   if (!pitch) return null
   const maxPrice = pitch.pricing?.competitors
     ? Math.max(...pitch.pricing.competitors.map(c => c.price))
@@ -1078,7 +1078,10 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
   return (
     <div className="pitch-view">
       <div className="pitch-topbar">
-        <button className="back-btn" onClick={onBack}>← Zurück zu den Konzepten</button>
+        {hideBack
+          ? <span />
+          : <button className="back-btn" onClick={onBack}>← Zurück zu den Konzepten</button>
+        }
         <div className="pitch-topbar-right">
           <button
             className={`pitch-save-btn ${isSavedPitch ? 'saved' : ''}`}
@@ -1325,37 +1328,30 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
    MAIN APP
    ═══════════════════════════════════════════════════════════ */
 export default function App() {
+  // Reload-State: pitch + zugehöriges Konzept werden ATOMAR zusammen gespeichert,
+  // damit sie beim Reload nie auseinanderlaufen (Bug: falsches Produkt nach Reload)
+  const loadPitchSession = () => {
+    try {
+      const raw = sessionStorage.getItem('aktionspilot_pitch_session')
+      if (!raw) return { pitch: null, concept: null }
+      const parsed = JSON.parse(raw)
+      return { pitch: parsed.pitch || null, concept: parsed.concept || null }
+    } catch { return { pitch: null, concept: null } }
+  }
+  const _initSession = loadPitchSession()
+
   const [view, setView]               = useState(() => {
-    // Bei Reload auf Pitch-Seite bleiben wenn Daten vorhanden
-    if (window.location.hash === '#pitch') {
-      try {
-        const saved = sessionStorage.getItem('aktionspilot_pitch')
-        if (saved) return 'pitch'
-      } catch {}
-    }
-    if (window.location.hash === '#search') return 'search'
+    if (window.location.hash === '#pitch' && _initSession.pitch) return 'pitch'
     return 'dashboard'
   })
   const [cardsData, setCardsData]     = useState(null)
-  const [pitchData, setPitchData]     = useState(() => {
-    try {
-      const saved = sessionStorage.getItem('aktionspilot_pitch')
-      return saved ? JSON.parse(saved) : null
-    } catch { return null }
-  })
+  const [pitchData, setPitchData]     = useState(_initSession.pitch)
   const [pitchCache, setPitchCache]   = useState({})
   const [savedPitches, setSavedPitches] = useState(() => {
     try { return JSON.parse(localStorage.getItem('aktionspilot_saved_pitches') || '{}') }
     catch { return {} }
   })
-  const [selectedConcept, setSelected] = useState(() => {
-    // Bug-Fix: selectedConcept beim Reload aus sessionStorage wiederherstellen,
-    // damit das angezeigte Pitch zum richtigen Konzept gehört
-    try {
-      const saved = sessionStorage.getItem('aktionspilot_selected_concept')
-      return saved ? JSON.parse(saved) : null
-    } catch { return null }
-  })
+  const [selectedConcept, setSelected] = useState(_initSession.concept)
   const [loading, setLoading]         = useState(false)
   const [loadingPitch, setLoadingPitch] = useState(false)
   const [error, setError]             = useState(null)
@@ -1375,14 +1371,17 @@ export default function App() {
     return () => document.removeEventListener('keydown', fn)
   }, [mobileMenuOpen])
 
-  // Bug-Fix: selectedConcept in sessionStorage spiegeln, damit Reload das
-  // korrekte Pitch zum richtigen Konzept anzeigt
+  // Bug-Fix Reload: pitch UND zugehöriges Konzept ATOMAR zusammen speichern,
+  // damit beim Reload nie ein falsches Produkt zum Pitch erscheint
   useEffect(() => {
     try {
-      if (selectedConcept) sessionStorage.setItem('aktionspilot_selected_concept', JSON.stringify(selectedConcept))
-      else sessionStorage.removeItem('aktionspilot_selected_concept')
+      if (pitchData && selectedConcept) {
+        sessionStorage.setItem('aktionspilot_pitch_session', JSON.stringify({ pitch: pitchData, concept: selectedConcept }))
+      } else if (!pitchData) {
+        sessionStorage.removeItem('aktionspilot_pitch_session')
+      }
     } catch {}
-  }, [selectedConcept])
+  }, [pitchData, selectedConcept])
 
   const switchTool = (tab) => {
     setActiveTab(tab)
@@ -1391,12 +1390,9 @@ export default function App() {
   }
 
   const scrollToHow = () => {
-    if (view !== 'search') {
-      setView('search')
-      setTimeout(() => document.querySelector('.how-section')?.scrollIntoView({ behavior: 'smooth' }), 120)
-    } else {
-      document.querySelector('.how-section')?.scrollIntoView({ behavior: 'smooth' })
-    }
+    setView('howitworks')
+    window.history.pushState({ view: 'howitworks' }, '', '#howitworks')
+    window.scrollTo({ top: 0 })
     setToolsOpen(false)
   }
   const [pendingQuery, setPendingQuery]       = useState(null)
@@ -1450,7 +1446,6 @@ export default function App() {
   const updatePitchField = (updater) => {
     setPitchData(prev => {
       const next = updater(prev)
-      try { sessionStorage.setItem('aktionspilot_pitch', JSON.stringify(next)) } catch {}
       if (selectedConcept && isPitchSaved(selectedConcept)) updateSavedPitch(selectedConcept, next)
       return next
     })
@@ -1489,7 +1484,7 @@ export default function App() {
         setView('saved')
         window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
-        setView('search')
+        setView('dashboard')
         setCardsData(null)
         setPitchData(null)
         setSelected(null)
@@ -1548,7 +1543,8 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (e) {
       setError(e.message)
-      setView('search')
+      setView('dashboard')
+      setSearchModalOpen(true)
     } finally {
       setLoading(false)
     }
@@ -1595,7 +1591,6 @@ export default function App() {
       }
       const data = await res.json()
       const cleanData = stripCiteDeep(data)
-      try { sessionStorage.setItem('aktionspilot_pitch', JSON.stringify(cleanData)) } catch {}
       setPitchCache(prev => ({ ...prev, [key]: cleanData }))
       setPitchData(cleanData)
       setView('pitch')
@@ -1686,45 +1681,6 @@ export default function App() {
           </div>
         )}
 
-        {/* ── SEARCH ── */}
-        {view === 'search' && (
-          <>
-            <div className="search-hero">
-
-              {/* Tab Bar */}
-              <div className="tab-bar-wrap">
-                <div className="tab-bar">
-                  <button
-                    className={`tab-btn ${activeTab === 'aktions' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('aktions')}
-                  >AktionsPilot</button>
-                  <button
-                    className={`tab-btn ${activeTab === 'partner' ? 'active active-partner' : ''}`}
-                    onClick={() => setActiveTab('partner')}
-                  >PartnerPilot</button>
-                </div>
-              </div>
-
-              {activeTab === 'aktions' && <>
-                <h1>Welche Produkte gewinnen den<br />nächsten <em>Aktions-Slot?</em></h1>
-                <p>AktionsPilot findet die Produkt-Lücken im Aktionssortiment der großen Händler — mit KI-generierter Marktanalyse, Whitespace-Bewertung und strukturiertem Pitchdeck-Material.</p>
-                <SearchForm onSearch={generateCards} loading={loading} />
-              </>}
-
-              {activeTab === 'partner' && <>
-                <h1 className="partner-headline">Welches Produkt gewinnt den<br />nächsten <em className="em-petrol">Creator-Deal?</em></h1>
-                <p>PartnerPilot analysiert Creator und Promis — ihren aktuellen Moment, ihr Publikum und ihre bestehenden Kooperationen — und entwickelt Produktkonzepte, die perfekt zu ihnen passen.</p>
-                <div className="coming-soon-card">
-                  <span className="coming-soon-badge">In Entwicklung</span>
-                  <p>Geschwister-Tool von AktionsPilot, aktuell in der frühen Entwicklung.</p>
-                </div>
-              </>}
-
-            </div>
-            {error && <div className="error-box">⚠ {error}</div>}
-          </>
-        )}
-
         {/* ── LOADING CARDS ── */}
         {view === 'loading-cards' && (
           <div className="loading-wrap">
@@ -1797,14 +1753,16 @@ export default function App() {
             isSavedPitch={isPitchSaved(selectedConcept)}
             onToggleSavePitch={() => selectedConcept && toggleSavePitch(selectedConcept, pitchData)}
             onUpdateField={updatePitchField}
+            hideBack={pitchSource === 'saved' || pitchSource === 'dashboard' || (selectedConcept && isSaved(selectedConcept))}
             onBack={() => {
-              if (pitchSource === 'saved') {
-                setView('saved')
-                window.history.pushState({ view: 'saved' }, '', '#saved')
-                window.scrollTo({ top: 0, behavior: 'smooth' })
+              // Nie zur alten Such-Ansicht — nur zu Cards (falls vorhanden) oder Dashboard
+              if (pitchSource === 'cards' && cardsData) {
+                setView('cards')
+                window.history.pushState({ view: 'cards' }, '', '#results')
               } else {
-                window.history.back()
+                goDashboard()
               }
+              window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
           />
           </div>

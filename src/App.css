@@ -2260,15 +2260,17 @@ body {
   .dv2-header { flex-direction: column; align-items: flex-start; }
 }
 
-/* ── ProductCard im Dashboard-V2-Grid an neues Design angleichen ── */
-.dv2-grid .product-card {
+/* ── ProductCard neues Design — in ALLEN Grids (Dashboard, Analyse, Gespeichert) ── */
+.dv2-grid .product-card,
+.cards-grid .product-card {
   border-radius: 24px;
   border: 1px solid rgba(20,22,44,.06);
   box-shadow: 0 1px 2px rgba(22,24,44,.04), 0 20px 44px -30px rgba(22,24,44,.22);
   padding: 24px;
   transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s;
 }
-.dv2-grid .product-card:hover {
+.dv2-grid .product-card:hover,
+.cards-grid .product-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 1px 2px rgba(22,24,44,.04), 0 34px 60px -28px rgba(29,78,216,.28);
   border-color: rgba(29,78,216,.28);
@@ -2276,7 +2278,10 @@ body {
 /* Top-Border-Akzent der Tier-Cards im neuen Look entfernen (flacher) */
 .dv2-grid .product-card.card-top,
 .dv2-grid .product-card.card-growth,
-.dv2-grid .product-card.card-caution {
+.dv2-grid .product-card.card-caution,
+.cards-grid .product-card.card-top,
+.cards-grid .product-card.card-growth,
+.cards-grid .product-card.card-caution {
   border-top: 1px solid rgba(20,22,44,.06);
 }
 
@@ -2291,8 +2296,9 @@ body {
   font-size: 12px; font-weight: 600;
   background: #F1F2F7; color: #6B7185; white-space: nowrap;
 }
-/* Tier-Pill im neuen Look (abgerundet, gefüllt) */
-.dv2-grid .card-tier {
+/* Tier-Pill im neuen Look (abgerundet, gefüllt) — in allen Grids */
+.dv2-grid .card-tier,
+.cards-grid .card-tier {
   border-radius: 999px; padding: 5px 11px;
   font-size: 12px; font-weight: 700;
 }
