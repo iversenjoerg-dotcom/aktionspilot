@@ -2009,19 +2009,18 @@ body {
 .dash-content > .error-box,
 .dash-content > .impressum-view,
 .dash-content > .site-footer {
-  max-width: 1180px;
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+  margin-top: auto;
   padding-left: 48px;
   padding-right: 48px;
   box-sizing: border-box;
+  background: #2A2E3A;  /* dunkelgrau — Footer-Text wieder sichtbar */
+}
+.dash-content > .site-footer .footer-inner {
+  max-width: 1180px;
+  margin: 0 auto;
 }
 .dash-content > .search-hero { padding-top: 56px; }
-.dash-content > .site-footer { margin-top: auto; }
-
-/* Footer transparent im neuen Look */
-.dash-content > .site-footer { background: transparent; }
 
 @media (max-width: 768px) {
   .dash-content > .search-hero,
@@ -2103,8 +2102,8 @@ body {
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 }
 .dv2-header-left { display: flex; flex-direction: column; gap: 5px; }
-.dv2-greeting { margin: 0; font-size: 27px; font-weight: 800; letter-spacing: -.6px; color: #171A2B; }
-.dv2-date { font-size: 14px; font-weight: 500; color: #8A90A4; letter-spacing: .1px; }
+.dv2-greeting { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.4px; color: #171A2B; }
+.dv2-date { font-size: 13px; font-weight: 500; color: #8A90A4; letter-spacing: .1px; }
 .dv2-header-right { display: flex; align-items: center; gap: 12px; }
 .dv2-search {
   display: flex; align-items: center; gap: 10px; width: 300px;
@@ -2414,3 +2413,4 @@ body {
   padding: 6px 8px; 
   margin-left: -8px; margin-right: -8px;
 }
+.legend-title { font-size: 12px; font-weight: 600; color: var(--text-faint); margin-right: 4px; }

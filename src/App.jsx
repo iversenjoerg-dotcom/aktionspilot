@@ -585,6 +585,18 @@ function ImpressumView({ onBack }) {
 /* ═══════════════════════════════════════════════════════════
    SCORE BAR
    ═══════════════════════════════════════════════════════════ */
+// Wertabhängige Farblogik für Score-Balken
+function scoreColor(value) {
+  if (value >= 95) return '#1D4ED8'  // Dunkelblau
+  if (value >= 90) return '#14B8A6'  // Petrol
+  if (value >= 80) return '#22C55E'  // Grün
+  if (value >= 70) return '#84CC16'  // Gelbgrün
+  if (value >= 60) return '#EAB308'  // Gelb
+  if (value >= 50) return '#F59E0B'  // Gelborange
+  if (value >= 40) return '#F97316'  // Orange
+  return '#EF4444'                    // Rot (0–39)
+}
+
 function ScoreBar({ label, value, colorClass, delay = 0 }) {
   const [width, setWidth] = useState(0)
   useEffect(() => {
@@ -595,7 +607,7 @@ function ScoreBar({ label, value, colorClass, delay = 0 }) {
     <div className="score-row">
       <span className="score-label">{label}</span>
       <div className="score-track">
-        <div className={`score-fill ${colorClass}`} style={{ width: `${width}%` }} />
+        <div className="score-fill" style={{ width: `${width}%`, background: scoreColor(value) }} />
       </div>
       <span className="score-value">{value}</span>
     </div>
@@ -703,8 +715,6 @@ function SourceBadge({ label, url }) {
 function Sidebar({ activeTab, onSwitchTool, onUserClick, onDashboard, onSaved, onHowItWorks, savedCount, currentView }) {
   return (
     <aside className="dash-sidebar-v2">
-      <div className="dsb-logo">A</div>
-
       <button className={`dsb-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={onDashboard} title="Dashboard">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>
       </button>
@@ -764,7 +774,6 @@ function Modal({ open, onClose, children }) {
    DASHBOARD VIEW
    ═══════════════════════════════════════════════════════════ */
 function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches, dashMode, onSetMode }) {
-  const today = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
   const topPicks = savedConcepts.filter(c => c.tier === 'top').length
   const pitchCount = Object.keys(savedPitches).length
 
@@ -774,7 +783,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">{today}</span>
+          <span className="dv2-date">Version v69</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -1950,10 +1959,11 @@ export default function App() {
             </div>
             {error && <div className="error-box">⚠ {error}</div>}
             <div className="legend">
-              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-1)' }} /><span>Trend 2025/26</span></div>
-              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-2)' }} /><span>Discounter-Whitespace</span></div>
-              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-3)' }} /><span>Sell-through (Aldi-Kunde)</span></div>
-              <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--score-4)' }} /><span>Pitch-Reife / Umsetzbarkeit</span></div>
+              <span className="legend-title">Score-Farbe:</span>
+              <div className="legend-item"><div className="legend-dot" style={{ background: '#22C55E' }} /><span>80–100 stark</span></div>
+              <div className="legend-item"><div className="legend-dot" style={{ background: '#EAB308' }} /><span>60–79 mittel</span></div>
+              <div className="legend-item"><div className="legend-dot" style={{ background: '#F97316' }} /><span>40–59 schwach</span></div>
+              <div className="legend-item"><div className="legend-dot" style={{ background: '#EF4444' }} /><span>0–39 kritisch</span></div>
             </div>
             <div className="cards-grid">
               {cardsData.concepts?.map((concept, i) => (
