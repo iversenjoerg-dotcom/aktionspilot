@@ -1157,7 +1157,16 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
                 {pitch.specs.map((s, i) => (
                   <tr key={i}>
                     <td>{s.label}</td>
-                    <td>{s.value}{s.badge && <span className="spec-badge">{s.badge}</span>}</td>
+                    <td>
+                      <EditableField
+                        value={s.value}
+                        onSave={val => onUpdateField(p => {
+                          const specs = p.specs.map((item, idx) => idx === i ? { ...item, value: val } : item)
+                          return { ...p, specs }
+                        })}
+                      />
+                      {s.badge && <span className="spec-badge">{s.badge}</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -1184,7 +1193,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
               <p className="mc-sub">{pitch.pricing.ekNote}</p>
             </div>
             <div className="margin-card highlight">
-              <p className="mc-label">Aldi-Bruttohandelsspanne</p>
+              <p className="mc-label">{(pitch.retailer || pitch.pricing.retailer || 'Aldi')}-Handelsspanne</p>
               <p className="mc-value">{pitch.pricing.margin}</p>
               <p className="mc-sub">Bei VK {pitch.pricing.vk}</p>
             </div>
@@ -1232,7 +1241,18 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
             <table className="pack-table">
               <tbody>
                 {pitch.packaging.map((row, i) => (
-                  <tr key={i}><td>{row.label}</td><td>{row.value}</td></tr>
+                  <tr key={i}>
+                    <td>{row.label}</td>
+                    <td>
+                      <EditableField
+                        value={row.value}
+                        onSave={val => onUpdateField(p => {
+                          const packaging = p.packaging.map((item, idx) => idx === i ? { ...item, value: val } : item)
+                          return { ...p, packaging }
+                        })}
+                      />
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -1242,11 +1262,32 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
 
       {pitch.sellthrough && (
         <PitchSection num="06 — Sell-Through-Story">
-          {pitch.sellthrough.intro && <p>{pitch.sellthrough.intro}</p>}
+          {pitch.sellthrough.intro !== undefined && (
+            <EditablePositioning
+              value={pitch.sellthrough.intro}
+              onSave={val => onUpdateField(p => ({ ...p, sellthrough: { ...p.sellthrough, intro: val } }))}
+            />
+          )}
           {pitch.sellthrough.highlights?.map((h, i) => (
             <div key={i} className={`arg-block ${i % 2 === 1 ? 'forest' : ''}`}>
-              <p className="arg-title">{h.title}</p>
-              <p className="arg-body">{h.body}</p>
+              <p className="arg-title">
+                <EditableField
+                  value={h.title}
+                  onSave={val => onUpdateField(p => {
+                    const highlights = p.sellthrough.highlights.map((item, idx) => idx === i ? { ...item, title: val } : item)
+                    return { ...p, sellthrough: { ...p.sellthrough, highlights } }
+                  })}
+                />
+              </p>
+              <p className="arg-body">
+                <EditableField
+                  value={h.body}
+                  onSave={val => onUpdateField(p => {
+                    const highlights = p.sellthrough.highlights.map((item, idx) => idx === i ? { ...item, body: val } : item)
+                    return { ...p, sellthrough: { ...p.sellthrough, highlights } }
+                  })}
+                />
+              </p>
               {h.sources?.length > 0 && (
                 <div className="source-badges">
                   {h.sources.map((s, j) => <SourceBadge key={j} label={s.label} url={s.url} />)}
@@ -1261,8 +1302,24 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
         <PitchSection num="07 — Einkäufer-Argumentation">
           {pitch.arguments.map((arg, i) => (
             <div key={i} className="arg-block">
-              <p className="arg-title">{arg.title}</p>
-              <p className="arg-body">{arg.body}</p>
+              <p className="arg-title">
+                <EditableField
+                  value={arg.title}
+                  onSave={val => onUpdateField(p => {
+                    const args = p.arguments.map((item, idx) => idx === i ? { ...item, title: val } : item)
+                    return { ...p, arguments: args }
+                  })}
+                />
+              </p>
+              <p className="arg-body">
+                <EditableField
+                  value={arg.body}
+                  onSave={val => onUpdateField(p => {
+                    const args = p.arguments.map((item, idx) => idx === i ? { ...item, body: val } : item)
+                    return { ...p, arguments: args }
+                  })}
+                />
+              </p>
               {arg.sources?.length > 0 && (
                 <div className="source-badges">
                   {arg.sources.map((s, j) => <SourceBadge key={j} label={s.label} url={s.url} />)}
@@ -1280,7 +1337,26 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
                 <table className="qa-table">
                   <tbody>
                     {pitch.buyerQA.map((qa, i) => (
-                      <tr key={i}><td>„{qa.q}"</td><td>{qa.a}</td></tr>
+                      <tr key={i}>
+                        <td>„
+                          <EditableField
+                            value={qa.q}
+                            onSave={val => onUpdateField(p => {
+                              const buyerQA = p.buyerQA.map((item, idx) => idx === i ? { ...item, q: val } : item)
+                              return { ...p, buyerQA }
+                            })}
+                          />"
+                        </td>
+                        <td>
+                          <EditableField
+                            value={qa.a}
+                            onSave={val => onUpdateField(p => {
+                              const buyerQA = p.buyerQA.map((item, idx) => idx === i ? { ...item, a: val } : item)
+                              return { ...p, buyerQA }
+                            })}
+                          />
+                        </td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
@@ -1295,13 +1371,45 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
           <table className="risk-table">
             <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
             <tbody>
-              {pitch.risks.map((r, i) => (
-                <tr key={i}>
-                  <td>{r.risk}</td>
-                  <td><span className={`pill pill-${r.level}`}>{{ high: 'Hoch', medium: 'Mittel', low: 'Niedrig' }[r.level] || r.level}</span></td>
-                  <td>{r.mitigation}</td>
-                </tr>
-              ))}
+              {pitch.risks.map((r, i) => {
+                const cycle = { low: 'medium', medium: 'high', high: 'low' }
+                const levelLabel = { high: 'Hoch', medium: 'Mittel', low: 'Niedrig' }
+                return (
+                  <tr key={i}>
+                    <td>
+                      <EditableField
+                        value={r.risk}
+                        onSave={val => onUpdateField(p => {
+                          const risks = p.risks.map((item, idx) => idx === i ? { ...item, risk: val } : item)
+                          return { ...p, risks }
+                        })}
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`pill pill-${r.level} pill-clickable`}
+                        title="Klicken zum Ändern (Niedrig / Mittel / Hoch)"
+                        onClick={() => onUpdateField(p => {
+                          const risks = p.risks.map((item, idx) => idx === i ? { ...item, level: cycle[item.level] || 'medium' } : item)
+                          return { ...p, risks }
+                        })}
+                      >
+                        {levelLabel[r.level] || r.level}
+                      </button>
+                    </td>
+                    <td>
+                      <EditableField
+                        value={r.mitigation}
+                        onSave={val => onUpdateField(p => {
+                          const risks = p.risks.map((item, idx) => idx === i ? { ...item, mitigation: val } : item)
+                          return { ...p, risks }
+                        })}
+                      />
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </PitchSection>
@@ -1312,9 +1420,33 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
           <div className="timeline">
             {pitch.timeline.map((tl, i) => (
               <div key={i} className={`tl-item ${tl.active ? 'tl-active' : ''}`}>
-                <p className="tl-date">{tl.date}</p>
-                <p className="tl-title">{tl.title}</p>
-                <p className="tl-body">{tl.body}</p>
+                <p className="tl-date">
+                  <EditableField
+                    value={tl.date}
+                    onSave={val => onUpdateField(p => {
+                      const timeline = p.timeline.map((item, idx) => idx === i ? { ...item, date: val } : item)
+                      return { ...p, timeline }
+                    })}
+                  />
+                </p>
+                <p className="tl-title">
+                  <EditableField
+                    value={tl.title}
+                    onSave={val => onUpdateField(p => {
+                      const timeline = p.timeline.map((item, idx) => idx === i ? { ...item, title: val } : item)
+                      return { ...p, timeline }
+                    })}
+                  />
+                </p>
+                <p className="tl-body">
+                  <EditableField
+                    value={tl.body}
+                    onSave={val => onUpdateField(p => {
+                      const timeline = p.timeline.map((item, idx) => idx === i ? { ...item, body: val } : item)
+                      return { ...p, timeline }
+                    })}
+                  />
+                </p>
               </div>
             ))}
           </div>

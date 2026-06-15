@@ -2302,3 +2302,22 @@ body {
   border-radius: 999px; padding: 5px 11px;
   font-size: 12px; font-weight: 700;
 }
+
+/* ── v66: klickbare Risiko-Pill (Level-Cycle) ── */
+.pill-clickable {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  transition: filter .15s, transform .1s;
+  position: relative;
+}
+.pill-clickable:hover { filter: brightness(.94); }
+.pill-clickable:active { transform: scale(.95); }
+.pill-clickable::after {
+  content: '⇅';
+  margin-left: 5px;
+  font-size: 9px;
+  opacity: .55;
+}
