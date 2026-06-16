@@ -618,15 +618,13 @@ function ScoreBar({ label, value, colorClass, delay = 0 }) {
    PRODUCT CARD
    ═══════════════════════════════════════════════════════════ */
 function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved, onUpdateConcept }) {
-  const tierClass = { top: 'card-top', growth: 'card-growth', caution: 'card-caution' }[concept.tier] || 'card-growth'
-  const tierLabelClass = { top: 'tier-top', growth: 'tier-growth', caution: 'tier-caution' }[concept.tier] || 'tier-growth'
   const upd = onUpdateConcept // shorthand — only truthy for saved cards
   return (
-    <div className={`product-card ${tierClass}`}>
+    <div className="product-card">
       <div className="card-header-row">
         <div className="card-pills">
-          {concept.tierLabel && <span className={`card-tier ${tierLabelClass}`}>{concept.tierLabel}</span>}
           {concept.retailer && <span className="card-retailer-pill">{concept.retailer}</span>}
+          {concept.id && <span className="card-id" title="Konzept-ID">#{concept.id}</span>}
         </div>
         {onToggleSave && (
           <button
@@ -774,7 +772,6 @@ function Modal({ open, onClose, children }) {
    DASHBOARD VIEW
    ═══════════════════════════════════════════════════════════ */
 function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches, dashMode, onSetMode }) {
-  const topPicks = savedConcepts.filter(c => c.tier === 'top').length
   const pitchCount = Object.keys(savedPitches).length
 
   return (
@@ -783,7 +780,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">Version v69</span>
+          <span className="dv2-date">Version v70</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -821,18 +818,12 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       </section>
 
       {/* Stats */}
-      <div className="dv2-stats">
+      <div className="dv2-stats dv2-stats-2">
         <div className="dv2-stat">
           <div className="dv2-stat-icon dv2-stat-blue">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
           </div>
           <div className="dv2-stat-text"><span className="dv2-stat-num">{savedConcepts.length}</span><span className="dv2-stat-label">Produktideen gespeichert</span></div>
-        </div>
-        <div className="dv2-stat">
-          <div className="dv2-stat-icon dv2-stat-sky">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.2 6.9 18.7l1-5.7-4.1-4 5.7-.8z"/></svg>
-          </div>
-          <div className="dv2-stat-text"><span className="dv2-stat-num">{topPicks}</span><span className="dv2-stat-label">Top-Picks markiert</span></div>
         </div>
         <div className="dv2-stat">
           <div className="dv2-stat-icon dv2-stat-green">
@@ -1788,11 +1779,12 @@ export default function App() {
         throw new Error(err.error || `API error ${res.status}`)
       }
       const data = await res.json()
-      // Eindeutige IDs vergeben — AI liefert immer "1","2","3", was zu falschen Bookmark-Matches führt
+      // Eindeutige, kompakte IDs vergeben — AI liefert immer "1","2","3", was zu falschen Bookmark-Matches führt
+      // Format: kurzer Base36-Zeitstempel + Index (z.B. "kx7p2-3"), gut lesbar neben dem Händler-Label
       // Händler (retailer) an jedes concept anhängen, damit gespeicherte Cards ihn kennen
-      const ts = Date.now()
+      const ts = Date.now().toString(36).slice(-5)
       if (data.concepts) {
-        data.concepts = data.concepts.map((c, i) => ({ ...c, id: `${ts}-${i}`, retailer: c.retailer || data.retailer }))
+        data.concepts = data.concepts.map((c, i) => ({ ...c, id: `${ts}-${i + 1}`, retailer: c.retailer || data.retailer }))
       }
       setCardsData(data)
       setView('cards')
