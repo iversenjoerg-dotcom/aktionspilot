@@ -18,8 +18,6 @@ JSON-Schema (halte dich exakt daran):
       "name": "Produktkonzept-Name (kurz, prägnant)",
       "tagline": "Ein-Zeilen-Beschreibung des Konzepts (max. 70 Zeichen)",
       "category": "Kategorie, z.B. DIY / Elektronik / Wellness",
-      "tier": "top",
-      "tierLabel": "⭐ Top-Pick",
       "scores": {
         "trend": 88,
         "whitespace": 92,
@@ -40,9 +38,8 @@ JSON-Schema (halte dich exakt daran):
   ]
 }
 
-Regeln für tier: "top" → "⭐ Top-Pick" | "growth" → "📈 Wachstum" | "caution" → "⚠ Hürden prüfen"
 Scores: Ganzzahlen 0–100, realistisch differenziert.
-Generiere 5–7 Konzepte (beste zuerst) + 3–5 Ausschlüsse.`
+Generiere genau 6 Konzepte (beste zuerst) + 3–5 Ausschlüsse.`
 
 const SEARCH_QUICK = `
 Führe 4 gezielte Websuchen durch bevor du antwortest:
