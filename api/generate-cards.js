@@ -113,7 +113,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const response = await callWithRetry({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       system: systemPrompt,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
