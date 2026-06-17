@@ -172,7 +172,7 @@ function SearchForm({ onSearch, loading }) {
   const search = () => {
     if (!canSearch || loading) return
     if (mode === 'custom' || mode === 'initial') {
-      onSearch(freeText.trim(), deepAnalysis)
+      onSearch(freeText.trim(), deepAnalysis, freeText.trim())
       return
     }
     let q = `Welche Produkte eignen sich für einen Aktions-Slot bei ${retailer}, Kategorie: ${category}`
@@ -180,7 +180,8 @@ function SearchForm({ onSearch, loading }) {
     const priceStr = price !== 'skip' ? buildPriceStr() : ''
     if (priceStr) q += `, Ziel-VK Preisrahmen: ${priceStr}`
     q += '. Analysiere Markttrends, Discounter-Whitespace und Sell-through-Potenzial. Liefere konkrete Produktkonzepte mit Scores.'
-    onSearch(q, deepAnalysis)
+    // Im geführten Weg ist die rohe Kategorie der Demo-Auslöser (z.B. "Kinder-Elektronik")
+    onSearch(q, deepAnalysis, category)
   }
 
   const onKey = (e) => { if (e.key === 'Enter') search() }
@@ -780,7 +781,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">Version v71</span>
+          <span className="dv2-date">Version v73</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -1186,139 +1187,136 @@ function PriceArchitecture({ pricing, retailer, onUpdateField }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DEMO ADMIN — Verwaltung der Demo-Sets (über /demo-admin)
+   DEMO ADMIN — Demo-Set per Checkbox aus gespeicherten Cards (über /demo-admin)
    ═══════════════════════════════════════════════════════════ */
-function DemoAdmin() {
-  const [sets, setSets] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('aktionspilot_demo_sets') || '{}') }
-    catch { return {} }
-  })
-  const [activeKey, setActiveKey] = useState(null)
-  const [keyDraft, setKeyDraft] = useState('')
-  const [jsonDraft, setJsonDraft] = useState('')
-  const [msg, setMsg] = useState('')
-  const fileRef = useRef(null)
+const DEMO_SET_KEY = 'Kinder-Elektronik'  // fester Auslöser für das eine Demo-Set
 
-  const persist = (next) => {
-    setSets(next)
-    try { localStorage.setItem('aktionspilot_demo_sets', JSON.stringify(next)) } catch {}
+function DemoAdmin() {
+  // Gespeicherte Cards aus dem Dashboard laden (Verweis-Quelle)
+  const savedCards = (() => {
+    try { return JSON.parse(localStorage.getItem('ap_saved') || '[]') }
+    catch { return [] }
+  })()
+
+  // Bestehendes Demo-Set laden (neue Struktur: { trigger, retailer, season, searchContext, conceptIds: [] })
+  const loadSet = () => {
+    try {
+      const sets = JSON.parse(localStorage.getItem('aktionspilot_demo_sets') || '{}')
+      const existing = sets[DEMO_SET_KEY]
+      if (existing) {
+        // Migration: falls altes Set noch eingebettete concepts hatte, deren IDs übernehmen
+        const conceptIds = existing.conceptIds || (existing.concepts || []).map(c => c.id).filter(Boolean)
+        return {
+          trigger: existing.trigger || DEMO_SET_KEY,
+          retailer: existing.retailer || 'Aldi Süd',
+          season: existing.season || 'Weihnachten 2026/2027',
+          searchContext: existing.searchContext || 'Kinder-Elektronik',
+          conceptIds,
+        }
+      }
+    } catch {}
+    return { trigger: DEMO_SET_KEY, retailer: 'Aldi Süd', season: 'Weihnachten 2026/2027', searchContext: 'Kinder-Elektronik', conceptIds: [] }
   }
+
+  const [setData, setSetData] = useState(loadSet)
+  const [msg, setMsg] = useState('')
   const flash = (m) => { setMsg(m); setTimeout(() => setMsg(''), 2500) }
 
-  const selectSet = (key) => {
-    setActiveKey(key)
-    setKeyDraft(key)
-    setJsonDraft(JSON.stringify(sets[key], null, 2))
+  const selectedIds = setData.conceptIds
+  const toggleCard = (id) => {
+    setSetData(prev => {
+      const has = prev.conceptIds.includes(id)
+      return { ...prev, conceptIds: has ? prev.conceptIds.filter(x => x !== id) : [...prev.conceptIds, id] }
+    })
   }
-  const newSet = () => {
-    setActiveKey('__new__')
-    setKeyDraft('Kinder-Elektronik')
-    setJsonDraft(JSON.stringify({
-      retailer: 'Aldi Süd',
-      season: 'Weihnachten 2026',
-      searchContext: 'Kinder-Elektronik',
-      concepts: [
-        { id: 'demo-1', name: 'Produktname', tagline: 'Kurzbeschreibung', category: 'Elektronik', retailer: 'Aldi Süd', scores: { trend: 88, whitespace: 82, sellthrough: 85, feasibility: 80 }, priceRange: '24,99 €', ekHint: 'EK ca. 7–9 € (China-OEM)', why: 'Begründung …', caveat: 'Vorbehalt …' }
-      ],
-      excluded: []
-    }, null, 2))
-  }
+
   const save = () => {
-    const k = keyDraft.trim()
-    if (!k) { flash('Eingabe-Schlüssel fehlt'); return }
-    let parsed
-    try { parsed = JSON.parse(jsonDraft) }
-    catch (e) { flash('JSON-Fehler: ' + e.message); return }
-    const next = { ...sets }
-    if (activeKey && activeKey !== '__new__' && activeKey !== k) delete next[activeKey]
-    next[k] = parsed
-    persist(next)
-    setActiveKey(k)
-    flash('Gespeichert ✓')
-  }
-  const remove = (key) => {
-    if (!window.confirm(`Set „${key}" wirklich löschen?`)) return
-    const next = { ...sets }; delete next[key]; persist(next)
-    if (activeKey === key) { setActiveKey(null); setKeyDraft(''); setJsonDraft('') }
-    flash('Gelöscht')
-  }
-  const exportJson = () => {
-    const blob = new Blob([JSON.stringify(sets, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = 'aktionspilot-demo-sets.json'; a.click()
-    URL.revokeObjectURL(url)
-  }
-  const importJson = (e) => {
-    const file = e.target.files?.[0]; if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(reader.result)
-        persist({ ...sets, ...parsed })
-        flash('Import erfolgreich ✓')
-      } catch (err) { flash('Import-Fehler: ' + err.message) }
-    }
-    reader.readAsText(file)
-    e.target.value = ''
+    const trigger = setData.trigger.trim()
+    if (!trigger) { flash('Auslöser fehlt'); return }
+    try {
+      const sets = JSON.parse(localStorage.getItem('aktionspilot_demo_sets') || '{}')
+      // Altes Set unter anderem Schlüssel entfernen, neues unter Auslöser-Schlüssel speichern
+      const next = {}
+      // andere Sets (falls vorhanden) behalten, aber unseren Auslöser-Key frisch setzen
+      Object.keys(sets).forEach(k => { if (k !== DEMO_SET_KEY && k !== trigger) next[k] = sets[k] })
+      next[trigger] = {
+        trigger,
+        retailer: setData.retailer,
+        season: setData.season,
+        searchContext: setData.searchContext,
+        conceptIds: setData.conceptIds,
+      }
+      localStorage.setItem('aktionspilot_demo_sets', JSON.stringify(next))
+      flash(`Gespeichert ✓  (${setData.conceptIds.length} Cards, Auslöser „${trigger}")`)
+    } catch (e) { flash('Speicher-Fehler: ' + e.message) }
   }
 
   return (
     <div className="demo-admin">
       <div className="da-head">
         <div>
-          <h1 className="da-title">Demo-Sets verwalten</h1>
-          <p className="da-sub">Vorbereitete Ergebnis-Sets für den Demo-Modus. Auslöser = exakte Eingabe im Analyse-Modal (z.B. „Kinder-Elektronik"). Aktiv nur mit <code>?de=1</code> in der URL.</p>
+          <h1 className="da-title">Demo-Modus konfigurieren</h1>
+          <p className="da-sub">Wähle aus deinen gespeicherten Cards die aus, die im Demo-Modus erscheinen sollen. Die Auswahl ist ein Verweis — änderst du eine Card im Dashboard, ändert sie sich auch hier. Aktiv nur mit <code>?de=1</code> in der URL.</p>
         </div>
         <a className="da-back" href="/">← Zur App</a>
       </div>
 
       {msg && <div className="da-msg">{msg}</div>}
 
-      <div className="da-toolbar">
-        <button className="da-btn da-btn-primary" onClick={newSet}>+ Neues Set</button>
-        <button className="da-btn" onClick={exportJson}>↓ Export (JSON)</button>
-        <button className="da-btn" onClick={() => fileRef.current?.click()}>↑ Import (JSON)</button>
-        <input ref={fileRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={importJson} />
+      {/* Kopf-Einstellungen */}
+      <div className="da-config">
+        <div className="da-config-field">
+          <label className="da-field-label">Auslöser (Eingabe / Kategorie)</label>
+          <input className="da-key-input" value={setData.trigger} onChange={e => setSetData(p => ({ ...p, trigger: e.target.value }))} placeholder="z.B. Kinder-Elektronik" />
+        </div>
+        <div className="da-config-field">
+          <label className="da-field-label">Händler (Kopfzeile)</label>
+          <input className="da-key-input" value={setData.retailer} onChange={e => setSetData(p => ({ ...p, retailer: e.target.value }))} placeholder="z.B. Aldi Süd" />
+        </div>
+        <div className="da-config-field">
+          <label className="da-field-label">Saison / Anlass (Kopfzeile)</label>
+          <input className="da-key-input" value={setData.season} onChange={e => setSetData(p => ({ ...p, season: e.target.value }))} placeholder="z.B. Weihnachten 2026/2027" />
+        </div>
+        <div className="da-config-field">
+          <label className="da-field-label">Kontext-Titel (Ergebnis-Überschrift)</label>
+          <input className="da-key-input" value={setData.searchContext} onChange={e => setSetData(p => ({ ...p, searchContext: e.target.value }))} placeholder="z.B. Kinder-Elektronik Weihnachten, VK 15–25 €" />
+        </div>
       </div>
 
-      <div className="da-layout">
-        <div className="da-list">
-          <p className="da-list-title">Sets ({Object.keys(sets).length})</p>
-          {Object.keys(sets).length === 0 && <p className="da-empty">Noch keine Sets angelegt.</p>}
-          {Object.keys(sets).map(key => (
-            <div key={key} className={`da-list-item ${activeKey === key ? 'active' : ''}`}>
-              <button className="da-list-name" onClick={() => selectSet(key)}>
-                <span className="da-list-key">{key}</span>
-                <span className="da-list-count">{sets[key].concepts?.length || 0} Cards</span>
+      {/* Card-Auswahl */}
+      <div className="da-cards-head">
+        <p className="da-list-title">Gespeicherte Cards ({savedCards.length}) · {selectedIds.length} ausgewählt</p>
+        <button className="da-btn da-btn-primary" onClick={save}>Demo-Set speichern</button>
+      </div>
+
+      {savedCards.length === 0 ? (
+        <p className="da-empty">Noch keine Cards gespeichert. Speichere im Dashboard zuerst einige Produktideen.</p>
+      ) : (
+        <div className="da-card-grid">
+          {savedCards.map((card) => {
+            const checked = selectedIds.includes(card.id)
+            return (
+              <button key={card.id} className={`da-card ${checked ? 'sel' : ''}`} onClick={() => toggleCard(card.id)}>
+                <div className={`da-card-check ${checked ? 'on' : ''}`}>
+                  {checked && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                </div>
+                <div className="da-card-body">
+                  <div className="da-card-top">
+                    {card.retailer && <span className="da-card-retailer">{card.retailer}</span>}
+                    {card.id && <span className="da-card-id">#{card.id}</span>}
+                  </div>
+                  <p className="da-card-name">{card.name}</p>
+                  {card.tagline && <p className="da-card-tagline">{card.tagline}</p>}
+                </div>
               </button>
-              <button className="da-list-del" onClick={() => remove(key)} title="Löschen">✕</button>
-            </div>
-          ))}
+            )
+          })}
         </div>
+      )}
 
-        <div className="da-editor">
-          {activeKey === null ? (
-            <div className="da-editor-empty">
-              <p>Wähle links ein Set oder lege ein neues an.</p>
-              <p className="da-hint">Tipp: Der Eingabe-Schlüssel muss exakt der Eingabe entsprechen, die im Termin getippt wird. Groß-/Kleinschreibung egal.</p>
-            </div>
-          ) : (
-            <>
-              <label className="da-field-label">Eingabe-Schlüssel (Auslöser)</label>
-              <input className="da-key-input" value={keyDraft} onChange={e => setKeyDraft(e.target.value)} placeholder="z.B. Kinder-Elektronik" />
-
-              <label className="da-field-label">Set-Daten (JSON)</label>
-              <textarea className="da-json" value={jsonDraft} onChange={e => setJsonDraft(e.target.value)} spellCheck={false} />
-
-              <div className="da-editor-actions">
-                <button className="da-btn da-btn-primary" onClick={save}>Speichern</button>
-                {activeKey !== '__new__' && <button className="da-btn da-btn-danger" onClick={() => remove(activeKey)}>Löschen</button>}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      <p className="da-hint" style={{ marginTop: 20 }}>
+        Reihenfolge im Demo = Reihenfolge der Auswahl. Markierte Cards, die du später im Dashboard löschst, werden im Demo automatisch übersprungen.
+      </p>
     </div>
   )
 }
@@ -1926,8 +1924,8 @@ export default function App() {
   }, [])
 
   /* ── Generate (Auth-Gate erfolgt global beim Seitenladen) ── */
-  const generateCards = (query, deepAnalysis = false) => {
-    runGenerateCards(query, deepAnalysis)
+  const generateCards = (query, deepAnalysis = false, matchHint = null) => {
+    runGenerateCards(query, deepAnalysis, matchHint)
   }
 
   const handleAccessGranted = () => {
@@ -1949,16 +1947,21 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('aktionspilot_demo_sets') || '{}') }
     catch { return {} }
   }
-  const matchDemoSet = (query) => {
+  const matchDemoSet = (...candidates) => {
     const sets = loadDemoSets()
-    const norm = (query || '').trim().toLowerCase()
-    // Schlüssel-Match: exakter (normalisierter) Treffer auf einen Set-Namen
-    const key = Object.keys(sets).find(k => k.trim().toLowerCase() === norm)
-    return key ? sets[key] : null
+    const keys = Object.keys(sets)
+    for (const cand of candidates) {
+      const norm = (cand || '').trim().toLowerCase()
+      if (!norm) continue
+      // Schlüssel-Match: exakter (normalisierter) Treffer auf einen Set-Namen
+      const key = keys.find(k => k.trim().toLowerCase() === norm)
+      if (key) return sets[key]
+    }
+    return null
   }
 
   /* ── Generate Cards ──────────────────────────────────── */
-  const runGenerateCards = async (query, deepAnalysis = false) => {
+  const runGenerateCards = async (query, deepAnalysis = false, matchHint = null) => {
     if (!query) return
     setError(null)
     setSearchModalOpen(false)
@@ -1966,15 +1969,25 @@ export default function App() {
     setView('loading-cards')
 
     // ── DEMO-MODUS: bei aktivem Schalter (?de=1) und passender Eingabe vorbereitetes Set zeigen ──
+    // Match läuft gegen die freie Eingabe ODER die rohe Kategorie (geführter Weg)
     if (isDemoMode()) {
-      const demoSet = matchDemoSet(query)
+      const demoSet = matchDemoSet(matchHint, query)
       if (demoSet) {
         // Fake-Ladezeit ~20s, danach erscheint das vorbereitete Set
         await new Promise(r => setTimeout(r, 20000))
-        const ts = Date.now().toString(36).slice(-5)
-        const data = { ...demoSet }
-        if (data.concepts) {
-          data.concepts = data.concepts.map((c, i) => ({ ...c, id: c.id || `${ts}-${i + 1}`, retailer: c.retailer || data.retailer }))
+        // Verweis-Auflösung: conceptIds → aktuelle gespeicherte Cards (ap_saved)
+        // Nicht mehr existierende IDs werden übersprungen. Reihenfolge = Auswahl-Reihenfolge.
+        const ids = demoSet.conceptIds || (demoSet.concepts || []).map(c => c.id)
+        const concepts = (ids || [])
+          .map(id => savedConcepts.find(c => c.id === id))
+          .filter(Boolean)
+          .map(c => ({ ...c, retailer: c.retailer || demoSet.retailer }))
+        const data = {
+          retailer: demoSet.retailer,
+          season: demoSet.season,
+          searchContext: demoSet.searchContext,
+          concepts,
+          excluded: [],
         }
         setCardsData(data)
         setView('cards')

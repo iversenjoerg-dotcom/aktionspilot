@@ -2535,3 +2535,32 @@ body {
 @media (max-width: 768px) {
   .da-layout { grid-template-columns: 1fr; }
 }
+
+/* ── v73: Demo-Admin Card-Auswahl ── */
+.da-config { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+.da-config-field { display: flex; flex-direction: column; }
+.da-cards-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.da-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.da-card {
+  display: flex; align-items: flex-start; gap: 12px; text-align: left;
+  padding: 14px 16px; border: 1.5px solid #E2E5EF; border-radius: 12px;
+  background: #fff; cursor: pointer; transition: all .18s; font-family: inherit;
+}
+.da-card:hover { border-color: #B7C2DD; background: #FAFBFD; }
+.da-card.sel { border-color: #1D4ED8; background: #F0F5FF; box-shadow: 0 0 0 1px #1D4ED8 inset; }
+.da-card-check {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; margin-top: 1px;
+  border: 1.5px solid #C7CDDC; background: #fff; color: #fff;
+  display: flex; align-items: center; justify-content: center; transition: all .18s;
+}
+.da-card-check.on { background: #1D4ED8; border-color: #1D4ED8; }
+.da-card-body { flex: 1; min-width: 0; }
+.da-card-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap; }
+.da-card-retailer { font-size: 11px; font-weight: 600; color: #1D4ED8; background: #E8F1FE; padding: 2px 8px; border-radius: 6px; }
+.da-card-id { font-size: 10.5px; font-weight: 600; color: #9AA0B4; font-family: ui-monospace, Menlo, monospace; }
+.da-card-name { font-size: 14.5px; font-weight: 700; color: #1B1E2E; margin: 0 0 3px; }
+.da-card-tagline { font-size: 12.5px; color: #7A8094; margin: 0; line-height: 1.4; }
+
+@media (max-width: 768px) {
+  .da-config { grid-template-columns: 1fr; }
+}
