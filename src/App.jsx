@@ -633,7 +633,7 @@ function ProductCard({ concept, onSelect, onToggleSave, saved, index, pitchSaved
             onClick={e => { e.stopPropagation(); onToggleSave(concept) }}
             title={saved ? 'Gespeichert – klicken zum Entfernen' : 'Speichern'}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
             </svg>
           </button>
@@ -781,7 +781,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">Version v73</span>
+          <span className="dv2-date">Version v74</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -1294,11 +1294,12 @@ function DemoAdmin() {
       ) : (
         <div className="da-card-grid">
           {savedCards.map((card) => {
-            const checked = selectedIds.includes(card.id)
+            const position = selectedIds.indexOf(card.id)  // -1 wenn nicht gewählt
+            const checked = position !== -1
             return (
               <button key={card.id} className={`da-card ${checked ? 'sel' : ''}`} onClick={() => toggleCard(card.id)}>
                 <div className={`da-card-check ${checked ? 'on' : ''}`}>
-                  {checked && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  {checked && <span className="da-card-num">{position + 1}</span>}
                 </div>
                 <div className="da-card-body">
                   <div className="da-card-top">
@@ -1315,7 +1316,7 @@ function DemoAdmin() {
       )}
 
       <p className="da-hint" style={{ marginTop: 20 }}>
-        Reihenfolge im Demo = Reihenfolge der Auswahl. Markierte Cards, die du später im Dashboard löschst, werden im Demo automatisch übersprungen.
+        Die Nummer zeigt die Position im Demo (1 = links oben, 2 = oben mittig, 3 = rechts oben usw.). Erneuter Klick wählt ab — die folgenden Nummern rücken auf. Cards, die du später im Dashboard löschst, werden im Demo übersprungen.
       </p>
     </div>
   )
@@ -2176,13 +2177,6 @@ export default function App() {
               <button className="new-search-btn" onClick={resetToSearch}>Neue Anfrage</button>
             </div>
             {error && <div className="error-box">⚠ {error}</div>}
-            <div className="legend">
-              <span className="legend-title">Score-Farbe:</span>
-              <div className="legend-item"><div className="legend-dot" style={{ background: '#22C55E' }} /><span>80–100 stark</span></div>
-              <div className="legend-item"><div className="legend-dot" style={{ background: '#EAB308' }} /><span>60–79 mittel</span></div>
-              <div className="legend-item"><div className="legend-dot" style={{ background: '#F97316' }} /><span>40–59 schwach</span></div>
-              <div className="legend-item"><div className="legend-dot" style={{ background: '#EF4444' }} /><span>0–39 kritisch</span></div>
-            </div>
             <div className="cards-grid">
               {cardsData.concepts?.map((concept, i) => (
                 <ProductCard

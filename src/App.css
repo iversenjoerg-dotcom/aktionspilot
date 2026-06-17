@@ -1419,15 +1419,15 @@ body {
   cursor: pointer;
   padding: 4px 5px;
   border-radius: 6px;
-  color: var(--text-faint);
+  color: #C7CBD6;
   transition: color .15s, background .15s;
   flex-shrink: 0;
   line-height: 1;
 }
 
-.card-bookmark:hover { background: var(--bg-subtle); color: var(--text-muted); }
-.card-bookmark.saved { color: var(--yellow-dark); }
-.card-bookmark.saved:hover { color: var(--yellow-dark); background: var(--yellow-light); }
+.card-bookmark:hover { background: var(--bg-subtle); color: #9AA0B4; }
+.card-bookmark.saved { color: #1D4ED8; }
+.card-bookmark.saved:hover { color: #1D4ED8; background: #E8F1FE; }
 
 /* Saved empty state */
 .saved-empty {
@@ -2418,9 +2418,9 @@ body {
 /* ── v70: zwei Stat-Cards, Card-ID-Pill ── */
 .dv2-stats-2 { grid-template-columns: repeat(2, 1fr); max-width: 760px; }
 .card-id {
-  font-size: 11px; font-weight: 600; color: var(--text-faint);
+  font-size: 11px; font-weight: 500; color: #C7CBD6;
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  background: var(--bg-subtle); padding: 4px 8px; border-radius: 7px;
+  background: transparent; padding: 4px 4px; border-radius: 7px;
   letter-spacing: .02em;
 }
 
@@ -2554,6 +2554,7 @@ body {
   display: flex; align-items: center; justify-content: center; transition: all .18s;
 }
 .da-card-check.on { background: #1D4ED8; border-color: #1D4ED8; }
+.da-card-num { color: #fff; font-size: 12px; font-weight: 800; line-height: 1; }
 .da-card-body { flex: 1; min-width: 0; }
 .da-card-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap; }
 .da-card-retailer { font-size: 11px; font-weight: 600; color: #1D4ED8; background: #E8F1FE; padding: 2px 8px; border-radius: 6px; }
