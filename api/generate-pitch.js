@@ -184,20 +184,25 @@ Liefere jetzt das vollständige JSON-Pitch-Konzept.`
     }
 
     const data = await response.json()
-    // Web Search liefert mehrere Content-Blöcke — Text-Block gezielt extrahieren
-    const textBlock = data.content?.find(block => block.type === 'text')
-    const rawText = textBlock?.text || data.content?.[0]?.text || ''
+    // Web Search liefert mehrere Content-Blöcke — das JSON steht typischerweise im LETZTEN Text-Block
+    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text || '')
+    const rawText = [...textBlocks].reverse().find(t => t.includes('{') && t.includes('}')) || textBlocks.join('\n') || ''
 
     // Robust JSON extraction
     let jsonStr = rawText.trim()
     const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]+?)\s*```/)
     if (fenceMatch) jsonStr = fenceMatch[1]
+    const firstBrace = jsonStr.indexOf('{')
+    const lastBrace = jsonStr.lastIndexOf('}')
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      jsonStr = jsonStr.slice(firstBrace, lastBrace + 1)
+    }
 
     let parsed
     try {
       parsed = JSON.parse(jsonStr)
     } catch (e) {
-      console.error('JSON parse error:', e.message, '\nRaw:', rawText.slice(0, 500))
+      console.error('JSON parse error:', e.message, '\nRaw:', rawText.slice(0, 800))
       return res.status(502).json({ error: 'Failed to parse pitch response. Please try again.' })
     }
 

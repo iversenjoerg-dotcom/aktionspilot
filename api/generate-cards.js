@@ -114,7 +114,7 @@ module.exports = async function handler(req, res) {
   try {
     const response = await callWithRetry({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: 8000,
       system: systemPrompt,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{ role: 'user', content: query }],
@@ -134,23 +134,29 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json()
 
-    // Extract text from content blocks (web search adds tool_use/tool_result blocks)
-    const textBlock = data.content?.find(block => block.type === 'text')
-    const rawText = textBlock?.text || ''
+    // Extract text from content blocks (web search adds tool_use/tool_result blocks).
+    // Bei mehreren Websuchen kann das Modell mehrere Text-Blöcke liefern — das JSON steht
+    // typischerweise im LETZTEN Text-Block. Wir sammeln alle und suchen den mit JSON.
+    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text || '')
+    // Kandidaten von hinten nach vorne prüfen (JSON kommt nach den Suchen)
+    const rawText = [...textBlocks].reverse().find(t => t.includes('{') && t.includes('}')) || textBlocks.join('\n') || ''
 
     let jsonStr = rawText.trim()
     const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]+?)\s*```/)
     if (fenceMatch) jsonStr = fenceMatch[1]
 
-    // Find JSON object in text
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
-    if (jsonMatch) jsonStr = jsonMatch[0]
+    // Find JSON object in text (greedy: erste { bis letzte })
+    const firstBrace = jsonStr.indexOf('{')
+    const lastBrace = jsonStr.lastIndexOf('}')
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      jsonStr = jsonStr.slice(firstBrace, lastBrace + 1)
+    }
 
     let parsed
     try {
       parsed = JSON.parse(jsonStr)
     } catch (e) {
-      console.error('JSON parse error:', e.message, '\nRaw:', rawText.slice(0, 500))
+      console.error('JSON parse error:', e.message, '\nRaw:', rawText.slice(0, 800))
       return res.status(502).json({ error: 'Failed to parse AI response as JSON. Try rephrasing your query.' })
     }
 

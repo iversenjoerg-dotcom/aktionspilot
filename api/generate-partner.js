@@ -98,7 +98,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        max_tokens: 8000,
         system: systemPrompt,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: query }],
@@ -113,14 +113,17 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json()
 
-    const textBlock = data.content?.find(block => block.type === 'text')
-    const rawText = textBlock?.text || ''
+    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text || '')
+    const rawText = [...textBlocks].reverse().find(t => t.includes('{') && t.includes('}')) || textBlocks.join('\n') || ''
 
     let jsonStr = rawText.trim()
     const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]+?)\s*```/)
     if (fenceMatch) jsonStr = fenceMatch[1]
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
-    if (jsonMatch) jsonStr = jsonMatch[0]
+    const firstBrace = jsonStr.indexOf('{')
+    const lastBrace = jsonStr.lastIndexOf('}')
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      jsonStr = jsonStr.slice(firstBrace, lastBrace + 1)
+    }
 
     let parsed
     try {
