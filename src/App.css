@@ -2631,3 +2631,9 @@ body {
   color: #1D4ED8;
   text-align: center;
 }
+
+/* ── v77: kompakter +Button (nur Icon) ── */
+.pa-add-icon {
+  width: 40px; height: 40px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}

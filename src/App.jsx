@@ -779,7 +779,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">Version v76</span>
+          <span className="dv2-date">Version v77</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -1000,11 +1000,11 @@ function EditableSourceBadges({ sources = [], onUpdate }) {
 /* ═══════════════════════════════════════════════════════════
    PITCH SECTION — collapsible wrapper
    ═══════════════════════════════════════════════════════════ */
-function PitchSection({ num, title, defaultOpen = false, children }) {
-  const [open, setOpen] = useState(defaultOpen)
+function PitchSection({ num, title, sectionKey, openSection, onToggle, children }) {
+  const open = openSection === sectionKey
   return (
     <section className={`pitch-section collapsible ${open ? 'is-open' : ''}`}>
-      <button className="ps-toggle" onClick={() => setOpen(o => !o)} aria-expanded={open}>
+      <button className="ps-toggle" onClick={() => onToggle(sectionKey)} aria-expanded={open}>
         <span className="pitch-section-num">{num}</span>
         <svg className="ps-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9"/>
@@ -1120,20 +1120,10 @@ function PriceArchitecture({ pricing, retailer, onUpdateField }) {
             </div>
           )
         })}
-        <button className="pa-add" onClick={addComp}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Wettbewerber / Produkt hinzufügen
+        <button className="pa-add pa-add-icon" title="Wettbewerber / Produkt hinzufügen" onClick={addComp}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
       </div>
-
-      {pricing.consumerArg !== undefined && (
-        <div className="arg-block forest" style={{ marginBottom: 16 }}>
-          <p className="arg-title">Argument für den Endkäufer</p>
-          <p className="arg-body">
-            <EditableField value={pricing.consumerArg} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, consumerArg: v } }))} />
-          </p>
-        </div>
-      )}
 
       <div className="margin-grid">
         <div className="margin-card">
@@ -1144,22 +1134,17 @@ function PriceArchitecture({ pricing, retailer, onUpdateField }) {
             <p className="mc-landed">+ Fracht/Zoll/Handling → angeliefert (landed): <EditableField value={pricing.ekLanded} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, ekLanded: v } }))} /></p>
           )}
         </div>
-        <div className="margin-card highlight">
+        <div className="margin-card">
           <p className="mc-label">{retailer}-Handelsspanne</p>
           <p className="mc-value"><EditableField value={pricing.margin} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, margin: v } }))} /></p>
           <p className="mc-sub">auf Netto-VK · bei VK <EditableField value={pricing.vk} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, vk: v } }))} /></p>
         </div>
-        <div className="margin-card factor">
+        <div className="margin-card">
           <p className="mc-label">Kalkulationsfaktor</p>
           <p className="mc-value"><EditableField value={pricing.factor || '—'} onSave={v => onUpdateField(p => ({ ...p, pricing: { ...p.pricing, factor: v } }))} /></p>
           <p className="mc-sub">VK ÷ EK</p>
         </div>
       </div>
-
-      <p className="pa-caveat">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        FOB ≠ {retailer}-EK: Seefracht, Zoll (0–4,7 %), Importhandling und Intermediärmarge liegen dazwischen. Die Handelsspanne bezieht sich auf den angelieferten (landed) EK, nicht auf den FOB-Preis.
-      </p>
     </>
   )
 }
@@ -1343,6 +1328,9 @@ function LoadingCards({ demo = false }) {
    PITCH DECK VIEW
    ═══════════════════════════════════════════════════════════ */
 function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdateField, hideBack }) {
+  // Accordion: nur eine Sektion offen. Start: 01 offen.
+  const [openSection, setOpenSection] = useState('01')
+  const toggleSection = (key) => setOpenSection(cur => (cur === key ? null : key))
   if (!pitch) return null
 
   return (
@@ -1407,7 +1395,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
       </div>
 
       {pitch.positioning && (
-        <PitchSection num="01 — Marktchance" defaultOpen={true}>
+        <PitchSection num="01 — Marktchance" sectionKey="01" openSection={openSection} onToggle={toggleSection}>
           <EditablePositioning
             value={pitch.positioning}
             onSave={v => onUpdateField(p => ({ ...p, positioning: v }))}
@@ -1420,7 +1408,7 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
       )}
 
       {pitch.specs?.length > 0 && (
-        <PitchSection num="02 — Produktsteckbrief">
+        <PitchSection num="02 — Produktsteckbrief" sectionKey="02" openSection={openSection} onToggle={toggleSection}>
           <div className="card-wrap">
             <table className="spec-table">
               <tbody>
@@ -1446,13 +1434,13 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
       )}
 
       {pitch.pricing && (
-        <PitchSection num="03 — Preisarchitektur & Marge">
+        <PitchSection num="03 — Preisarchitektur" sectionKey="03" openSection={openSection} onToggle={toggleSection}>
           <PriceArchitecture pricing={pitch.pricing} retailer={pitch.retailer || pitch.pricing.retailer || 'Aldi'} onUpdateField={onUpdateField} />
         </PitchSection>
       )}
 
       {(() => { const validation = pitch.validation || []; return (
-        <PitchSection num="04 — Referenzmärkte">
+        <PitchSection num="04 — Referenzmärkte" sectionKey="04" openSection={openSection} onToggle={toggleSection}>
           <p style={{ marginBottom: 14, color: 'var(--text-muted)', fontSize: 14 }}>
             Folgende Schwester-Discounter oder internationale Märkte hatten vergleichbare Produkte im Sortiment — ein starkes Validierungssignal für den Pitch.
           </p>
@@ -1495,43 +1483,17 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
           {validation.length === 0 && (
             <p className="val-empty">Noch keine Referenzmärkte hinterlegt.</p>
           )}
-          <button className="pa-add" onClick={() => onUpdateField(p => {
+          <button className="pa-add pa-add-icon" title="Referenzmarkt hinzufügen" onClick={() => onUpdateField(p => {
             const validation = [...(p.validation || []), { market: 'Händler / Markt', detail: 'Beschreibung des Referenzprodukts' }]
             return { ...p, validation }
           })}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Referenzmarkt hinzufügen
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </PitchSection>
       )})()}
 
-      {pitch.packaging && (
-        <PitchSection num="05 — Packaging-Konzept">
-          <div className="card-wrap">
-            <table className="pack-table">
-              <tbody>
-                {pitch.packaging.map((row, i) => (
-                  <tr key={i}>
-                    <td>{row.label}</td>
-                    <td>
-                      <EditableField
-                        value={row.value}
-                        onSave={val => onUpdateField(p => {
-                          const packaging = p.packaging.map((item, idx) => idx === i ? { ...item, value: val } : item)
-                          return { ...p, packaging }
-                        })}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </PitchSection>
-      )}
-
       {pitch.sellthrough && (
-        <PitchSection num="06 — Sell-Through-Story">
+        <PitchSection num="05 — Sell-Through-Story" sectionKey="05" openSection={openSection} onToggle={toggleSection}>
           {pitch.sellthrough.intro !== undefined && (
             <EditablePositioning
               value={pitch.sellthrough.intro}
@@ -1565,13 +1527,9 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
               )}
             </div>
           ))}
-        </PitchSection>
-      )}
-
-      {pitch.arguments && (
-        <PitchSection num="07 — Einkäufer-Argumentation">
-          {pitch.arguments.map((arg, i) => (
-            <div key={i} className="arg-block">
+          {/* Einkäufer-Argumente (zuvor Section 07) hier eingegliedert */}
+          {pitch.arguments?.map((arg, i) => (
+            <div key={`arg-${i}`} className="arg-block">
               <p className="arg-title">
                 <EditableField
                   value={arg.title}
@@ -1597,47 +1555,44 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
               )}
             </div>
           ))}
-          {pitch.buyerQA?.length > 0 && (
-            <>
-              <hr className="hr" />
-              <h3 style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-faint)', margin: '20px 0 12px' }}>
-                Was der Einkäufer fragen wird
-              </h3>
-              <div className="card-wrap">
-                <table className="qa-table">
-                  <tbody>
-                    {pitch.buyerQA.map((qa, i) => (
-                      <tr key={i}>
-                        <td>„
-                          <EditableField
-                            value={qa.q}
-                            onSave={val => onUpdateField(p => {
-                              const buyerQA = p.buyerQA.map((item, idx) => idx === i ? { ...item, q: val } : item)
-                              return { ...p, buyerQA }
-                            })}
-                          />"
-                        </td>
-                        <td>
-                          <EditableField
-                            value={qa.a}
-                            onSave={val => onUpdateField(p => {
-                              const buyerQA = p.buyerQA.map((item, idx) => idx === i ? { ...item, a: val } : item)
-                              return { ...p, buyerQA }
-                            })}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
+        </PitchSection>
+      )}
+
+      {pitch.buyerQA?.length > 0 && (
+        <PitchSection num="06 — Was der Einkäufer fragen wird" sectionKey="06" openSection={openSection} onToggle={toggleSection}>
+          <div className="card-wrap">
+            <table className="qa-table">
+              <tbody>
+                {pitch.buyerQA.map((qa, i) => (
+                  <tr key={i}>
+                    <td>„
+                      <EditableField
+                        value={qa.q}
+                        onSave={val => onUpdateField(p => {
+                          const buyerQA = p.buyerQA.map((item, idx) => idx === i ? { ...item, q: val } : item)
+                          return { ...p, buyerQA }
+                        })}
+                      />"
+                    </td>
+                    <td>
+                      <EditableField
+                        value={qa.a}
+                        onSave={val => onUpdateField(p => {
+                          const buyerQA = p.buyerQA.map((item, idx) => idx === i ? { ...item, a: val } : item)
+                          return { ...p, buyerQA }
+                        })}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </PitchSection>
       )}
 
       {pitch.risks && (
-        <PitchSection num="08 — Risikoabwägung">
+        <PitchSection num="07 — Risikoabwägung" sectionKey="07" openSection={openSection} onToggle={toggleSection}>
           <table className="risk-table">
             <thead><tr><th>Risiko</th><th>Level</th><th>Mitigation</th></tr></thead>
             <tbody>
@@ -1682,44 +1637,6 @@ function PitchDeckView({ pitch, onBack, isSavedPitch, onToggleSavePitch, onUpdat
               })}
             </tbody>
           </table>
-        </PitchSection>
-      )}
-
-      {pitch.timeline && (
-        <PitchSection num="09 — Roadmap">
-          <div className="timeline">
-            {pitch.timeline.map((tl, i) => (
-              <div key={i} className={`tl-item ${tl.active ? 'tl-active' : ''}`}>
-                <p className="tl-date">
-                  <EditableField
-                    value={tl.date}
-                    onSave={val => onUpdateField(p => {
-                      const timeline = p.timeline.map((item, idx) => idx === i ? { ...item, date: val } : item)
-                      return { ...p, timeline }
-                    })}
-                  />
-                </p>
-                <p className="tl-title">
-                  <EditableField
-                    value={tl.title}
-                    onSave={val => onUpdateField(p => {
-                      const timeline = p.timeline.map((item, idx) => idx === i ? { ...item, title: val } : item)
-                      return { ...p, timeline }
-                    })}
-                  />
-                </p>
-                <p className="tl-body">
-                  <EditableField
-                    value={tl.body}
-                    onSave={val => onUpdateField(p => {
-                      const timeline = p.timeline.map((item, idx) => idx === i ? { ...item, body: val } : item)
-                      return { ...p, timeline }
-                    })}
-                  />
-                </p>
-              </div>
-            ))}
-          </div>
         </PitchSection>
       )}
     </div>
