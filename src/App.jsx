@@ -773,15 +773,13 @@ function Modal({ open, onClose, children }) {
    DASHBOARD VIEW
    ═══════════════════════════════════════════════════════════ */
 function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave, onUpdateConcept, savedPitches, dashMode, onSetMode }) {
-  const pitchCount = Object.keys(savedPitches).length
-
   return (
     <div className="dash-v2">
       {/* Header */}
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">Version v74</span>
+          <span className="dv2-date">Version v76</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -800,39 +798,19 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="dv2-hero">
-        <div className="dv2-blob dv2-blob-a" />
-        <div className="dv2-blob dv2-blob-b" />
-        <div className="dv2-toggle-wrap">
-          <div className="dv2-toggle">
-            <button className={`dv2-toggle-btn ${dashMode === 'aktion' ? 'sel' : ''}`} onClick={() => onSetMode('aktion')}>Aktionsprodukt</button>
-            <button className={`dv2-toggle-btn ${dashMode === 'partner' ? 'sel' : ''}`} onClick={() => onSetMode('partner')}>Partnerprodukt</button>
-          </div>
+      {/* Hero — heller, subtiler Look */}
+      <section className="dv2-hero-light">
+        <div className="dv2-tabs">
+          <button className={`dv2-tab ${dashMode === 'aktion' ? 'sel' : ''}`} onClick={() => onSetMode('aktion')}>Aktionsprodukt</button>
+          <button className={`dv2-tab ${dashMode === 'partner' ? 'sel' : ''}`} onClick={() => onSetMode('partner')}>Partnerprodukt</button>
         </div>
-        <button className="dv2-hero-cta" onClick={onNewAction}>
-          <div className="dv2-hero-plus">
-            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        <button className="dv2-cta-light" onClick={onNewAction}>
+          <div className="dv2-cta-plus">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
           </div>
-          <h2 className="dv2-hero-title">{dashMode === 'aktion' ? 'Neues Aktionsprodukt' : 'Neues Partnerprodukt'}</h2>
+          <h2 className="dv2-cta-title">{dashMode === 'aktion' ? 'Neues Aktionsprodukt' : 'Neues Partnerprodukt'}</h2>
         </button>
       </section>
-
-      {/* Stats */}
-      <div className="dv2-stats dv2-stats-2">
-        <div className="dv2-stat">
-          <div className="dv2-stat-icon dv2-stat-blue">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
-          </div>
-          <div className="dv2-stat-text"><span className="dv2-stat-num">{savedConcepts.length}</span><span className="dv2-stat-label">Produktideen gespeichert</span></div>
-        </div>
-        <div className="dv2-stat">
-          <div className="dv2-stat-icon dv2-stat-green">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 13h5M10 16.5h5"/></svg>
-          </div>
-          <div className="dv2-stat-text"><span className="dv2-stat-num">{pitchCount}</span><span className="dv2-stat-label">Pitch-Konzepte erstellt</span></div>
-        </div>
-      </div>
 
       {/* Section head */}
       <div className="dv2-section-head">

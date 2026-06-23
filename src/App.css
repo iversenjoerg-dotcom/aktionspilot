@@ -2565,3 +2565,69 @@ body {
 @media (max-width: 768px) {
   .da-config { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v76: Heller, subtiler Hero (Tab-Switch + helle CTA-Card)
+   ═══════════════════════════════════════════════════════════ */
+.dv2-hero-light {
+  background: #fff;
+  border: 1px solid rgba(20,22,44,.07);
+  border-radius: 20px;
+  margin-top: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(22,24,44,.03);
+  animation: riseInV2 .6s cubic-bezier(.2,.8,.2,1) both;
+}
+
+/* Tab-Switch mit blauer Unterstreichung */
+.dv2-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(20,22,44,.08);
+}
+.dv2-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #8A90A4;
+  padding: 16px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color .2s;
+}
+.dv2-tab:hover { color: #5A6072; }
+.dv2-tab.sel { color: #1D4ED8; }
+.dv2-tab.sel::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: #1D4ED8;
+}
+
+/* Helle CTA-Card */
+.dv2-cta-light {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px;
+  width: 100%;
+  padding: 56px 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.dv2-cta-plus {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #EEF3FF;
+  display: flex; align-items: center; justify-content: center;
+  color: #1D4ED8;
+  transition: background .25s, transform .25s cubic-bezier(.2,.8,.2,1);
+}
+.dv2-cta-light:hover .dv2-cta-plus { background: #DEE8FF; transform: scale(1.06); }
+.dv2-cta-title {
+  margin: 0;
+  font-size: 22px; font-weight: 700; letter-spacing: -.3px;
+  color: #1D4ED8;
+  text-align: center;
+}
