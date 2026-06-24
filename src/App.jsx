@@ -779,7 +779,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
       <header className="dv2-header">
         <div className="dv2-header-left">
           <h1 className="dv2-greeting">Willkommen zurück, Jörg</h1>
-          <span className="dv2-date">Version v77</span>
+          <span className="dv2-date">Version v78</span>
         </div>
         <div className="dv2-header-right">
           <div className="dv2-search">
@@ -839,7 +839,7 @@ function DashboardView({ savedConcepts, onNewAction, onOpenConcept, onToggleSave
         </div>
       ) : (
         <div className="dv2-grid">
-          {savedConcepts.map((concept, i) => (
+          {[...savedConcepts].reverse().map((concept, i) => (
             <ProductCard
               key={concept.id || i}
               concept={concept}
